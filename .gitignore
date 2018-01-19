@@ -1,5 +1,3 @@
-
-
 ## Java ##
 *.class
 *.jar
@@ -54,5 +52,12 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-## Vim ##
+## Text editors ## 
+# Vim 
 *.swp
+
+# Sublime
+*.sublime-workspace
+
+# VS Code
+*.vscode
