@@ -22,7 +22,7 @@ local.properties
 ## Intelij ##
 *.iml
 out/
-
+Testing/ImageDifference/.idea
 ## Linux ##
 *~
 
