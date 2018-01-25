@@ -1,0 +1,14 @@
+Points of Interest in the Specs documents 
+
+PDF32000_2008.pdf
+
+page 72 - PDF document structure 
+
+page 24 - streams usefull if we will go low level.
+
+page 81 - content streams 
+
+page 237 - Section on Text
+
+
+
