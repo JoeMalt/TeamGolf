@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#convert -blur 5x5 $1 TestData/tmp.png 
+
+convert $1  -define morphology:compose=Lighten -morphology Convolve "Blur:0x9>" -auto-level $2
+convert -adaptive-blur 5x5 $1 $2 
+
+

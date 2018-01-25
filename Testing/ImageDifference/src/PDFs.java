@@ -5,11 +5,15 @@ public class PDFs {
     public static String ORIGINAL_BLUR_1 =  "original_pdfs/originalpdfblur1.png";
     public static String ORIGINAL_BLUR_2 =  "original_pdfs/originalpdfblur2.png";
 
+    // convert -rotate 3 -compress lossless originalpdf.png original_pdf_rotated.png
+    public static String ORIGINAL_ROTATED_10_DEGREES = "original_pdfs/original_pdf_rotated.png";
+
     public static String MODIFIED_ORIGINAL_CORRECT_PERSPECTIVE =  "modified_pdfs/original_modified_correct_perspective.png";
 
     public static String SCAN_PURE =  "scanned_pdfs/scan_pure.png";
     public static String SCAN_THRESHOLDED =  "scanned_pdfs/scan_thresholded.jpg";
     public static String SCAN_THRESHOLD_TRANSLATED =  "scanned_pdfs/scan_thresholded_translated.png";
     public static String SCAN_TRANSFORMED =  "scanned_pdfs/scan_transformed.png";
+
 
 }

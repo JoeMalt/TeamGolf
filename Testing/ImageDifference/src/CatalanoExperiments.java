@@ -18,22 +18,23 @@ public class CatalanoExperiments {
     public static void main(String[] args) throws IOException {
 
 
-        String modified = "modified-pdf-catalano.png";
+        String modified = PDFs.MODIFIED_ORIGINAL_CORRECT_PERSPECTIVE;
         String modified_worse = "scannedversion.png";
 
-        String original = "original-pdf-catalano.png";
+        String original = PDFs.ORIGINAL;
 
-        BufferedImage originalBuffImage = ImageIO.read(new File(original));
-        BufferedImage modifiedBuffImage = ImageIO.read(new File(modified));
+
+        BufferedImage originalBuffImage = ImageIO.read(new File(PDFs.ORIGINAL));
+        BufferedImage modifiedBuffImage = ImageIO.read(new File(PDFs.MODIFIED_ORIGINAL_CORRECT_PERSPECTIVE));
 
 
         // threshold("scannedversion.png");
-        // cornerDetection(modified);
 
-        // edgeDetector(original);
-        // edgeDetector(modified);
+        cornerDetection(modified);
+        edgeDetector(original);
+        edgeDetector(modified);
         // FFT(original);
-        imageSubtraction(threshold(new FastBitmap(original)), threshold(new FastBitmap(modified_worse)));
+        // imageSubtraction(threshold(new FastBitmap(original)), threshold(new FastBitmap(modified_worse)));
         // imageSubtraction(threshold(new FastBitmap(modified_worse)), threshold(new FastBitmap(original)));
     }
 

@@ -253,7 +253,7 @@ public class HillClimbing {
 
 
 
-    private static void writeOutputImageToFile(BufferedImage outputBufferedImage, String path) throws IOException {
+    public static void writeOutputImageToFile(BufferedImage outputBufferedImage, String path) throws IOException {
         // Write the output image to disk
         File outputfile = new File(path);
         ImageIO.write(outputBufferedImage, "png", outputfile);
