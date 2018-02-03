@@ -1,4 +1,7 @@
-import MixedRealityPDF.Annotation;
+import MixedRealityPDF.Annotations.Annotation;
+import MixedRealityPDF.Annotations.Highligh;
+import MixedRealityPDF.Annotations.NewLine;
+import MixedRealityPDF.Annotations.UnderLine;
 import MixedRealityPDF.PDFPenAndPaper;
 
 import java.io.IOException;
@@ -15,17 +18,13 @@ public class Main {
     List<Annotation> annotationList;
     document.getAnnotations();
 
-    List<Annotation> highLightList;
+    List<Highligh> highLightList;
     document.getHighlights();
 
-    List<Annotation> underlineList;
+    List<UnderLine> underlineList;
     document.getUnderlines();
 
-    List<Annotation> newLineList;
+    List<NewLine> newLineList;
     document.getNewLineAnnotations();
-
-
-
   }
-
 }

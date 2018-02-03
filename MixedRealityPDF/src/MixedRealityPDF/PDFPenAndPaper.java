@@ -1,5 +1,9 @@
 package MixedRealityPDF;
 
+import MixedRealityPDF.Annotations.Annotation;
+import MixedRealityPDF.Annotations.Highligh;
+import MixedRealityPDF.Annotations.NewLine;
+import MixedRealityPDF.Annotations.UnderLine;
 import MixedRealityPDF.Factory.AnnotationIdentifier;
 import MixedRealityPDF.Factory.ClusterDetector;
 import MixedRealityPDF.Factory.DifferenceMap;
@@ -21,15 +25,33 @@ public class PDFPenAndPaper {
   Collection<Annotation> annotations;
 
   // TODO Initialize static variables.
-  private static DifferenceMap differenceMap;
-  private static ClusterDetector clusterDetector;
-  private static AnnotationIdentifier annotationIdentifier;
+  private static DifferenceMap defaultDifferenceMap;
+  private static ClusterDetector defaultCusterDetector;
+  private static AnnotationIdentifier defaultAnnotationIdentifier;
+
+  private DifferenceMap differenceMap = defaultDifferenceMap;
+  private ClusterDetector clusterDetector = defaultCusterDetector;
+  private AnnotationIdentifier annotationIdentifier = defaultAnnotationIdentifier;
+
+
+  // To use the default non-path variables set the too null.
+  public PDFPenAndPaper(String imageFilepath, String pdfFilepath,
+                        DifferenceMap differenceMap,
+                        ClusterDetector clusterDetector,
+                        AnnotationIdentifier annotationIdentifier) {
+
+    if(differenceMap != null)
+      this.differenceMap = differenceMap;
+    if(clusterDetector != null)
+      this.clusterDetector = clusterDetector;
+    if(annotationIdentifier != null)
+      this.annotationIdentifier = annotationIdentifier;
+  }
 
   public PDFPenAndPaper(String imageFilepath, String pdfFilepath)
-          throws IOException{
+          throws IOException {
     this.imageFilepath = imageFilepath;
     this.pdfFilePath = pdfFilepath;
-
 
     Image modifiedPDFImage = ImageIO.read(new File(imageFilepath));
     Image differenceMapImage = differenceMap.findDifference(pdfFilepath,
@@ -40,50 +62,36 @@ public class PDFPenAndPaper {
             clusterPoints);
   }
 
-  public List<Annotation> getAnnotations(){
+  public List<Annotation> getAnnotations() {
     return new ArrayList<>(annotations);
   }
 
-  public List<Annotation> getHighlights(){
-    int count = 0;
-    for(Annotation ann : annotations)
-      if(ann.getType().equals(Annotation.Type.HIGHLIGHT))
-        count++;
-
-    ArrayList<Annotation> highlights = new ArrayList<>(count);
-    for(Annotation ann : annotations)
-      if(ann.getType().equals(Annotation.Type.HIGHLIGHT))
-        highlights.add(ann);
-
-    return highlights;
+  public List<Highligh> getHighlights() {
+    return getAnnotations(Highligh.class);
   }
 
-  public List<Annotation> getUnderlines(){
-    int count = 0;
-    for(Annotation ann : annotations)
-      if(ann.getType().equals(Annotation.Type.UNDERLINE))
-        count++;
-
-    ArrayList<Annotation> underlines = new ArrayList<>(count);
-    for(Annotation ann : annotations)
-      if(ann.getType().equals(Annotation.Type.UNDERLINE))
-        underlines.add(ann);
-
-    return underlines;
+  public List<UnderLine> getUnderlines() {
+    return getAnnotations(UnderLine.class);
   }
 
-  public List<Annotation> getNewLineAnnotations(){
+  public List<NewLine> getNewLineAnnotations() {
+    return getAnnotations(NewLine.class);
+  }
+
+  public <T extends Annotation> List<T> getAnnotations(Class<T> type) {
     int count = 0;
-    for(Annotation ann : annotations)
-      if(ann.getType().equals(Annotation.Type.NEW_LINE))
+    for (Annotation ann : annotations) {
+      if (ann.getClass().equals(type))
         count++;
+    }
 
-    ArrayList<Annotation> newLines = new ArrayList<>(count);
-    for(Annotation ann : annotations)
-      if(ann.getType().equals(Annotation.Type.NEW_LINE))
-        newLines.add(ann);
+    List<T> filteredAnn = new ArrayList<>(count);
+    for (Annotation ann : annotations) {
+      if (ann.getClass().equals(type))
+        filteredAnn.add((T) ann);
+    }
 
-    return newLines;
+    return filteredAnn;
   }
 
   public String getImageFilepath() {
@@ -92,5 +100,29 @@ public class PDFPenAndPaper {
 
   public String getPdfFilePath() {
     return pdfFilePath;
+  }
+
+  public static DifferenceMap getDefaultDifferenceMap() {
+    return defaultDifferenceMap;
+  }
+
+  public static void setDefaultDifferenceMap(DifferenceMap defaultDifferenceMap) {
+    PDFPenAndPaper.defaultDifferenceMap = defaultDifferenceMap;
+  }
+
+  public static ClusterDetector getDefaultCusterDetector() {
+    return defaultCusterDetector;
+  }
+
+  public static void setDefaultCusterDetector(ClusterDetector defaultCusterDetector) {
+    PDFPenAndPaper.defaultCusterDetector = defaultCusterDetector;
+  }
+
+  public static AnnotationIdentifier getDefaultAnnotationIdentifier() {
+    return defaultAnnotationIdentifier;
+  }
+
+  public static void setDefaultAnnotationIdentifier(AnnotationIdentifier defaultAnnotationIdentifier) {
+    PDFPenAndPaper.defaultAnnotationIdentifier = defaultAnnotationIdentifier;
   }
 }
