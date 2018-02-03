@@ -1,5 +1,5 @@
 import MixedRealityPDF.Annotations.Annotation;
-import MixedRealityPDF.Annotations.Highligh;
+import MixedRealityPDF.Annotations.Highlight;
 import MixedRealityPDF.Annotations.NewLine;
 import MixedRealityPDF.Annotations.UnderLine;
 import MixedRealityPDF.PDFPenAndPaper;
@@ -18,7 +18,7 @@ public class Main {
     List<Annotation> annotationList;
     document.getAnnotations();
 
-    List<Highligh> highLightList;
+    List<Highlight> highLightList;
     document.getHighlights();
 
     List<UnderLine> underlineList;

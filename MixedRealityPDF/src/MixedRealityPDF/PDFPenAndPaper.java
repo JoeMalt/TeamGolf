@@ -1,7 +1,7 @@
 package MixedRealityPDF;
 
 import MixedRealityPDF.Annotations.Annotation;
-import MixedRealityPDF.Annotations.Highligh;
+import MixedRealityPDF.Annotations.Highlight;
 import MixedRealityPDF.Annotations.NewLine;
 import MixedRealityPDF.Annotations.UnderLine;
 import MixedRealityPDF.Factory.AnnotationIdentifier;
@@ -66,8 +66,8 @@ public class PDFPenAndPaper {
     return new ArrayList<>(annotations);
   }
 
-  public List<Highligh> getHighlights() {
-    return getAnnotations(Highligh.class);
+  public List<Highlight> getHighlights() {
+    return getAnnotations(Highlight.class);
   }
 
   public List<UnderLine> getUnderlines() {
