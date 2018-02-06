@@ -7,6 +7,7 @@ import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.IAnnotationIdentifier;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
 import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
+import MixedRealityPDF.DocumentProcessor.PDFRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -54,7 +55,8 @@ public class PDFPenAndPaper {
     this.pdfFilePath = pdfFilepath;
 
     Image modifiedPDFImage = ImageIO.read(new File(imageFilepath));
-    Image differenceMapImage = differenceMap.findDifference(pdfFilepath,
+    Image originalPDFImage = new PDFRenderer(pdfFilePath).getImage();
+    Image differenceMapImage = differenceMap.findDifference(originalPDFImage,
             modifiedPDFImage);
     Collection<Point2D.Double> clusterPoints = clusterDetector.cluster(
             differenceMapImage);
