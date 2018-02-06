@@ -1,7 +1,7 @@
-import MixedRealityPDF.Annotations.Annotation;
-import MixedRealityPDF.Annotations.Highlight;
-import MixedRealityPDF.Annotations.NewLine;
-import MixedRealityPDF.Annotations.UnderLine;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
+import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
+import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.PDFPenAndPaper;
 
 import java.io.IOException;

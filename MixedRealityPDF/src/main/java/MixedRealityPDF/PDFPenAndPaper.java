@@ -1,15 +1,15 @@
 package MixedRealityPDF;
 
-import MixedRealityPDF.Annotations.Annotation;
-import MixedRealityPDF.Annotations.Highlight;
-import MixedRealityPDF.Annotations.NewLine;
-import MixedRealityPDF.Annotations.UnderLine;
-import MixedRealityPDF.Factory.AnnotationIdentifier;
-import MixedRealityPDF.Factory.ClusterDetector;
-import MixedRealityPDF.Factory.DifferenceMap;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
+import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
+import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
+import MixedRealityPDF.AnnotationProcessor.IAnnotationIdentifier;
+import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
+import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
 
 import javax.imageio.ImageIO;
-import java.awt.Image;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
@@ -25,20 +25,20 @@ public class PDFPenAndPaper {
   Collection<Annotation> annotations;
 
   // TODO Initialize static variables.
-  private static DifferenceMap defaultDifferenceMap;
-  private static ClusterDetector defaultCusterDetector;
-  private static AnnotationIdentifier defaultAnnotationIdentifier;
+  private static IDifferenceMap defaultDifferenceMap;
+  private static IClusterDetector defaultCusterDetector;
+  private static IAnnotationIdentifier defaultAnnotationIdentifier;
 
-  private DifferenceMap differenceMap = defaultDifferenceMap;
-  private ClusterDetector clusterDetector = defaultCusterDetector;
-  private AnnotationIdentifier annotationIdentifier = defaultAnnotationIdentifier;
+  private IDifferenceMap differenceMap = defaultDifferenceMap;
+  private IClusterDetector clusterDetector = defaultCusterDetector;
+  private IAnnotationIdentifier annotationIdentifier = defaultAnnotationIdentifier;
 
 
   // To use the default non-path variables set the too null.
   public PDFPenAndPaper(String imageFilepath, String pdfFilepath,
-                        DifferenceMap differenceMap,
-                        ClusterDetector clusterDetector,
-                        AnnotationIdentifier annotationIdentifier) {
+                        IDifferenceMap differenceMap,
+                        IClusterDetector clusterDetector,
+                        IAnnotationIdentifier annotationIdentifier) {
 
     if(differenceMap != null)
       this.differenceMap = differenceMap;
@@ -102,27 +102,27 @@ public class PDFPenAndPaper {
     return pdfFilePath;
   }
 
-  public static DifferenceMap getDefaultDifferenceMap() {
+  public static IDifferenceMap getDefaultDifferenceMap() {
     return defaultDifferenceMap;
   }
 
-  public static void setDefaultDifferenceMap(DifferenceMap defaultDifferenceMap) {
+  public static void setDefaultDifferenceMap(IDifferenceMap defaultDifferenceMap) {
     PDFPenAndPaper.defaultDifferenceMap = defaultDifferenceMap;
   }
 
-  public static ClusterDetector getDefaultCusterDetector() {
+  public static IClusterDetector getDefaultCusterDetector() {
     return defaultCusterDetector;
   }
 
-  public static void setDefaultCusterDetector(ClusterDetector defaultCusterDetector) {
+  public static void setDefaultCusterDetector(IClusterDetector defaultCusterDetector) {
     PDFPenAndPaper.defaultCusterDetector = defaultCusterDetector;
   }
 
-  public static AnnotationIdentifier getDefaultAnnotationIdentifier() {
+  public static IAnnotationIdentifier getDefaultAnnotationIdentifier() {
     return defaultAnnotationIdentifier;
   }
 
-  public static void setDefaultAnnotationIdentifier(AnnotationIdentifier defaultAnnotationIdentifier) {
+  public static void setDefaultAnnotationIdentifier(IAnnotationIdentifier defaultAnnotationIdentifier) {
     PDFPenAndPaper.defaultAnnotationIdentifier = defaultAnnotationIdentifier;
   }
 }
