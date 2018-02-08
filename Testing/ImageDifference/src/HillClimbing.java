@@ -10,20 +10,14 @@ import java.util.Arrays;
 
 
 public class HillClimbing {
-
+    
     /*
-
         Assume roughly same perspective, possible translation / rotation / scaling
      */
-
-
-
-
 
     public static void main(String[] args) throws IOException {
 
         String outputpath = "output_images/";
-
 
         // Diff map betweeen ORIGINAL and MODIFIED_ORIGINAL_CORRECT_PERSPECTIVE
         BufferedImage diff1 = generateDiffMap(getBufferedImageFromFile(PDFs.ORIGINAL), getBufferedImageFromFile(PDFs.MODIFIED_ORIGINAL_CORRECT_PERSPECTIVE));
@@ -34,19 +28,13 @@ public class HillClimbing {
         BufferedImage diff2 = generateDiffMap(getBufferedImageFromFile(PDFs.ORIGINAL_BLUR_SATURATED), getBufferedImageFromFile(PDFs.MODIFIED_ORIGINAL_CORRECT_PERSPECTIVE));
         writeOutputImageToFile(diff2,outputpath + "diff_blurred_original_modified_correct_perspective.png");
 
-
-
         // Diff map between a blurred original and scan thresholded + translated
         BufferedImage diff3 = generateDiffMap(getBufferedImageFromFile(PDFs.ORIGINAL_BLUR_SATURATED), getBufferedImageFromFile(PDFs.SCAN_THRESHOLD_TRANSLATED));
         writeOutputImageToFile(diff3,outputpath + "diff_blurred_original_scanned_thresholded_not_translated.png");
 
-
         // Try to align the ORIGINAL_PDF with the pure scan
         BufferedImage aligned = getAlignedScan(getBufferedImageFromFile(PDFs.ORIGINAL), getBufferedImageFromFile(PDFs.SCAN_PURE), 10);
         writeOutputImageToFile(aligned,outputpath + "aligned.png");
-
-
-
 
     }
 
@@ -227,10 +215,10 @@ public class HillClimbing {
                         pdf scan    diff
                         w   w       w
                         w   b       b
-                        b   w       b
+                        b   w       W
                         b   b       w
 
-                       essentially an XOR ... implemented by op2
+                        ... implemented by op2
 
                        BUT assume original pdf has been blurred ...
 
