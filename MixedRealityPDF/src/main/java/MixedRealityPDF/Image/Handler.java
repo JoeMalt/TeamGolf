@@ -8,28 +8,24 @@ public class Handler {
 
   private int height;
   private int width;
-  private Color[] pixels;
+  private int[] pixels;
 
-  private static int TRESHOLD = 128*3;
+  private static int TRESHOLD = 200*3;
 
   Handler(BufferedImage img){
     height = img.getHeight();
     width = img.getWidth();
-    int[] pixelInt = img.getRGB(0, 0, getWidth(), getHeight(),
+    pixels = img.getRGB(0, 0, getWidth(), getHeight(),
             null, 0, getWidth());
-    pixels = Arrays.stream(pixelInt)
-                   .mapToObj(i -> new Color(i))
-                   .toArray(size -> new Color[size]);
   }
 
   public BufferedImage getBlackAndWhite(){
     BufferedImage out = new BufferedImage(getWidth(), getHeight(),
             BufferedImage.TYPE_INT_RGB);
 
-    int i = 0, j = 0;
-
-    int[] lum = Arrays.stream(pixels)
-                      .mapToInt(c -> getLuminosity(c)).toArray();
+    int[] lum = pixels;
+    for(int i = 0; i <lum .length; i++)
+      lum[i] = getLuminosity(lum[i]);
 
     for(int x = 0; x < getWidth(); x++)
       for(int y =0; y < getHeight(); y++) {
@@ -55,6 +51,11 @@ public class Handler {
 
   public int getLuminosity(Color c){
     return c.getBlue() + c.getGreen() + c.getRed();
+  }
+
+  public int getLuminosity(int c){
+    Color cc = new Color(c);
+    return cc.getRed() + cc.getGreen() + cc.getBlue();
   }
 
   private boolean inBounds(int x, int y){
