@@ -1,11 +1,8 @@
-package MixedRealityPDF.AnnotationProcessor;
+package main.java.MixedRealityPDF.AnnotationProcessor;
 
 /**
  * Created by joe on 08/02/18.
  */
-
-import org.apache.commons.math3.ml.clustering.Cluster;
-import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;

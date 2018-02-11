@@ -1,4 +1,4 @@
-package MixedRealityPDF.AnnotationProcessor.Annotations;
+package main.java.MixedRealityPDF.AnnotationProcessor.Annotations;
 
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
