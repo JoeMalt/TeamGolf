@@ -1,4 +1,4 @@
-package main.java.MixedRealityPDF.AnnotationProcessor;
+package MixedRealityPDF.AnnotationProcessor;
 
 import org.apache.commons.math3.ml.clustering.Clusterable;
 

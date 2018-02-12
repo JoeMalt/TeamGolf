@@ -1,4 +1,4 @@
-package main.java.MixedRealityPDF.AnnotationProcessor;
+package MixedRealityPDF.AnnotationProcessor;
 
 /**
  * Created by joe on 08/02/18.

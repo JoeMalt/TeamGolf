@@ -1,4 +1,4 @@
-package main.java.MixedRealityPDF.AnnotationProcessor.Identification;
+package MixedRealityPDF.AnnotationProcessor.Identification;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;

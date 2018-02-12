@@ -1,4 +1,4 @@
-package main.java.MixedRealityPDF.DocumentProcessor;
+package MixedRealityPDF.DocumentProcessor;
 
 /**
  * This class will handle the pipeline:

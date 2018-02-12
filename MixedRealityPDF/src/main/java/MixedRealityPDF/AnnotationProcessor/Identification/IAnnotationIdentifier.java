@@ -1,7 +1,7 @@
-package main.java.MixedRealityPDF.AnnotationProcessor.Identification;
+package MixedRealityPDF.AnnotationProcessor.Identification;
 
-import main.java.MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
-import main.java.MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
+import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 
 import java.awt.*;
 import java.util.Collection;

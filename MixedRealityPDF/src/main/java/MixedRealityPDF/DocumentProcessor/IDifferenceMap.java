@@ -1,4 +1,4 @@
-package main.java.MixedRealityPDF.DocumentProcessor;
+package MixedRealityPDF.DocumentProcessor;
 
 import java.awt.*;
 

@@ -1,14 +1,14 @@
-package main.java.MixedRealityPDF;
+package MixedRealityPDF;
 
-import main.java.MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
-import main.java.MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
-import main.java.MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
-import main.java.MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
-import main.java.MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
-import main.java.MixedRealityPDF.AnnotationProcessor.IClusterDetector;
-import main.java.MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
-import main.java.MixedRealityPDF.DocumentProcessor.IDifferenceMap;
-import main.java.MixedRealityPDF.DocumentProcessor.PDFRenderer;
+import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
+import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
+import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
+import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
+import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
+import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
+import MixedRealityPDF.DocumentProcessor.PDFRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -1,7 +1,7 @@
-package main.java.MixedRealityPDF.AnnotationProcessor.Identification;
+package MixedRealityPDF.AnnotationProcessor.Identification;
 
-import main.java.MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
-import main.java.MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
+import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
+import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
