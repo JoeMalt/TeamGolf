@@ -1,16 +1,18 @@
 package MixedRealityPDF;
 
+import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
 import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
-import MixedRealityPDF.AnnotationProcessor.IAnnotationIdentifier;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
+import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
+import MixedRealityPDF.DocumentProcessor.PDFRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class PDFPenAndPaper {
   private IAnnotationIdentifier annotationIdentifier = defaultAnnotationIdentifier;
 
 
-  // To use the default non-path variables set the too null.
+  // To use the default non-path variables set them too null.
   public PDFPenAndPaper(String imageFilepath, String pdfFilepath,
                         IDifferenceMap differenceMap,
                         IClusterDetector clusterDetector,
@@ -54,12 +56,11 @@ public class PDFPenAndPaper {
     this.pdfFilePath = pdfFilepath;
 
     Image modifiedPDFImage = ImageIO.read(new File(imageFilepath));
-    Image differenceMapImage = differenceMap.findDifference(pdfFilepath,
+    Image originalPDFImage = new PDFRenderer(pdfFilePath).getImage();
+    Image differenceMapImage = differenceMap.findDifference(originalPDFImage,
             modifiedPDFImage);
-    Collection<Point2D.Double> clusterPoints = clusterDetector.cluster(
-            differenceMapImage);
-    annotations = annotationIdentifier.identifyAnnotations(differenceMapImage,
-            clusterPoints);
+    Collection<AnnotationBoundingBox> clusterPoints = clusterDetector.cluster((BufferedImage) differenceMapImage);
+    annotations = annotationIdentifier.identifyAnnotations(differenceMapImage, clusterPoints);
   }
 
   public List<Annotation> getAnnotations() {
