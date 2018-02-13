@@ -31,10 +31,20 @@ public class FastPDF {
     public static void main(String[] args) throws IOException {
 
 
-        BufferedImage original = ImageIO.read(new File(PDFs.TEST_3_TEXT_ORIGINAL));
+        FastPDF input = new FastPDF(ImageIO.read(new File(PDFs.THRESHOLDED_SCAN)), 1);
+        FastPDF original = new FastPDF(ImageIO.read(new File(PDFs.TEST_3_TEXT_ORIGINAL)), 1);
+        int [] results_input = input.tryFixedThetaValue(0.0, 1);
+        int [] original_input = original.tryFixedThetaValue(0.0, 1);
+        System.out.println("results_input = " + results_input);
+        System.out.println("original_input = " + original_input);
+
+
+
+/*
+
         BufferedImage scaled = ImageIO.read(new File(PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
 
-        FastPDF fpdf_original = new FastPDF(original, 3);
+
         FastPDF fpdf_scaled = new FastPDF(scaled, 3);
 
         fpdf_original.saveToOutputFile("output_images/original_fastpdf.png");
@@ -79,7 +89,7 @@ public class FastPDF {
         System.out.println("results_original AUC = " + Arrays.toString(results_original_rescaled));
         System.out.println("results_scanned AUC = " + Arrays.toString(results_scanned_rescaled));
 
-        // int[] diffs1_original =
+*/         // int[] diffs1_original =
 
 
         /*

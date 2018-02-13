@@ -42,7 +42,7 @@ public class DBSCANClusterDetector implements IClusterDetector {
 
         Set<AnnotationBoundingBox> annotationSet = new HashSet<>();
         for (Cluster<ClusteringPoint> c : clusters){
-            annotationSet.add(new AnnotationBoundingBox(c));
+            annotationSet.add(new AnnotationBoundingBox(c, scale));
         }
         return annotationSet;
     }

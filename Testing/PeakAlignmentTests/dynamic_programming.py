@@ -143,6 +143,8 @@ for i in range(m+1):
 		if i == 0 or j == 0:
 			continue
 		else:	
+		
+		
 			
 				
 				

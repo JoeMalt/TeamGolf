@@ -9,6 +9,9 @@ public class PDFs {
 
 
 
+
+    public static String THRESHOLDED_SCAN = "thresholding_tests/out4.png";
+
     // scaled original pdf
     // convert originalpdf.png -scale 1116x1578 -gravity center -background white -extent 1240x1753 originalpdf_scaled.png
     public static String ORIGINAL_SCALED_TRANSLATED = "modified_pdfs/originalpdf_scaled.png";
