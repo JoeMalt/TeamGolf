@@ -20,8 +20,8 @@ def transform(x, k, d):
 	return int((k*x + d)) 
 
 
-results0 = parse_file_as_list("data/blur translation rescaled AUC/original.txt")
-results1 = parse_file_as_list("data/blur translation rescaled AUC/scan.txt")
+results0 = parse_file_as_list("data/thresholded.txt")
+results1 = parse_file_as_list("data/original.txt")
 
 print(results0)
 print(results1)

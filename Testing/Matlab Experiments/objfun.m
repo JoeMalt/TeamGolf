@@ -1,23 +1,44 @@
 function cost = objfun(x)
 
-disp(x)
-
-load noisy_and_denoised_signals.mat
+% x(3) - y scaling
+% x(2) - translation
+% x(1) - x scaling
+load signals_thresholded.mat
  
-nOriginalItems = length(denoised_original); 
-nScanItems = length(denoised_scan); 
+nOriginalItems = length(original); 
+nScanItems = length(scan); 
 
-A = NaN(1, nOriginalItems); 
+%scan_scaled = scan * x(3); 
+%A = NaN(1, nOriginalItems); 
+transform = @(y)(floor(min(max(x(1)*y + x(2), 1), nOriginalItems))); 
+area_original = 0.0; 
+area_scan = 0.0; 
 
-%transform = @(y)((y-x(2))/x(1)); 
-transform = @(y)(x(1)*y + x(2)); 
 
-
-for index = 1:nOriginalItems
-    if((floor(transform(index)) >= 1) && (floor(transform(index)) <= nScanItems))
-        A(index) = denoised_original(floor(transform(index)));
+area = 0.0; 
+for index = 1:min(nOriginalItems, nScanItems)
+    %disp(index)
+    %disp(transform(index))
+    
+    scan_height = 0.0; 
+    if transform(index) <= nScanItems
+        scan_height = scan(transform(index)) * x(1) * x(3); 
     end
+    area = area + (original(index) - scan_height)^2; 
 end
+%for index = 1:nOriginalItems
+%    area_original = area_original + original(index) ; 
+%end
+%for index = 1:nScanItems
+%    area_scan = area_scan + scan(transform(index)) * x(1) * x(3) ; 
+%end 
+   
+%for index = 1:nOriginalItem:
+%    new_index = floor(transform(index)); 
+%    if((new_index >= 1) && (new_index <= nScanItems))
+%        errors = errors + (scan_scaled(new_index) - original(index))^2; 
+%    end
+%end
 
 %result = -sum( A.*denoised_original , 'omitnan')
 
@@ -26,11 +47,13 @@ end
 
 
 % Minimise negative covariance
-EX = mean(denoised_original, 'omitnan') 
-EY = mean(A, 'omitnan') 
-EXEXYEY = mean((denoised_original - EX).*(A - EY), 'omitnan')
+%EX = mean(original, 'omitnan') 
+%EY = mean(A, 'omitnan') 
+%EXEXYEY = mean((original - EX).*(A - EY), 'omitnan')
+%error = (area_scan - area_original)^2
+error = area 
 
-cost = EXEXYEY; 
+cost = error;
 
 
 
