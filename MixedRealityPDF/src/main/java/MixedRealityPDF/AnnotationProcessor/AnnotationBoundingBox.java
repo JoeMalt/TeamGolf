@@ -22,16 +22,16 @@ public class AnnotationBoundingBox {
         this.bottom_right = bottom_right;
     }
 
-    public AnnotationBoundingBox(Cluster<ClusteringPoint> cluster){
+    public AnnotationBoundingBox(Cluster<ClusteringPoint> cluster, double scale){
         // Generate a bounding box aligned to the x-y axes by finding the highest and lowest, and leftmost and rightmost, points in the cluster.
         List<Integer> xValues = cluster.getPoints().stream().map(ClusteringPoint::getX).collect(Collectors.toList());
         List<Integer> yValues = cluster.getPoints().stream().map(ClusteringPoint::getY).collect(Collectors.toList());
         System.out.println("Cluster has " + xValues.size() + " points");
 
-        this.top_left = new ClusteringPoint(Collections.min(xValues), Collections.min(yValues));
-        this.top_right = new ClusteringPoint(Collections.max(xValues), Collections.min(yValues));
-        this.bottom_left = new ClusteringPoint(Collections.min(xValues), Collections.max(yValues));
-        this.bottom_right = new ClusteringPoint(Collections.max(xValues), Collections.max(yValues));
+        this.top_left = new ClusteringPoint((int) (Collections.min(xValues) / scale), (int) (Collections.min(yValues) / scale));
+        this.top_right = new ClusteringPoint((int) (Collections.max(xValues) / scale), (int) (Collections.min(yValues) / scale));
+        this.bottom_left = new ClusteringPoint((int) (Collections.min(xValues) / scale), (int) (Collections.max(yValues) / scale));
+        this.bottom_right = new ClusteringPoint((int) (Collections.max(xValues) / scale), (int) (Collections.max(yValues) / scale));
 
     }
 
