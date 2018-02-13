@@ -33,9 +33,9 @@ Testing/ImageDifference/.idea
 .Trash-*
 
 ### MACs ###
-.DS_Store
-.AppleDouble
-.LSOverride
+*.DS_Store
+*.AppleDouble
+*.LSOverride
 
 # Thumbnail
 ._*
