@@ -1,5 +1,11 @@
 package MixedRealityPDF.AnnotationProcessor;
 
+import org.apache.commons.math3.ml.clustering.Cluster;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by joe on 08/02/18.
  */
@@ -14,6 +20,19 @@ public class AnnotationBoundingBox {
         this.top_right = top_right;
         this.bottom_left = bottom_left;
         this.bottom_right = bottom_right;
+    }
+
+    public AnnotationBoundingBox(Cluster<ClusteringPoint> cluster){
+        // Generate a bounding box aligned to the x-y axes by finding the highest and lowest, and leftmost and rightmost, points in the cluster.
+        List<Integer> xValues = cluster.getPoints().stream().map(ClusteringPoint::getX).collect(Collectors.toList());
+        List<Integer> yValues = cluster.getPoints().stream().map(ClusteringPoint::getY).collect(Collectors.toList());
+        System.out.println("Cluster has " + xValues.size() + " points");
+
+        this.top_left = new ClusteringPoint(Collections.min(xValues), Collections.min(yValues));
+        this.top_right = new ClusteringPoint(Collections.max(xValues), Collections.min(yValues));
+        this.bottom_left = new ClusteringPoint(Collections.min(xValues), Collections.max(yValues));
+        this.bottom_right = new ClusteringPoint(Collections.max(xValues), Collections.max(yValues));
+
     }
 
     public ClusteringPoint getTopLeft() {
