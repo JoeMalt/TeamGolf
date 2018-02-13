@@ -6,7 +6,6 @@ package MixedRealityPDF.AnnotationProcessor;
 
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
