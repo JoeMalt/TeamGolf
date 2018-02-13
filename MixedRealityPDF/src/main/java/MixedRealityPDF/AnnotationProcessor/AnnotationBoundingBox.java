@@ -28,10 +28,10 @@ public class AnnotationBoundingBox {
         List<Integer> yValues = cluster.getPoints().stream().map(ClusteringPoint::getY).collect(Collectors.toList());
         System.out.println("Cluster has " + xValues.size() + " points");
 
-        this.top_left = new ClusteringPoint((int) (Collections.min(xValues) / scale), (int) (Collections.min(yValues) / scale));
-        this.top_right = new ClusteringPoint((int) (Collections.max(xValues) / scale), (int) (Collections.min(yValues) / scale));
-        this.bottom_left = new ClusteringPoint((int) (Collections.min(xValues) / scale), (int) (Collections.max(yValues) / scale));
-        this.bottom_right = new ClusteringPoint((int) (Collections.max(xValues) / scale), (int) (Collections.max(yValues) / scale));
+        this.top_left = new ClusteringPoint((int) (Collections.min(xValues) * scale), (int) (Collections.min(yValues) * scale));
+        this.top_right = new ClusteringPoint((int) (Collections.max(xValues) * scale), (int) (Collections.min(yValues) * scale));
+        this.bottom_left = new ClusteringPoint((int) (Collections.min(xValues) * scale), (int) (Collections.max(yValues) * scale));
+        this.bottom_right = new ClusteringPoint((int) (Collections.max(xValues) * scale), (int) (Collections.max(yValues) * scale));
 
     }
 
