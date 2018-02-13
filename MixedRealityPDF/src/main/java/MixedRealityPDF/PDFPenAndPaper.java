@@ -35,7 +35,7 @@ public class PDFPenAndPaper {
   private IAnnotationIdentifier annotationIdentifier = defaultAnnotationIdentifier;
 
 
-  // To use the default non-path variables set the too null.
+  // To use the default non-path variables set them too null.
   public PDFPenAndPaper(String imageFilepath, String pdfFilepath,
                         IDifferenceMap differenceMap,
                         IClusterDetector clusterDetector,

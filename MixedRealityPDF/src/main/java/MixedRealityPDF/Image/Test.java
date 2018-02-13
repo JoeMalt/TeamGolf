@@ -11,9 +11,9 @@ public class Test {
   public static void main(String[] args) throws IOException{
     
     String path = "../Data/";
-    String type = "png";
-    String inName = "in4."  + type;
-    String outName = "out4." + type;
+    String type = "jpeg";
+    String inName = "in3."  + type;
+    String outName = "out3." + type;
 
     BufferedImage bi = ImageIO.read(new File(path + inName));
 
@@ -21,9 +21,7 @@ public class Test {
     BufferedImage out = handler.getBlackAndWhite();
 
     File output = new File(path + outName);
-
     ImageIO.write(out, type, output);
-
   }
 
 }
