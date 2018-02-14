@@ -10,7 +10,7 @@ public class Handler {
   private int[] pixels;
 
   // white, so that true luminosity of the image would be preserved.
-  private static int TRESHOLD = 255*3; 
+  private static int THRESHOLD = 255*3;
 
   Handler(BufferedImage img){
     height = img.getHeight();
@@ -31,11 +31,11 @@ public class Handler {
     for(int x = 0; x < getWidth(); x++)
       for(int y =0; y < getHeight(); y++) {
 
-        if (lum[getXY(x, y)] <= TRESHOLD) {
+        if (lum[getXY(x, y)] <= THRESHOLD) {
           out.setRGB(x, y, Color.BLACK.getRGB());
         } else {
           out.setRGB(x, y, Color.WHITE.getRGB());
-          lum[getXY(x, y)] -= TRESHOLD;
+          lum[getXY(x, y)] -= THRESHOLD;
         }
 
         if (lum[getXY(x, y)] > 0) {
