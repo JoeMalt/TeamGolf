@@ -36,7 +36,6 @@ public class DBSCANClusterDetector implements IClusterDetector {
             Graphics2D g2d = im.createGraphics(); //TODO draw on original image
             g2d.setBackground(Color.WHITE);
             g2d.setColor(Color.RED);
-            g2d.setStroke(new BasicStroke(10));
 
             for (AnnotationBoundingBox boundingBox : s) {
                 // draw the bounding box on the image
