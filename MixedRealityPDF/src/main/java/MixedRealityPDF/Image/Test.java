@@ -10,10 +10,10 @@ public class Test {
 
   public static void main(String[] args) throws IOException{
     
-    String path = "../Data/";
+    String path = "../Data/New Data";
     String type = "png";
-    String inName = "New Data/scan."  + type;
-    String outName = "New Data/scanBW." + type;
+    String inName = "scan."  + type;
+    String outName = "scanBW." + type;
 
     BufferedImage bi = ImageIO.read(new File(path + inName));
 
