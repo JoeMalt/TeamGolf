@@ -12,7 +12,7 @@ public class Handler {
   // white, so that true luminosity of the image would be preserved.
   private static int THRESHOLD = 255*3;
 
-  Handler(BufferedImage img){
+  public Handler(BufferedImage img){
     height = img.getHeight();
     width = img.getWidth();
     pixels = img.getRGB(0, 0, getWidth(), getHeight(), null, 0, getWidth());

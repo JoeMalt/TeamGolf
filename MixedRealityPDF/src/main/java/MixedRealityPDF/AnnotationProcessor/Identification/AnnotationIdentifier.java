@@ -3,6 +3,7 @@ package MixedRealityPDF.AnnotationProcessor.Identification;
 import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
+import MixedRealityPDF.Image.Handler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,13 +28,53 @@ public class AnnotationIdentifier {
     }
 
     public Collection<Annotation> identifyAnnotations(Image image) {
+        // TODO(aga): remove changing to grayscale as images will be black and white on input
+        Handler handler = new Handler((BufferedImage) image);
+        image = handler.getBlackAndWhite();
+
         cropAnnotations((BufferedImage) image);
         ArrayList<Annotation> identifiedAnnotations = new ArrayList<>();
         FeatureExtractor featureExtractor = new FeatureExtractor();
+        int imageByteData [];
+        int i = 0;
+        int index;
         for(BufferedImage annotationImage : annotationImages){
-            double coverage = featureExtractor.getCoverage(annotationImage);
+            annotationImage = scaleAnnotation(annotationImage);
+            saveAnnotationBox(annotationImage, "scale_test_" + i);
+            imageByteData = imageToByteArray(annotationImage);
+            i++;
         }
         return identifiedAnnotations;
+    }
+
+    private BufferedImage scaleAnnotation(BufferedImage image){
+        int scaledHeight = 100;
+        int scaledWidth = 100;
+        BufferedImage scaled = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = scaled.createGraphics();
+        g.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
+        g.dispose();
+        return scaled;
+    }
+
+    private int [] imageToByteArray(BufferedImage image){
+        int [] imageByteData = new int[image.getWidth() * image.getWidth()];
+        int index;
+        for(int x = 0; x < image.getWidth(); x++){
+            for(int y = 0; y < image.getHeight(); y++){
+                index = image.getWidth() * y + x;
+                if(image.getRGB(x, y) == Color.BLACK.getRGB()){
+                    imageByteData[index] = 0;
+                }
+                else if(image.getRGB(x, y) == Color.WHITE.getRGB()){
+                    imageByteData[index] = 1;
+                }
+                else{
+                    imageByteData[index] = -1;
+                }
+            }
+        }
+        return imageByteData;
     }
 
     private void cropAnnotations(BufferedImage fullImage){
@@ -71,6 +112,19 @@ public class AnnotationIdentifier {
                 e.printStackTrace();
             }
             i++;
+        }
+    }
+
+    public void saveAnnotationBox(BufferedImage image, String name){
+        Path currentRelativePath = Paths.get("");
+        String RELATIVE_PATH = String.format("%s/Data/", currentRelativePath.toAbsolutePath().toString());
+        int i = 0;
+        String filename = String.format("%s.jpg", name);
+        try {
+            ImageIO.write(image, "png", new File(RELATIVE_PATH + filename));
+        } catch (IOException e) {
+            System.err.println("IOException when writing image: ");
+            e.printStackTrace();
         }
     }
 
