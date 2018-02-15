@@ -28,11 +28,11 @@ public class PDFPenAndPaper {
 
   // TODO Initialize static variables.
   private static IDifferenceMap defaultDifferenceMap;
-  private static IClusterDetector defaultCusterDetector;
+  private static IClusterDetector defaultClusterDetector;
   private static IAnnotationIdentifier defaultAnnotationIdentifier;
 
   private IDifferenceMap differenceMap = defaultDifferenceMap;
-  private IClusterDetector clusterDetector = defaultCusterDetector;
+  private IClusterDetector clusterDetector = defaultClusterDetector;
   private IAnnotationIdentifier annotationIdentifier = defaultAnnotationIdentifier;
 
 
@@ -111,12 +111,12 @@ public class PDFPenAndPaper {
     PDFPenAndPaper.defaultDifferenceMap = defaultDifferenceMap;
   }
 
-  public static IClusterDetector getDefaultCusterDetector() {
-    return defaultCusterDetector;
+  public static IClusterDetector getDefaultClusterDetector() {
+    return defaultClusterDetector;
   }
 
-  public static void setDefaultCusterDetector(IClusterDetector defaultCusterDetector) {
-    PDFPenAndPaper.defaultCusterDetector = defaultCusterDetector;
+  public static void setDefaultClusterDetector(IClusterDetector defaultClusterDetector) {
+    PDFPenAndPaper.defaultClusterDetector = defaultClusterDetector;
   }
 
   public static IAnnotationIdentifier getDefaultAnnotationIdentifier() {
