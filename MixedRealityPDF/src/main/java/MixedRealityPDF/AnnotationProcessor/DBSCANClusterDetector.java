@@ -18,10 +18,11 @@ public class DBSCANClusterDetector implements IClusterDetector {
     // Empirically, about 3mm works well
     private static double DBSCAN_EPSILON_MM = 3.0;
     // min-points: the minimum number of points in a cluster. Useful for excluding noise.
+    // Empirically, about 5 works well
     private static int DBSCAN_MINPTS = 5;
 
     // If an image is wider than this value, scale it down to this width before clustering. Higher values
-    // may give slightly more accurate bounding boxes, but are slower.
+    // may give slightly more accurate bounding boxes (and catch tiny annotations), but are slower.
     private static int SCALED_IMAGE_WIDTH = 500;
 
     /**
@@ -72,6 +73,9 @@ public class DBSCANClusterDetector implements IClusterDetector {
     }
 
     private Set<ClusteringPoint> getNonBlankPixels(BufferedImage im){
+        /*
+         Iterate through all the pixels in im, and add the coordinates of any that are not white/transparent to a set.
+         */
         Set<ClusteringPoint> nonBlankPixels = new HashSet<>();
         for (int h = 0; h < im.getHeight(); h++){
             for (int w = 0; w < im.getWidth(); w++){
