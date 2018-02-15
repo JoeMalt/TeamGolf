@@ -7,9 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-/**
- * Created by joe on 15/02/18.
- */
 public class DBSCANClusterDetectorTest {
     public static void main(String[] args) {
         try {
@@ -30,9 +27,6 @@ public class DBSCANClusterDetectorTest {
                 g2d.drawLine(boundingBox.getTopLeft().getX(), boundingBox.getTopLeft().getY(), boundingBox.getBottomLeft().getX(), boundingBox.getBottomLeft().getY());
                 g2d.drawLine(boundingBox.getBottomLeft().getX(), boundingBox.getBottomLeft().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
                 g2d.drawLine(boundingBox.getTopRight().getX(), boundingBox.getTopRight().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
-
-
-
             }
             ImageIO.write(im, "PNG", new File("/home/joe/IBGroupProject/test_out_3.png"));
         }
