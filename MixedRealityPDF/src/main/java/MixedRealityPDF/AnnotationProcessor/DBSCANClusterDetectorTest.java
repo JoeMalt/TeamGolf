@@ -29,8 +29,8 @@ public class DBSCANClusterDetectorTest {
                 g2d.drawLine(boundingBox.getBottomLeft().getX(), boundingBox.getBottomLeft().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
                 g2d.drawLine(boundingBox.getTopRight().getX(), boundingBox.getTopRight().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
             }
-            ImageIO.write(im, "PNG", new File("/home/joe/IBGroupProject/test8_out.png"));
-            System.out.println("Time taken: " + (System.nanoTime() - startTime) / 1000000000L);
+            ImageIO.write(im, "PNG", new File("/home/joe/IBGroupProject/test11_out.png"));
+            System.out.println("Time taken: " + (double) (System.nanoTime() - startTime) / 1000000000L + " seconds");
         }
         catch (IOException e){
 

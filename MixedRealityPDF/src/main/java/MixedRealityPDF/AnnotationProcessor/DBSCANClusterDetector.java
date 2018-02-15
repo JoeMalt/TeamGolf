@@ -14,6 +14,8 @@ public class DBSCANClusterDetector implements IClusterDetector {
 
     // Parameters for DBSCAN
     // epsilon: how close 2 points must be to be considered part of the same cluster, in millimetres
+    // this is converted to pixels based on the width of the image
+    // Empirically, about 3mm works well
     private static double DBSCAN_EPSILON_MM = 3.0;
     // min-points: the minimum number of points in a cluster. Useful for excluding noise.
     private static int DBSCAN_MINPTS = 5;
