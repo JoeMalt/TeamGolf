@@ -10,7 +10,8 @@ import java.util.Collection;
 public class DBSCANClusterDetectorTest {
     public static void main(String[] args) {
         try {
-            BufferedImage im = ImageIO.read(new File("/home/joe/IBGroupProject/Stage2_Test1_no_text.png"));
+            long startTime = System.nanoTime();
+            BufferedImage im = ImageIO.read(new File("/home/joe/IBGroupProject/ColorExtractor_Out6.png"));
             DBSCANClusterDetector cd = new DBSCANClusterDetector();
             Collection<AnnotationBoundingBox> s = cd.cluster(im);
             // draw the bounding boxes back onto the image
@@ -28,7 +29,8 @@ public class DBSCANClusterDetectorTest {
                 g2d.drawLine(boundingBox.getBottomLeft().getX(), boundingBox.getBottomLeft().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
                 g2d.drawLine(boundingBox.getTopRight().getX(), boundingBox.getTopRight().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
             }
-            ImageIO.write(im, "PNG", new File("/home/joe/IBGroupProject/test_out_3.png"));
+            ImageIO.write(im, "PNG", new File("/home/joe/IBGroupProject/test8_out.png"));
+            System.out.println("Time taken: " + (System.nanoTime() - startTime) / 1000000000L);
         }
         catch (IOException e){
 

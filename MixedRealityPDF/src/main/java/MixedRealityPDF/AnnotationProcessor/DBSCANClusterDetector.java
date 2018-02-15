@@ -12,11 +12,21 @@ import java.util.List;
 
 public class DBSCANClusterDetector implements IClusterDetector {
 
-    private static double DBSCAN_EPSILON = 20.0;
-    private static int DBSCAN_MINPTS = 50;
+    // Parameters for DBSCAN
+    // epsilon: how close 2 points must be to be considered part of the same cluster, in millimetres
+    private static double DBSCAN_EPSILON_MM = 3.0;
+    // min-points: the minimum number of points in a cluster. Useful for excluding noise.
+    private static int DBSCAN_MINPTS = 5;
+
+    // If an image is wider than this value, scale it down to this width before clustering. Higher values
+    // may give slightly more accurate bounding boxes, but are slower.
     private static int SCALED_IMAGE_WIDTH = 500;
 
-
+    /**
+     *
+     * @param im: BufferedImage on which to perform the clustering
+     * @return Collection of AnnotationBoundingBox, one per annotation detected
+     */
     public Collection<AnnotationBoundingBox> cluster(BufferedImage im){
 
         // If the image is more than 500 pixels wide, scale it down
@@ -30,11 +40,15 @@ public class DBSCANClusterDetector implements IClusterDetector {
             scaledImage = im;
         }
 
+        // Calculate epsilon in pixels (as opposed to millimetres)
+        // Assumes the document is A4 (210mm wide)
+        int epsilon = (int) ((DBSCAN_EPSILON_MM / 210.0) * scaledImage.getWidth());
+
         // Get a list of the pixels that are not white / transparent
         Set<ClusteringPoint> pixelsToCluster = getNonBlankPixels(scaledImage);
 
         // Get the clusters using DBSCAN
-        List<Cluster<ClusteringPoint>> clusters = DBSCAN(pixelsToCluster);
+        List<Cluster<ClusteringPoint>> clusters = DBSCAN(pixelsToCluster, epsilon);
 
         // Generate a set of bounding boxes, one for each cluster
 
@@ -68,8 +82,8 @@ public class DBSCANClusterDetector implements IClusterDetector {
         return nonBlankPixels;
     }
 
-    private static List<Cluster<ClusteringPoint>> DBSCAN(Set<ClusteringPoint> points){
-        DBSCANClusterer<ClusteringPoint> clusterer = new DBSCANClusterer<ClusteringPoint>(DBSCAN_EPSILON, DBSCAN_MINPTS);
+    private static List<Cluster<ClusteringPoint>> DBSCAN(Set<ClusteringPoint> points, int epsilon){
+        DBSCANClusterer<ClusteringPoint> clusterer = new DBSCANClusterer<ClusteringPoint>(epsilon, DBSCAN_MINPTS);
         return clusterer.cluster(points);
     }
 }
