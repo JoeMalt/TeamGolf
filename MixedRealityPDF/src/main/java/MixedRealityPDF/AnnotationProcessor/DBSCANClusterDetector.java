@@ -1,12 +1,8 @@
 package MixedRealityPDF.AnnotationProcessor;
 
-/**
- * Created by joe on 08/02/18.
- */
-
-
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
@@ -18,15 +14,17 @@ public class DBSCANClusterDetector implements IClusterDetector {
 
     private static double DBSCAN_EPSILON = 20.0;
     private static int DBSCAN_MINPTS = 50;
+    private static int SCALED_IMAGE_WIDTH = 500;
+
 
     public Collection<AnnotationBoundingBox> cluster(BufferedImage im){
 
         // If the image is more than 500 pixels wide, scale it down
         double scale = 1.0d;
         BufferedImage scaledImage;
-        if (im.getWidth() > 500){
-            scaledImage = getScaledImage(im, 500);
-            scale = im.getWidth() / 500;
+        if (im.getWidth() > SCALED_IMAGE_WIDTH){
+            scaledImage = getScaledImage(im, SCALED_IMAGE_WIDTH);
+            scale = ((double) im.getWidth()) / SCALED_IMAGE_WIDTH;
         }
         else{
             scaledImage = im;
@@ -47,7 +45,7 @@ public class DBSCANClusterDetector implements IClusterDetector {
         return annotationSet;
     }
 
-    private BufferedImage getScaledImage(BufferedImage im, int width){
+    private static BufferedImage getScaledImage(BufferedImage im, int width){
         Image scaledImage = im.getScaledInstance(width, -1, Image.SCALE_DEFAULT);
         BufferedImage imScaled = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         Graphics2D bufferedGraphics2D = imScaled.createGraphics();
