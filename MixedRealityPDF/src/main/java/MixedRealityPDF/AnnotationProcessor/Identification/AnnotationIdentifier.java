@@ -4,6 +4,8 @@ import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
 import MixedRealityPDF.Image.Handler;
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -35,15 +37,21 @@ public class AnnotationIdentifier {
         cropAnnotations((BufferedImage) image);
         ArrayList<Annotation> identifiedAnnotations = new ArrayList<>();
         FeatureExtractor featureExtractor = new FeatureExtractor();
-        int imageByteData [];
+        int imageByteData [] = null;
         int i = 0;
-        int index;
+
+        PythonInterpreter interpreter = new PythonInterpreter();
+        PyObject trainTree = interpreter.get("train_tree");
+        PyObject testTree = interpreter.get("predict");
         for(BufferedImage annotationImage : annotationImages){
             annotationImage = scaleAnnotation(annotationImage);
             saveAnnotationBox(annotationImage, "scale_test_" + i);
             imageByteData = imageToByteArray(annotationImage);
+            trainTree.__call__();
             i++;
         }
+
+
         return identifiedAnnotations;
     }
 
