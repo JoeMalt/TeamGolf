@@ -29,9 +29,9 @@ public class AnnotationBoundingBox {
         System.out.println("Cluster has " + xValues.size() + " points");
 
         this.top_left = new ClusteringPoint((int) (Collections.min(xValues) * scale), (int) (Collections.min(yValues) * scale));
-        this.top_right = new ClusteringPoint((int) (Collections.max(xValues) * scale), (int) (Collections.min(yValues) * scale));
-        this.bottom_left = new ClusteringPoint((int) (Collections.min(xValues) * scale), (int) (Collections.max(yValues) * scale));
-        this.bottom_right = new ClusteringPoint((int) (Collections.max(xValues) * scale), (int) (Collections.max(yValues) * scale));
+        this.top_right = new ClusteringPoint((int) ((Collections.max(xValues)+1) * scale), (int) (Collections.min(yValues) * scale));
+        this.bottom_left = new ClusteringPoint((int) (Collections.min(xValues) * scale), (int) ((Collections.max(yValues)+1) * scale));
+        this.bottom_right = new ClusteringPoint((int) ((Collections.max(xValues)+1) * scale), (int) ((Collections.max(yValues)+1) * scale));
 
     }
 
