@@ -65,7 +65,7 @@ public class AnnotationIdentifier {
         return scaled;
     }
 
-    private int [] imageToByteArray(BufferedImage image){
+    public int [] imageToByteArray(BufferedImage image){
         int [] imageByteData = new int[image.getWidth() * image.getWidth()];
         int index;
         for(int x = 0; x < image.getWidth(); x++){

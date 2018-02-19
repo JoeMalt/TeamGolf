@@ -9,7 +9,8 @@ public class FeatureExtractor {
 
     public FeatureExtractor(){
     }
-
+// Highlight vs non highlight - train on binary decisions and put non-highlights into another tree
+// Kaggle - ideas for data science solutions
 
 
     /**
@@ -30,6 +31,14 @@ public class FeatureExtractor {
         }
         coverage = covered/(double)(image.getWidth()*image.getHeight());
         return coverage;
+    }
+
+    public double getHeight(BufferedImage image){
+        return image.getHeight();
+    }
+
+    public double getWidth(BufferedImage image){
+        return image.getWidth();
     }
 
     /**
