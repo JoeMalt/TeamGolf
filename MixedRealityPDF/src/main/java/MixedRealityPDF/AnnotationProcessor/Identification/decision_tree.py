@@ -3,15 +3,28 @@ from sklearn.metrics import confusion_matrix
 import pandas as pd
 import os
 import graphviz
+from pathlib import Path
 
 
 def train_tree():
-    data_file = load_data("C://Users/kocag/cam/Year2/group_project/TeamGolf/MixedRealityPDF/Data/trainingData.csv")
+    # returns absolute path to MixedRealityPDF\
+    relative_path = Path().resolve().parents[5]
+    file_path = os.path.join(str(relative_path), "Data", "trainingData.csv")
+    data_file = load_data(file_path)
 
     clf = tree.DecisionTreeClassifier(criterion = 'gini', max_depth = 5)
     trainX = data_file.loc[:, data_file.columns != 'key']
     trainY = data_file.key
     return clf.fit(trainX, trainY)
+
+
+# TODO(koc): finish writing this method to give us evaluation of effectiveness of tree
+def test_tree():
+    clf = train_tree()
+    relative_path = Path().resolve().parents[5]
+    file_path = os.path.join(str(relative_path), "Data", "testingData.csv")
+    testX = load_data(file_path)
+    pred = predict(clf, testX)
 
 
 def load_data(file_path):
@@ -25,12 +38,11 @@ def predict(clf, testX):
     return clf.predict(testX)
 
 
-def evaluate(yHat, testY):
-    return confusion_matrix(yHat, testY)
-
-
 if __name__ == '__main__':
     clf = train_tree()
-    testX = load_data("C://Users/kocag/cam/Year2/group_project/TeamGolf/MixedRealityPDF/Data/testingData.csv")
+    relative_path = Path().resolve().parents[5]
+    file_path = os.path.join(str(relative_path), "Data", "testingData.csv")
+    testX = load_data(file_path)
     pred = predict(clf, testX)
+    # test should output highlight x3, text x3 and underline x3
     print(pred)

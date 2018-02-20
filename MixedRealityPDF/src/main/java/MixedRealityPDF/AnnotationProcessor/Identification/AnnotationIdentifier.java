@@ -3,93 +3,156 @@ package MixedRealityPDF.AnnotationProcessor.Identification;
 import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
-import MixedRealityPDF.Image.Handler;
-import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
+import java.util.List;
 
 /**
  * Decides what sort of Annotation parts of document specified by bounding boxes are.
  * **/
 public class AnnotationIdentifier {
     private Collection<AnnotationBoundingBox> points;
-    private Collection<BufferedImage> annotationImages;
+    private FeatureExtractor featureExtractor;
+    private String RELATIVE_PATH;
+    private Image fullImage;
 
-    public AnnotationIdentifier(Collection<AnnotationBoundingBox> points) {
+    public AnnotationIdentifier(Image fullImage, Collection<AnnotationBoundingBox> points) {
         this.points = points;
-        annotationImages = new ArrayList<>();
+        this.fullImage = fullImage;
+        this.featureExtractor = new FeatureExtractor();
+        Path currentRelativePath = Paths.get("");
+        this.RELATIVE_PATH = currentRelativePath.toAbsolutePath().toString();
     }
 
-    public Collection<Annotation> identifyAnnotations(Image image) {
-        // TODO(aga): remove changing to grayscale as images will be black and white on input
-        Handler handler = new Handler((BufferedImage) image);
-        image = handler.getBlackAndWhite();
-
-        cropAnnotations((BufferedImage) image);
+    public Collection<Annotation> identifyAnnotations(){
+        ArrayList<BufferedImage> annotationImages = cropAnnotations((BufferedImage) fullImage);
         ArrayList<Annotation> identifiedAnnotations = new ArrayList<>();
-        FeatureExtractor featureExtractor = new FeatureExtractor();
-        int imageByteData [] = null;
-        int i = 0;
+        FileWriter writer = initializeFileWriter("predictionData.csv");
 
-        PythonInterpreter interpreter = new PythonInterpreter();
-        PyObject trainTree = interpreter.get("train_tree");
-        PyObject testTree = interpreter.get("predict");
         for(BufferedImage annotationImage : annotationImages){
-            annotationImage = scaleAnnotation(annotationImage);
-            saveAnnotationBox(annotationImage, "scale_test_" + i);
-            imageByteData = imageToByteArray(annotationImage);
-            trainTree.__call__();
-            i++;
-        }
+            saveFeaturesToCSV(annotationImage, writer, "");
 
+            // TODO(koc): fix errors thrown by CL, adjust to different OSes
+            try {
+                // run python script with decision tree
+                String pythonScriptPath = Paths.get(RELATIVE_PATH, "src", "main", "java", "MixedRealityPDF",
+                        "AnnotationProcessing", "Identification", "decision_tree.py").toString();
+
+                ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
+                Process p = pb.start();
+
+                // retrieve output from python script
+                BufferedReader bfr = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line = "";
+                while ((line = bfr.readLine()) != null) {
+                    System.out.println(line);
+                }
+            }catch(IOException ioe){
+                System.err.println("Error executing python script from command line");
+                ioe.printStackTrace();
+            }
+        }
 
         return identifiedAnnotations;
     }
 
-    private BufferedImage scaleAnnotation(BufferedImage image){
-        int scaledHeight = 100;
-        int scaledWidth = 100;
-        BufferedImage scaled = new BufferedImage(scaledWidth, scaledHeight, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g = scaled.createGraphics();
-        g.drawImage(image, 0, 0, scaledWidth, scaledHeight, null);
-        g.dispose();
-        return scaled;
+    private void saveFeaturesToCSV(BufferedImage image, FileWriter fileWriter, String key){
+        ArrayList<String> record = new ArrayList<>();
+        record.add(Double.toString(featureExtractor.getCoverage(image)));
+        record.add(Double.toString(featureExtractor.getDominantColour(image)));
+        record.add(Double.toString(image.getWidth()));
+        record.add(Double.toString(image.getHeight()));
+        if(!key.isEmpty())  record.add(key);
+        writeLineCSV(fileWriter, record);
     }
 
-    public int [] imageToByteArray(BufferedImage image){
-        int [] imageByteData = new int[image.getWidth() * image.getWidth()];
-        int index;
-        for(int x = 0; x < image.getWidth(); x++){
-            for(int y = 0; y < image.getHeight(); y++){
-                index = image.getWidth() * y + x;
-                if(image.getRGB(x, y) == Color.BLACK.getRGB()){
-                    imageByteData[index] = 0;
-                }
-                else if(image.getRGB(x, y) == Color.WHITE.getRGB()){
-                    imageByteData[index] = 1;
-                }
-                else{
-                    imageByteData[index] = -1;
-                }
+    private FileWriter initializeFileWriter(String filePath){
+        String csvPath = Paths.get(RELATIVE_PATH, "Data", filePath).toString();
+        FileWriter writer = null;
+        try {
+            System.out.println(csvPath);
+            writer = new FileWriter(new File(csvPath));
+        }catch(IOException ioe) {
+            System.err.println("Error reading CSV file");
+        }
+        return writer;
+    }
+
+    public void createTreeTrainingFile(){
+        // decided to go with the approach of passing data to Python via CSVs because Jython is too complicated and
+        // slow compared with fileIO
+        FileWriter writer = initializeFileWriter("trainingData.csv");
+
+        Map<String, ArrayList<BufferedImage>> classImageMap = null;
+        try{
+            classImageMap = readClassImageMap();
+        }catch(IOException ioe){
+            System.err.println("Error reading images for training ");
+        }
+
+        ArrayList<String> firstLine = new ArrayList<>();
+        // names of features
+        firstLine.addAll(Arrays.asList("coverage", "colour", "width", "height", "key"));
+        writeLineCSV(writer, firstLine);
+
+        for (Map.Entry<String, ArrayList<BufferedImage>> entry : classImageMap.entrySet()) {
+            ArrayList<BufferedImage> images = entry.getValue();
+            for (BufferedImage image : images) {
+                saveFeaturesToCSV(image, writer, entry.getKey());
             }
         }
-        return imageByteData;
+
+        try{
+            writer.flush();
+            writer.close();
+        }catch(IOException ioe){
+            System.err.println("Error closing writer");
+            ioe.printStackTrace();
+        }
+
     }
 
-    private void cropAnnotations(BufferedImage fullImage){
+    /**
+     * Reads images in folders specified in dirNames array and puts them in a map according to which folder they came
+     * from, indicating the type of image they are.
+     * @return HashMap from Strings which are names of classes of annotation images to ArrayList<BufferedImage>
+     *         which contains all images of that type.**/
+    private Map<String, ArrayList<BufferedImage>> readClassImageMap() throws IOException{
+        // Directory names become keys in the map
+        String [] dirNames = new String[]{"text", "underline", "highlight"};
+        Map<String, ArrayList<BufferedImage>> imagesInClasses = new HashMap<>();
+
+        int numbOfFiles;
+        for(String dirName : dirNames) {
+            Path dirPath = Paths.get(Paths.get(RELATIVE_PATH, "Data", dirName).toString());
+            numbOfFiles = (int) Files.list(dirPath).count();
+
+            ArrayList<BufferedImage> imagesList = new ArrayList<>();
+            BufferedImage image;
+            File imagePath;
+            for(int i = 0; i < numbOfFiles; i++){
+                imagePath = new File(String.format("%s/%d.png", dirPath.toString(), i));
+                image = ImageIO.read(imagePath);
+                imagesList.add(image);
+            }
+            imagesInClasses.put(dirName, imagesList);
+        }
+        return imagesInClasses;
+    }
+
+    private ArrayList<BufferedImage> cropAnnotations(BufferedImage fullImage){
         BufferedImage image;
         ClusteringPoint topLeft;
         int width;
         int height;
+        ArrayList<BufferedImage> annotationImages = new ArrayList<>();
         for(AnnotationBoundingBox boundingBox : points) {
             topLeft = boundingBox.getTopLeft();
             width = boundingBox.getTopRight().getX() - topLeft.getX();
@@ -103,11 +166,48 @@ public class AnnotationIdentifier {
 
             annotationImages.add(image);
         }
+        return annotationImages;
     }
 
+    /* -------------- CSV writing methods -------------- */
+    private static String followCVSformat(String value) {
+        String result = value;
+        if (result.contains("\"")) {
+            result = result.replace("\"", "\"\"");
+        }
+        return result;
+
+    }
+
+    private static void writeLineCSV(Writer w, List<String> values){
+        try {
+            writeLine(w, values, ',', ' ');
+        }catch(IOException ioe){
+            System.err.println(String.format("Error writing to CSV: %s", values.toString()));
+            ioe.printStackTrace();
+        }
+    }
+
+    private static void writeLine(Writer w, List<String> values, char separators, char customQuote) throws IOException {
+
+        boolean first = true;
+
+        StringBuilder sb = new StringBuilder();
+        for (String value : values) {
+            if (!first) {
+                sb.append(separators);
+            }
+            sb.append(followCVSformat(value));
+            first = false;
+        }
+        sb.append("\n");
+        w.append(sb.toString());
+    }
+
+    /* -------------- Debugging helper functions -------------- */
     /**
      * Debugging function saving annotation cutouts from the big image**/
-    public void saveAnnotationBoxes(){
+    public void saveAnnotationBoxes(ArrayList<BufferedImage> annotationImages){
         Path currentRelativePath = Paths.get("");
         String RELATIVE_PATH = String.format("%s/Data/", currentRelativePath.toAbsolutePath().toString());
         int i = 0;
@@ -121,34 +221,7 @@ public class AnnotationIdentifier {
             }
             i++;
         }
-    }
 
-    public void saveAnnotationBox(BufferedImage image, String name){
-        Path currentRelativePath = Paths.get("");
-        String RELATIVE_PATH = String.format("%s/Data/", currentRelativePath.toAbsolutePath().toString());
-        int i = 0;
-        String filename = String.format("%s.jpg", name);
-        try {
-            ImageIO.write(image, "png", new File(RELATIVE_PATH + filename));
-        } catch (IOException e) {
-            System.err.println("IOException when writing image: ");
-            e.printStackTrace();
-        }
-    }
 
-    public Collection<AnnotationBoundingBox> getPoints() {
-        return points;
-    }
-
-    public void setPoints(Collection<AnnotationBoundingBox> points) {
-        this.points = points;
-    }
-
-    public Collection<BufferedImage> getAnnotationImages() {
-        return annotationImages;
-    }
-
-    public void setAnnotationImages(Collection<BufferedImage> annotationImages) {
-        this.annotationImages = annotationImages;
     }
 }
