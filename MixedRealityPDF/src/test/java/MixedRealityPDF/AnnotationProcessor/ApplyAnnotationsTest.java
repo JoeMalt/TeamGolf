@@ -9,7 +9,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import java.io.File;
 import java.io.IOException;
 
-public class ApplyAnnotations {
+public class ApplyAnnotationsTest {
 
   public static void main(String[] args) throws IOException {
 

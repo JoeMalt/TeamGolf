@@ -52,4 +52,7 @@ public class Document {
     return images[page].getBlackAndWhiteImage();
   }
 
+  public ImageProcessor getPageImageProcessor(int page){
+    return images[page];
+  }
 }

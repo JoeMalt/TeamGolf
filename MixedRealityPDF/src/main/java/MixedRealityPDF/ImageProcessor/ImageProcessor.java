@@ -75,6 +75,12 @@ public class ImageProcessor {
     return getRed(c) + getGreen(c) + getBlue(c);
   }
 
+  // Alligns this imageProcessor to reference.
+  // Works best for documents.
+  public void allignDocumentTo(ImageProcessor reference){
+
+  }
+
   private static int getRed(int c){
     return (c & 0xFF0000) >> 4*4;
   }
@@ -86,4 +92,5 @@ public class ImageProcessor {
   private static int getBlue(int c){
     return (c & 0xFF);
   }
+
 }

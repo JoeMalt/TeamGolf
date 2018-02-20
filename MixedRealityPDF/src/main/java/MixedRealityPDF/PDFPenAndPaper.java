@@ -26,17 +26,17 @@ public class PDFPenAndPaper {
   private static IAnnotationIdentifier annId;
 
 
-  public PDFPenAndPaper(BufferedImage scannedImage, BufferedImage pdfPageImage)
+  public PDFPenAndPaper(ImageProcessor scannedImage, ImageProcessor pdfPageImage)
           throws IOException {
     init(scannedImage, pdfPageImage);
   }
 
-  private void init(BufferedImage scannedImage, BufferedImage pdfPageImage){
-    BufferedImage scannedImageBNW;
-    scannedImageBNW = ImageProcessor.computeBlackAndWhite(scannedImage);
+  private void init(ImageProcessor scan, ImageProcessor pdfPage){
 
-    BufferedImage pdfPageImageBNW;
-    pdfPageImageBNW = ImageProcessor.computeBlackAndWhite(pdfPageImage);
+    scan.allignDocumentTo(pdfPage);
+
+    BufferedImage scannedImageBNW = scan.getBlackAndWhiteImage();
+    BufferedImage pdfPageImageBNW = pdfPage.getBlackAndWhiteImage();
 
     BufferedImage difference;
     difference = imageDiff.findDifference(scannedImageBNW, pdfPageImageBNW);
