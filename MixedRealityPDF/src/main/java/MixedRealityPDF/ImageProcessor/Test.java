@@ -1,4 +1,4 @@
-package MixedRealityPDF.Image;
+package MixedRealityPDF.ImageProcessor;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -16,9 +16,7 @@ public class Test {
     String outName = "scanBW." + type;
 
     BufferedImage bi = ImageIO.read(new File(path + inName));
-
-    Handler handler = new Handler(bi);
-    BufferedImage out = handler.getBlackAndWhite();
+    BufferedImage out = ImageProcessor.computeBlackAndWhite(bi);
 
     File output = new File(path + outName);
     ImageIO.write(out, type, output);
