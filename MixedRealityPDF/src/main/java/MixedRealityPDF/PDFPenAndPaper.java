@@ -8,12 +8,9 @@ import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
-import MixedRealityPDF.DocumentProcessor.PDFRenderer;
+import MixedRealityPDF.ImageProcessor.ImageProcessor;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,46 +18,33 @@ import java.util.List;
 
 public class PDFPenAndPaper {
 
-  private String imageFilepath;
-  private String pdfFilePath;
-
   Collection<Annotation> annotations;
 
-  // TODO Initialize static variables.
-  private static IDifferenceMap defaultDifferenceMap;
-  private static IClusterDetector defaultCusterDetector;
-  private static IAnnotationIdentifier defaultAnnotationIdentifier;
-
-  private IDifferenceMap differenceMap = defaultDifferenceMap;
-  private IClusterDetector clusterDetector = defaultCusterDetector;
-  private IAnnotationIdentifier annotationIdentifier = defaultAnnotationIdentifier;
+  // TODO(everyone) Initialize static variables.
+  private static IDifferenceMap imageDiff;
+  private static IClusterDetector clusterDetector;
+  private static IAnnotationIdentifier annId;
 
 
-  // To use the default non-path variables set them too null.
-  public PDFPenAndPaper(String imageFilepath, String pdfFilepath,
-                        IDifferenceMap differenceMap,
-                        IClusterDetector clusterDetector,
-                        IAnnotationIdentifier annotationIdentifier) {
-
-    if(differenceMap != null)
-      this.differenceMap = differenceMap;
-    if(clusterDetector != null)
-      this.clusterDetector = clusterDetector;
-    if(annotationIdentifier != null)
-      this.annotationIdentifier = annotationIdentifier;
+  public PDFPenAndPaper(ImageProcessor scannedImage, ImageProcessor pdfPageImage)
+          throws IOException {
+    init(scannedImage, pdfPageImage);
   }
 
-  public PDFPenAndPaper(String imageFilepath, String pdfFilepath)
-          throws IOException {
-    this.imageFilepath = imageFilepath;
-    this.pdfFilePath = pdfFilepath;
+  private void init(ImageProcessor scan, ImageProcessor pdfPage){
 
-    Image modifiedPDFImage = ImageIO.read(new File(imageFilepath));
-    Image originalPDFImage = new PDFRenderer(pdfFilePath).getImage();
-    Image differenceMapImage = differenceMap.findDifference(originalPDFImage,
-            modifiedPDFImage);
-    Collection<AnnotationBoundingBox> clusterPoints = clusterDetector.cluster((BufferedImage) differenceMapImage);
-    annotations = annotationIdentifier.identifyAnnotations(differenceMapImage, clusterPoints);
+    scan.allignDocumentTo(pdfPage);
+
+    BufferedImage scannedImageBNW = scan.getBlackAndWhiteImage();
+    BufferedImage pdfPageImageBNW = pdfPage.getBlackAndWhiteImage();
+
+    BufferedImage difference;
+    difference = imageDiff.findDifference(scannedImageBNW, pdfPageImageBNW);
+
+    Collection<AnnotationBoundingBox> clusterPoints;
+    clusterPoints = clusterDetector.cluster(difference);
+
+    annotations = annId.identifyAnnotations(difference, clusterPoints);
   }
 
   public List<Annotation> getAnnotations() {
@@ -95,35 +79,27 @@ public class PDFPenAndPaper {
     return filteredAnn;
   }
 
-  public String getImageFilepath() {
-    return imageFilepath;
-  }
-
-  public String getPdfFilePath() {
-    return pdfFilePath;
-  }
-
   public static IDifferenceMap getDefaultDifferenceMap() {
-    return defaultDifferenceMap;
+    return imageDiff;
   }
 
   public static void setDefaultDifferenceMap(IDifferenceMap defaultDifferenceMap) {
-    PDFPenAndPaper.defaultDifferenceMap = defaultDifferenceMap;
+    PDFPenAndPaper.imageDiff = defaultDifferenceMap;
   }
 
-  public static IClusterDetector getDefaultCusterDetector() {
-    return defaultCusterDetector;
+  public static IClusterDetector getDefaultClusterDetector() {
+    return clusterDetector;
   }
 
-  public static void setDefaultCusterDetector(IClusterDetector defaultCusterDetector) {
-    PDFPenAndPaper.defaultCusterDetector = defaultCusterDetector;
+  public static void setDefaultClusterDetector(IClusterDetector defaultClusterDetector) {
+    PDFPenAndPaper.clusterDetector = defaultClusterDetector;
   }
 
   public static IAnnotationIdentifier getDefaultAnnotationIdentifier() {
-    return defaultAnnotationIdentifier;
+    return annId;
   }
 
   public static void setDefaultAnnotationIdentifier(IAnnotationIdentifier defaultAnnotationIdentifier) {
-    PDFPenAndPaper.defaultAnnotationIdentifier = defaultAnnotationIdentifier;
+    PDFPenAndPaper.annId = defaultAnnotationIdentifier;
   }
 }

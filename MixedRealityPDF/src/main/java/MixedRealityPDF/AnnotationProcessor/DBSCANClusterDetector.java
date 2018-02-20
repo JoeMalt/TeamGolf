@@ -1,18 +1,10 @@
 package MixedRealityPDF.AnnotationProcessor;
 
-/**
- * Created by joe on 08/02/18.
- */
-
-
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -20,45 +12,24 @@ import java.util.List;
 
 public class DBSCANClusterDetector implements IClusterDetector {
 
-    private static double DBSCAN_EPSILON = 20.0;
-    private static int DBSCAN_MINPTS = 50;
+    // Parameters for DBSCAN
+    // epsilon: how close 2 points must be to be considered part of the same cluster, in millimetres
+    // this is converted to pixels based on the width of the image
+    // Empirically, about 3mm works well
+    private static double DBSCAN_EPSILON_MM = 3.0;
+    // min-points: the minimum number of points in a cluster. Useful for excluding noise.
+    // Empirically, about 5 works well
+    private static int DBSCAN_MINPTS = 5;
+
+    // If an image is wider than this value, scale it down to this width before clustering. Higher values
+    // may give slightly more accurate bounding boxes (and catch tiny annotations), but are slower.
     private static int SCALED_IMAGE_WIDTH = 500;
 
-    // TO DELETE
-    // draw the bounding box on the image
-    public static void main(String[] args) {
-        try {
-            BufferedImage im = ImageIO.read(new File("/home/joe/IBGroupProject/Stage2_Test1_no_text.png"));
-            DBSCANClusterDetector cd = new DBSCANClusterDetector();
-            Collection<AnnotationBoundingBox> s = cd.cluster(im);
-            // draw the bounding boxes back onto the image
-
-            Graphics2D g2d = im.createGraphics(); //TODO draw on original image
-            g2d.setBackground(Color.WHITE);
-            g2d.setColor(Color.RED);
-
-            for (AnnotationBoundingBox boundingBox : s) {
-                // draw the bounding box on the image
-                System.out.println("bounding box with top left at (" + boundingBox.getTopLeft().getX() + "," + boundingBox.getTopLeft().getY() + ").");
-
-                g2d.drawLine(boundingBox.getTopLeft().getX(), boundingBox.getTopLeft().getY(), boundingBox.getTopRight().getX(), boundingBox.getTopRight().getY());
-                g2d.drawLine(boundingBox.getTopLeft().getX(), boundingBox.getTopLeft().getY(), boundingBox.getBottomLeft().getX(), boundingBox.getBottomLeft().getY());
-                g2d.drawLine(boundingBox.getBottomLeft().getX(), boundingBox.getBottomLeft().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
-                g2d.drawLine(boundingBox.getTopRight().getX(), boundingBox.getTopRight().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
-
-
-
-            }
-            ImageIO.write(im, "PNG", new File("/home/joe/IBGroupProject/test_out_3.png"));
-        }
-        catch (IOException e){
-
-        }
-
-    }
-
-    // END
-
+    /**
+     *
+     * @param im: BufferedImage on which to perform the clustering
+     * @return Collection of AnnotationBoundingBox, one per annotation detected
+     */
     public Collection<AnnotationBoundingBox> cluster(BufferedImage im){
 
         // If the image is more than 500 pixels wide, scale it down
@@ -72,11 +43,15 @@ public class DBSCANClusterDetector implements IClusterDetector {
             scaledImage = im;
         }
 
+        // Calculate epsilon in pixels (as opposed to millimetres)
+        // Assumes the document is A4 (210mm wide)
+        int epsilon = (int) ((DBSCAN_EPSILON_MM / 210.0) * scaledImage.getWidth());
+
         // Get a list of the pixels that are not white / transparent
         Set<ClusteringPoint> pixelsToCluster = getNonBlankPixels(scaledImage);
 
         // Get the clusters using DBSCAN
-        List<Cluster<ClusteringPoint>> clusters = DBSCAN(pixelsToCluster);
+        List<Cluster<ClusteringPoint>> clusters = DBSCAN(pixelsToCluster, epsilon);
 
         // Generate a set of bounding boxes, one for each cluster
 
@@ -98,6 +73,9 @@ public class DBSCANClusterDetector implements IClusterDetector {
     }
 
     private Set<ClusteringPoint> getNonBlankPixels(BufferedImage im){
+        /*
+         Iterate through all the pixels in im, and add the coordinates of any that are not white/transparent to a set.
+         */
         Set<ClusteringPoint> nonBlankPixels = new HashSet<>();
         for (int h = 0; h < im.getHeight(); h++){
             for (int w = 0; w < im.getWidth(); w++){
@@ -110,8 +88,8 @@ public class DBSCANClusterDetector implements IClusterDetector {
         return nonBlankPixels;
     }
 
-    private static List<Cluster<ClusteringPoint>> DBSCAN(Set<ClusteringPoint> points){
-        DBSCANClusterer<ClusteringPoint> clusterer = new DBSCANClusterer<ClusteringPoint>(DBSCAN_EPSILON, DBSCAN_MINPTS);
+    private static List<Cluster<ClusteringPoint>> DBSCAN(Set<ClusteringPoint> points, int epsilon){
+        DBSCANClusterer<ClusteringPoint> clusterer = new DBSCANClusterer<ClusteringPoint>(epsilon, DBSCAN_MINPTS);
         return clusterer.cluster(points);
     }
 }
