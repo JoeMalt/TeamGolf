@@ -1,14 +1,11 @@
-// author: dsr31
+package experiments;// author: dsr31
 
 import Catalano.Core.IntPoint;
 import Catalano.Imaging.Corners.SusanCornersDetector;
 import Catalano.Imaging.FastBitmap;
 import Catalano.Imaging.Filters.*;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -24,8 +21,8 @@ public class CatalanoExperiments {
 
 
 
-        //BufferedImage originalBuffImage = ImageIO.read(new File(PDFs.TEST_1_TEXT_ORIGINAL));
-        //BufferedImage modifiedBuffImage = ImageIO.read(new File(PDFs.TEST_1_TEXT_LIGHT_ANNOTATION));
+        //BufferedImage originalBuffImage = ImageIO.read(new File(experiments.PDFs.TEST_1_TEXT_ORIGINAL));
+        //BufferedImage modifiedBuffImage = ImageIO.read(new File(experiments.PDFs.TEST_1_TEXT_LIGHT_ANNOTATION));
 
 
         // threshold("scannedversion.png");

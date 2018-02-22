@@ -1,3 +1,4 @@
+package experiments;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -42,10 +43,10 @@ public class FastPDF {
 
 /*
 
-        BufferedImage scaled = ImageIO.read(new File(PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
+        BufferedImage scaled = ImageIO.read(new File(experiments.PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
 
 
-        FastPDF fpdf_scaled = new FastPDF(scaled, 3);
+        experiments.FastPDF fpdf_scaled = new experiments.FastPDF(scaled, 3);
 
         fpdf_original.saveToOutputFile("output_images/original_fastpdf.png");
         fpdf_scaled.saveToOutputFile("output_images/tmp-2.png");
@@ -97,13 +98,13 @@ public class FastPDF {
         String outputPath = "output_images/TMP.png";
 
 
-        BufferedImage inputImage = ImageIO.read(new File(PDFs.TEST_3_TEXT_ORIGINAL));
-        BufferedImage modifiedScanImage = ImageIO.read(new File(PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
+        BufferedImage inputImage = ImageIO.read(new File(experiments.PDFs.TEST_3_TEXT_ORIGINAL));
+        BufferedImage modifiedScanImage = ImageIO.read(new File(experiments.PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
 
 
 
-        FastPDF pdf_original  = new FastPDF(inputImage, 3);
-        FastPDF pdf_modified  = new FastPDF(modifiedScanImage, 3);
+        experiments.FastPDF pdf_original  = new experiments.FastPDF(inputImage, 3);
+        experiments.FastPDF pdf_modified  = new experiments.FastPDF(modifiedScanImage, 3);
 
 
         pdf_original.saveToOutputFile(outputPath);
@@ -121,7 +122,7 @@ public class FastPDF {
         // double[] results_f_theta = pdf.tryThetaRange(-20, 20, 100, 1);
         // BufferedImage withScanLines = pdf.superimposeScanLinesOnCurrentDownsampledImage(minTheta, maxTheta, numSteps, verticalSpacing);
         // System.out.println("results_f_theta = " + Arrays.toString(results_f_theta));
-        // HillClimbing.writeOutputImageToFile(withScanLines, "output_images/" + "TEST3_no_annotations"+"_rotated_downsampled_with_rotation_lines.png");
+        // experiments.HillClimbing.writeOutputImageToFile(withScanLines, "output_images/" + "TEST3_no_annotations"+"_rotated_downsampled_with_rotation_lines.png");
 
 
 
