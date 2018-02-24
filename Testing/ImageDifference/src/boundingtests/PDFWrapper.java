@@ -1,37 +1,52 @@
-package bounding;
+package boundingtests;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.Line;
-import javax.xml.soap.Text;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.Buffer;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import experiments.*;
-import javafx.geometry.BoundingBox;
-import javafx.scene.transform.Affine;
-import org.antlr.v4.misc.Graph;
-
 
 import javafx.util.Pair;
 
 public class PDFWrapper {
 
+
+    public static BufferedImage align(String pathOriginal, String pathScan) throws IOException {
+        BufferedImage original = ImageIO.read(new File(pathOriginal));
+        BufferedImage scan = ImageIO.read(new File(pathScan));
+        BufferedImage aligned = align(original, scan);
+        return aligned;
+    }
+
+
+
+    public static BufferedImage align(BufferedImage original, BufferedImage scan) {
+        PDFWrapper originalPDFWrapper = new PDFWrapper(original);
+        PDFWrapper modifiedPDFWrapper = new PDFWrapper(scan);
+        TextBoundingBox originalBB = originalPDFWrapper.boundingBox();
+        TextBoundingBox scanBB = modifiedPDFWrapper.boundingBox();
+        BufferedImage correctlyAlignedImage = correctAlignment(scanBB, originalBB, modifiedPDFWrapper.bufferedImage);
+        return correctlyAlignedImage;
+    }
+
     public static void main(String[] args) throws IOException {
 
-        PDFWrapper originalPdfWrapper = new PDFWrapper(PDFs.ORIGINAL_NEW);
-        PDFWrapper modifiedPdfWrapper = new PDFWrapper(PDFs.TRANSFORMED_NEW);
+        PDFWrapper originalPdfWrapper = new PDFWrapper(PDFs.TEST_1_TEXT_ORIGINAL);
+        PDFWrapper modifiedPdfWrapper = new PDFWrapper(PDFs.TEST_1_TEXT_HEAVY_ANNOTATION);
 
-        PDFWrapper.save(modifiedPdfWrapper.getImage(false, false), "output_images_new/new1a.png");
-        PDFWrapper.save(originalPdfWrapper.getImage(false, false), "output_images_new/new2a.png");
+        String prefix = "new-2-";
+
+        PDFWrapper.save(modifiedPdfWrapper.getImage(true, false), "output_images_new/"+prefix+"new1a-black.png");
+        PDFWrapper.save(modifiedPdfWrapper.getImage(true, false), "output_images_new/"+prefix+"new1a-red.png");
+        PDFWrapper.save(modifiedPdfWrapper.getWithBoundingBox(), "output_images_new/"+prefix+"modified_with_bb.png");
+        PDFWrapper.save(originalPdfWrapper.getWithBoundingBox(), "output_images_new/"+prefix+"original_with_bb.png");
+
 
         TextBoundingBox originalBB = originalPdfWrapper.boundingBox();
         TextBoundingBox scanBB = modifiedPdfWrapper.boundingBox();
@@ -42,15 +57,15 @@ public class PDFWrapper {
 
         Pair<Double, Double> scales = PDFWrapper.findScaling(scanBB, originalBB);
 
-        PDFWrapper.save(PDFWrapper.overlayBB(PDFWrapper.plotLine(modifiedPdfWrapper.getWithBoundingBox(), tvec), originalBB), "output_images_new/new1b.png");
-        PDFWrapper.save(originalPdfWrapper.getWithBoundingBox(),"output_images_new/new2b.png");
+        PDFWrapper.save(PDFWrapper.overlayBB(PDFWrapper.plotLine(modifiedPdfWrapper.getWithBoundingBox(), tvec), originalBB), "output_images_new/"+prefix+"new1b.png");
+        PDFWrapper.save(originalPdfWrapper.getWithBoundingBox(),"output_images_new/"+prefix+"new2b.png");
 
         BufferedImage translatedScan = PDFWrapper.applyTranslate(translationCorr.x, translationCorr.y, modifiedPdfWrapper.bufferedImage);
-        PDFWrapper.save(translatedScan, "output_images_new/newscantranslated.png");
+        PDFWrapper.save(translatedScan, "output_images_new/"+prefix+"newscantranslated.png");
 
 
         BufferedImage correctlyAlignedImage = correctAlignment(scanBB, originalBB, modifiedPdfWrapper.bufferedImage);
-        PDFWrapper.save(correctlyAlignedImage, "output_images_new/newaligned.png");
+        PDFWrapper.save(correctlyAlignedImage, "output_images_new/"+prefix+"newaligned.png");
 
     }
 
@@ -99,7 +114,7 @@ public class PDFWrapper {
     }
 
     public BufferedImage getImage(boolean justBlack, boolean justRed) {
-        BufferedImage outputBufferedImage  = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), bufferedImage.getType());
+        BufferedImage outputBufferedImage  = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), 1+bufferedImage.getType());
         for (int x = 0; x < originalWidth; x++) {
             for (int y = 0; y < originalHeight; y++) {
                 if (justRed && !justBlack) {
@@ -306,8 +321,8 @@ public class PDFWrapper {
 
     /*
        Input
-              bbscan -- bounding box of scan
-              bborig -- bounding box of original
+              bbscan -- boundingtests box of scan
+              bborig -- boundingtests box of original
         Output
               coordinate (dx, dy) such that if (x, y) is a point in the scan then (x + dx, y + dy) is the corresponding position in the original (before scaling).
      */
@@ -322,8 +337,8 @@ public class PDFWrapper {
     /*
 
         Input
-              bbscan -- bounding box of scan
-              bborig -- bounding box of original
+              bbscan -- boundingtests box of scan
+              bborig -- boundingtests box of original
         Output
               coordinate (kx, ky)
               where
@@ -357,6 +372,31 @@ public class PDFWrapper {
     }
 
 
+
+    public static BufferedImage applyTranslate_new(int dx, int dy, BufferedImage toTranslate) {
+
+        if (1==1) {
+            throw new IllegalArgumentException("Implement this method");
+        }
+
+
+        AffineTransform at = new AffineTransform();
+        at.translate(dx, dy);
+
+
+        BufferedImage whiteImage = new BufferedImage(toTranslate.getWidth(), toTranslate.getHeight(), toTranslate.getType());
+        for (int x = 0; x < whiteImage.getWidth(); x++) {
+            for (int y = 0; y < whiteImage.getHeight(); y++) {
+                whiteImage.setRGB(x, y, Color.WHITE.getRGB());
+            }
+        }
+
+        Graphics2D g2d = whiteImage.createGraphics();
+        g2d.drawImage(toTranslate, at, null);
+
+        return null;
+    }
+
     /*
        this will output an image where the pixel
             toTranslate(x, y)
@@ -364,6 +404,8 @@ public class PDFWrapper {
             (x + dx, y + dy)
      */
     public static BufferedImage applyTranslate(int dx, int dy, BufferedImage toTranslate) {
+
+
         BufferedImage outputImage = new BufferedImage(toTranslate.getWidth(), toTranslate.getHeight(), toTranslate.getType());
         for (int x = 0; x < toTranslate.getWidth(); x++) {
             for (int y = 0; y < toTranslate.getHeight(); y++) {

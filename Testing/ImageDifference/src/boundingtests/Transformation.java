@@ -1,10 +1,10 @@
-package bounding;
+package boundingtests;
 
 public class Transformation {
 
     // Semantics: apply the translation to the scan
     // Then consider the xscale and yscale as stretch factors to be applied to the scan after it's been translated, around the point
-    // at the top left of the bounding box
+    // at the top left of the boundingtests box
 
 
 

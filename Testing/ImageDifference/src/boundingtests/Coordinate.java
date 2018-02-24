@@ -1,4 +1,4 @@
-package bounding;
+package boundingtests;
 
 import java.awt.image.BufferedImage;
 

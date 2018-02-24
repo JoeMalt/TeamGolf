@@ -32,8 +32,12 @@ public class FastPDF {
     public static void main(String[] args) throws IOException {
 
 
-        FastPDF input = new FastPDF(ImageIO.read(new File(PDFs.THRESHOLDED_SCAN)), 1);
-        FastPDF original = new FastPDF(ImageIO.read(new File(PDFs.TEST_3_TEXT_ORIGINAL)), 1);
+        FastPDF input = new FastPDF(ImageIO.read(new File(PDFs.ORIGINAL)), 1);
+        FastPDF original = new FastPDF(ImageIO.read(new File(PDFs.ORIGINAL_ROTATED_10_DEGREES)), 1);
+
+
+        input.getAngle();
+
         int [] results_input = input.tryFixedThetaValue(0.0, 1);
         int [] original_input = original.tryFixedThetaValue(0.0, 1);
         System.out.println("results_input = " + results_input);
@@ -432,7 +436,7 @@ public class FastPDF {
 
     // Downsample each dimension by a factor downsamplingFactor
     // so there will be approx dsF^2 pixels in the original for every pixel in the downsampled version
-    FastPDF(BufferedImage bufferedImage, int downsamplingFactor) {
+    public FastPDF(BufferedImage bufferedImage, int downsamplingFactor) {
 
 
         originalHeight = bufferedImage.getHeight();
@@ -667,6 +671,7 @@ public class FastPDF {
             currentTheta = minTheta + stepSize * i;
             var_i = computeVariance(performScan(currentTheta, verticalSpacing));
             results[i] = var_i;
+            System.out.println("i = " + i);
         }
 
 
@@ -878,4 +883,49 @@ public class FastPDF {
     }
 
 
+
+    public Double getAngle() {
+
+        int nsteps = 100;
+
+        double minTheta = -1.0;
+        double maxTheta = 1.0;
+        double thetaRange = maxTheta - minTheta;
+
+
+        double[] varianceOfTheta = tryThetaRange(minTheta, maxTheta, nsteps, 5);
+
+        int indexOfMax = getPositionOfMaxPoint(varianceOfTheta);
+
+        double optimalTheta = minTheta + (indexOfMax / (double) nsteps) * thetaRange;
+
+        System.out.println("varianceOfTheta = " + varianceOfTheta);
+
+
+        return optimalTheta;
+
+    }
+
+    public static BufferedImage rotationCorrect(double thetaRotation, BufferedImage scan) {
+
+        BufferedImage outImage = new BufferedImage(scan.getWidth(), scan.getHeight(), scan.getType());
+
+        for (int x = 0; x<outImage.getWidth(); x++) {
+            for (int y = 0; y < outImage.getHeight(); y++) {
+                outImage.setRGB(x, y, Color.WHITE.getRGB());
+            }
+        }
+
+        for (int x = 0; x < outImage.getWidth(); x++) {
+            for (int y = 0; y < outImage.getHeight(); y++) {
+                int xprime = (int) Math.floor( x * Math.cos(thetaRotation) - y * Math.sin(thetaRotation));
+                int yprime = (int) Math.floor(x * Math.sin(thetaRotation) + y * Math.cos(thetaRotation));
+                if (xprime >= 0 && xprime < outImage.getWidth() && yprime >= 0 && yprime < outImage.getHeight()) {
+                    outImage.setRGB(x, y, scan.getRGB(xprime, yprime));
+                }
+            }
+        }
+
+        return outImage;
+    }
 }

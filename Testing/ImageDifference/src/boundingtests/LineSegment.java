@@ -1,4 +1,4 @@
-package bounding;
+package boundingtests;
 
 public class LineSegment {
 
