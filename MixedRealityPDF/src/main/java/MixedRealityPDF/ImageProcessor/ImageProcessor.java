@@ -1,26 +1,30 @@
 package MixedRealityPDF.ImageProcessor;
 
+import MixedRealityPDF.ImageProcessor.Alignment.PDFWrapper;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.nio.Buffer;
 
 public class ImageProcessor {
 
-  private BufferedImage image;
-  private BufferedImage imageBNW;
-
-  public ImageProcessor(BufferedImage image){
-    this.image = image;
+  public static BufferedImage alignTo(BufferedImage original, BufferedImage modified){
+      BufferedImage alignedMarkings = PDFWrapper.align(original, modified);
+      return alignedMarkings;
   }
 
-  public BufferedImage getBlackAndWhiteImage() {
-    if(imageBNW == null)
-      imageBNW = computeBlackAndWhite(image);
-    return imageBNW;
+  public static BufferedImage getDifference(BufferedImage original, BufferedImage modified){
+      BufferedImage aligned = alignTo(original, modified);
+      return removeBlack(aligned);
   }
 
-  public BufferedImage getImage() {
-    return image;
-  }
+    private static BufferedImage removeBlack(BufferedImage image) {
+      return null;
+    }
+
+    private static BufferedImage removeColour(BufferedImage image){
+      return null;
+    }
 
   public static BufferedImage computeBlackAndWhite(BufferedImage image){
     // true white, so that true luminosity of the image would be preserved.
@@ -77,7 +81,7 @@ public class ImageProcessor {
 
   // Alligns this imageProcessor to reference.
   // Works best for documents.
-  public void allignDocumentTo(ImageProcessor reference){
+  public void alignDocumentTo(ImageProcessor reference){
 
   }
 

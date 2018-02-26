@@ -1,14 +1,16 @@
+import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
 import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
+import MixedRealityPDF.AnnotationProcessor.Identification.AnnotationIdentifier;
 import MixedRealityPDF.DocumentProcessor.Document;
 import MixedRealityPDF.ImageProcessor.ImageProcessor;
 import MixedRealityPDF.PDFPenAndPaper;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +29,13 @@ public class Main {
     Document doc = new Document(pdf);
 
     PDFPenAndPaper document = new PDFPenAndPaper(scan, doc.getPageImageProcessor(0));
+
+    // full pdf image of difference (just annotations)
+    Image fullImage = null;
+    // list of bounding boxes from segmentation stage
+    List<AnnotationBoundingBox> boundingBoxes = null;
+    AnnotationIdentifier identifier = new AnnotationIdentifier(fullImage, boundingBoxes);
+    identifier.createTreeTrainingFile();
 
     List<Annotation> annotationList;
     document.getAnnotations();

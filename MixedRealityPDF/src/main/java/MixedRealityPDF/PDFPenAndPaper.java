@@ -10,6 +10,7 @@ import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
 import MixedRealityPDF.ImageProcessor.ImageProcessor;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,25 +26,22 @@ public class PDFPenAndPaper {
   private static IClusterDetector clusterDetector;
   private static IAnnotationIdentifier annId;
 
+  public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile, File OutputFile){
+    PDDocument pdfOriginal = PDDocument.load(pdfOriginalFile);
+    PDDocument pdfScanned = PDDocument.load(pdfScannedFile);
+    //TODO 
+  }
 
-  public PDFPenAndPaper(ImageProcessor scannedImage, ImageProcessor pdfPageImage)
+
+  public PDFPenAndPaper(BufferedImage scannedImage, BufferedImage pdfPageImage)
           throws IOException {
     init(scannedImage, pdfPageImage);
   }
 
-  private void init(ImageProcessor scan, ImageProcessor pdfPage){
-
-    scan.allignDocumentTo(pdfPage);
-
-    BufferedImage scannedImageBNW = scan.getBlackAndWhiteImage();
-    BufferedImage pdfPageImageBNW = pdfPage.getBlackAndWhiteImage();
-
-    BufferedImage difference;
-    difference = imageDiff.findDifference(scannedImageBNW, pdfPageImageBNW);
-
+  private void init(BufferedImage scan, BufferedImage pdfPage){
+    BufferedImage difference = ImageProcessor.getDifference(pdfPage, scan);
     Collection<AnnotationBoundingBox> clusterPoints;
     clusterPoints = clusterDetector.cluster(difference);
-
     annotations = annId.identifyAnnotations(difference, clusterPoints);
   }
 
