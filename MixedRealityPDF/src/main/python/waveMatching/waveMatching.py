@@ -5,11 +5,6 @@ import numpy as np
 from scipy import optimize
 from sys import argv
 
-def frange(x, y, jump):
-	while x < y:
-		yield x
-		x += jump
-
 def normalize(X, range, min=0):
     eX = math.e**X
     return range*eX/(1+eX) + min
@@ -27,8 +22,6 @@ def matchAreas(original, modified):
     return scale
 
 def calculate_offset(scale, original, modified):
-    #scale modified by scale then find peaks of original and modified
-    #the difference of the peaks is the offset.
     Po = 0 #Peak original
     Xo = 0 #X    original
     for x in range(0, len(original)):
@@ -43,11 +36,6 @@ def calculate_offset(scale, original, modified):
             Pm = val
             Xm = x * scale
 
-#    print("Po - %f" % Po)
-#    print("Xo - %d" % Xo)
-#    print("Pm - %f" % Pm)
-#    print("Xm - %d" % Xm)
-#    print("Diff - %d" % (Xo-Xm))
     return Xo - Xm
 
 def wave_difference(scale, original, modified): 
@@ -69,68 +57,59 @@ def wave_difference(scale, original, modified):
     for x in range(int(min(0, -offset)), int(max(limitO, limitM*scale - offset))):
         h1 = original[x] if 0 <= x and x < limitO else 0
         h2 = getTransform(x)
-        #print(h1, end=" - ")
-        #print(h2)
         errorV += (h1 - h2)**2
-    #print("error - %s - %s" % (str(scale), str(errorV)))
     return errorV
 
-original1 = [0,2,4,0] 
-modified1 = [0,0,2,2,4,4,2,0,0]
-
-original2 = [0,0,2,4,4,0,0,1,2,3,4,5,6,7,8,9,0]*10
-modified2 = [0,0,2,4,4,0,0,1,2,3,4,5,6,7,8,9,0]*10
-#assert(error([1,1,0], original2, modified2) == 0)
-modified2 = modified2[1:]
-
-original3 = [0,0,2,4,4,0,0]
-modified3 = [0,0,1,2,2,0,0]
-#assert(error([1,2,0], original3, modified3) == 0)
-
-if(len(argv) != 3):
-    print("Usage: ./wavematching input_file1 input_file2")
+if(len(argv) != 5):
+    print("Usage: ./wavematching scan_y scan_x orig_y orig_x")
     sys.exit()
 
-
-file_A = open(argv[1], "r")
-file_B = open(argv[2], "r")
-
-data_A = file_A.read().strip()
-data_B = file_B.read().strip()
-
-data_A = list(map(int, (data_A if data_A[0].isdigit() else data_A[1:-1]).split(',')))
-data_B = list(map(int, (data_B if data_B[0].isdigit() else data_B[1:-1]).split(',')))
-
-data_A = original2
-data_B = modified2
+file_scan_y = open(argv[1], "r")
+file_scan_x = open(argv[2], "r")
+file_orig_y = open(argv[3], "r")
+file_orig_x = open(argv[4], "r")
 
 
-intensity = matchAreas(data_A, data_B)
+scan_y = file_scan_y.read().strip()
+scan_x = file_scan_x.read().strip()
+orig_y = file_orig_y.read().strip()
+orig_x = file_orig_x.read().strip()
 
-print(data_A)
-print(data_B)
+scan_y = list(map(int, (scan_y if scan_y[0].isdigit() else scan_y[1:-1]).split(',')))
+scan_x = list(map(int, (scan_x if scan_x[0].isdigit() else scan_x[1:-1]).split(',')))
+orig_y = list(map(int, (orig_y if orig_y[0].isdigit() else orig_y[1:-1]).split(',')))
+orig_x = list(map(int, (orig_x if orig_x[0].isdigit() else orig_x[1:-1]).split(',')))
 
-print(calculate_offset(1, data_A, data_B))
+intensityX = matchAreas(scan_y, orig_y)
+intensityY = matchAreas(scan_x, orig_x) 
+intensity = (intensityX + intensityY) / 2
 
-#sys.exit()
+def normalize(x):
+    return normalize(x, 2, 1/2)
 
-opt_error = lambda x : wave_difference(normalize(x, 2, 1/2), data_A, data_B)
+def opt_error(x):
+    X = normalize(x)
+    error = 0
+    error += wave_difference(X, orig_y, scan_y)
+    error += wave_difference(X, orig_x, scan_x)
+    return error
 
-ret = optimize.basinhopping(opt_error, 0, 10)
+ret = optimize.basinhopping(opt_error, 0, niter=100)
 #print(opt_error(vector))
 
 print("I'm here")
 
-scale = normalize(ret.x, 3, 1/3)
-offset = calculate_offset(scale, data_A, data_B)
+scale = normalize(ret.x)
+offsetY = calculate_offset(scale, orig_y, scan_y)
+offsetX = calculate_offset(scale, orig_x, scan_x)
 
 print("\nRESULTS")
 print("global min x = %s, f(x0) = %.4f" % (str(ret.x), ret.fun))
 print("scale - %.4f"     %scale)
 print("intensity - %.4f" %intensity)
-print("offset - %.4f"    %offset)
+print("offsetX - %.4f"    %offsetX)
+print("offsetY - %.4f"    %offsetY)
 print("")
 
 print(opt_error(ret.x))
-
 
