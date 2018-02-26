@@ -26,6 +26,12 @@ public class PDFPenAndPaper {
   private static IClusterDetector clusterDetector;
   private static IAnnotationIdentifier annId;
 
+  public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile, File OutputFile){
+    PDDocument pdfOriginal = PDDocument.load(pdfOriginalFile);
+    PDDocument pdfScanned = PDDocument.load(pdfScannedFile);
+    //TODO 
+  }
+
 
   public PDFPenAndPaper(BufferedImage scannedImage, BufferedImage pdfPageImage)
           throws IOException {
