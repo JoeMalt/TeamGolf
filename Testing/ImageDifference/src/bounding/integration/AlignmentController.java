@@ -2,7 +2,7 @@ package bounding.integration;
 
 
 
-import bounding.Alignment;
+import bounding.DocumentProcessor.ColorExtractor;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -19,9 +19,9 @@ public class AlignmentController {
         BufferedImage originalBufferedImage = ImageIO.read(new File(originalFilePath));
         BufferedImage scanBufferedImage = ImageIO.read(new File(scanFilePath));
         BufferedImage alignedScan = Alignment.getAlignedScan(originalBufferedImage, scanBufferedImage);
-
-
-
+        ColorExtractor colorExtractor = new ColorExtractor();
+        BufferedImage colorExtractionAfterAlignment = colorExtractor.findDifference(originalBufferedImage, alignedScan);
+        return colorExtractionAfterAlignment;
     }
 
 }

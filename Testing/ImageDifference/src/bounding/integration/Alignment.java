@@ -1,4 +1,4 @@
-package bounding;
+package bounding.integration;
 
 import boundingtests.PDFWrapper;
 import experiments.FastPDF;
@@ -42,7 +42,7 @@ public class Alignment {
 
     }
 
-    private static String date() {
+    public static String date() {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         Date date = new Date();
         return dateFormat.format(date);
