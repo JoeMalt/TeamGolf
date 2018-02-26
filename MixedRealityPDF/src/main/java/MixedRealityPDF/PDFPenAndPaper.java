@@ -23,7 +23,7 @@ public class PDFPenAndPaper {
 
   Collection<Annotation> annotations;
 
-  // TODO(everyone) Initialize static variables.
+  // TODO(everyone) Initialize static variables
   private static IDifferenceMap imageDiff;
   private static IClusterDetector clusterDetector;
   private static IAnnotationIdentifier annId;
