@@ -1,4 +1,3 @@
-package experiments;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -32,12 +31,8 @@ public class FastPDF {
     public static void main(String[] args) throws IOException {
 
 
-        FastPDF input = new FastPDF(ImageIO.read(new File(PDFs.ORIGINAL)), 1);
-        FastPDF original = new FastPDF(ImageIO.read(new File(PDFs.ORIGINAL_ROTATED_10_DEGREES)), 1);
-
-
-        input.getAngle();
-
+        FastPDF input = new FastPDF(ImageIO.read(new File(PDFs.THRESHOLDED_SCAN)), 1);
+        FastPDF original = new FastPDF(ImageIO.read(new File(PDFs.TEST_3_TEXT_ORIGINAL)), 1);
         int [] results_input = input.tryFixedThetaValue(0.0, 1);
         int [] original_input = original.tryFixedThetaValue(0.0, 1);
         System.out.println("results_input = " + results_input);
@@ -47,10 +42,10 @@ public class FastPDF {
 
 /*
 
-        BufferedImage scaled = ImageIO.read(new File(experiments.PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
+        BufferedImage scaled = ImageIO.read(new File(PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
 
 
-        experiments.FastPDF fpdf_scaled = new experiments.FastPDF(scaled, 3);
+        FastPDF fpdf_scaled = new FastPDF(scaled, 3);
 
         fpdf_original.saveToOutputFile("output_images/original_fastpdf.png");
         fpdf_scaled.saveToOutputFile("output_images/tmp-2.png");
@@ -102,13 +97,13 @@ public class FastPDF {
         String outputPath = "output_images/TMP.png";
 
 
-        BufferedImage inputImage = ImageIO.read(new File(experiments.PDFs.TEST_3_TEXT_ORIGINAL));
-        BufferedImage modifiedScanImage = ImageIO.read(new File(experiments.PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
+        BufferedImage inputImage = ImageIO.read(new File(PDFs.TEST_3_TEXT_ORIGINAL));
+        BufferedImage modifiedScanImage = ImageIO.read(new File(PDFs.TEST_3_TEXT_HEAVY_ANNOTATION));
 
 
 
-        experiments.FastPDF pdf_original  = new experiments.FastPDF(inputImage, 3);
-        experiments.FastPDF pdf_modified  = new experiments.FastPDF(modifiedScanImage, 3);
+        FastPDF pdf_original  = new FastPDF(inputImage, 3);
+        FastPDF pdf_modified  = new FastPDF(modifiedScanImage, 3);
 
 
         pdf_original.saveToOutputFile(outputPath);
@@ -126,7 +121,7 @@ public class FastPDF {
         // double[] results_f_theta = pdf.tryThetaRange(-20, 20, 100, 1);
         // BufferedImage withScanLines = pdf.superimposeScanLinesOnCurrentDownsampledImage(minTheta, maxTheta, numSteps, verticalSpacing);
         // System.out.println("results_f_theta = " + Arrays.toString(results_f_theta));
-        // experiments.HillClimbing.writeOutputImageToFile(withScanLines, "output_images/" + "TEST3_no_annotations"+"_rotated_downsampled_with_rotation_lines.png");
+        // HillClimbing.writeOutputImageToFile(withScanLines, "output_images/" + "TEST3_no_annotations"+"_rotated_downsampled_with_rotation_lines.png");
 
 
 
@@ -436,7 +431,7 @@ public class FastPDF {
 
     // Downsample each dimension by a factor downsamplingFactor
     // so there will be approx dsF^2 pixels in the original for every pixel in the downsampled version
-    public FastPDF(BufferedImage bufferedImage, int downsamplingFactor) {
+    FastPDF(BufferedImage bufferedImage, int downsamplingFactor) {
 
 
         originalHeight = bufferedImage.getHeight();
@@ -671,7 +666,6 @@ public class FastPDF {
             currentTheta = minTheta + stepSize * i;
             var_i = computeVariance(performScan(currentTheta, verticalSpacing));
             results[i] = var_i;
-            System.out.println("i = " + i);
         }
 
 
@@ -883,49 +877,4 @@ public class FastPDF {
     }
 
 
-
-    public Double getAngle() {
-
-        int nsteps = 100;
-
-        double minTheta = -1.0;
-        double maxTheta = 1.0;
-        double thetaRange = maxTheta - minTheta;
-
-
-        double[] varianceOfTheta = tryThetaRange(minTheta, maxTheta, nsteps, 5);
-
-        int indexOfMax = getPositionOfMaxPoint(varianceOfTheta);
-
-        double optimalTheta = minTheta + (indexOfMax / (double) nsteps) * thetaRange;
-
-        System.out.println("varianceOfTheta = " + varianceOfTheta);
-
-
-        return optimalTheta;
-
-    }
-
-    public static BufferedImage rotationCorrect(double thetaRotation, BufferedImage scan) {
-
-        BufferedImage outImage = new BufferedImage(scan.getWidth(), scan.getHeight(), scan.getType());
-
-        for (int x = 0; x<outImage.getWidth(); x++) {
-            for (int y = 0; y < outImage.getHeight(); y++) {
-                outImage.setRGB(x, y, Color.WHITE.getRGB());
-            }
-        }
-
-        for (int x = 0; x < outImage.getWidth(); x++) {
-            for (int y = 0; y < outImage.getHeight(); y++) {
-                int xprime = (int) Math.floor( x * Math.cos(thetaRotation) - y * Math.sin(thetaRotation));
-                int yprime = (int) Math.floor(x * Math.sin(thetaRotation) + y * Math.cos(thetaRotation));
-                if (xprime >= 0 && xprime < outImage.getWidth() && yprime >= 0 && yprime < outImage.getHeight()) {
-                    outImage.setRGB(x, y, scan.getRGB(xprime, yprime));
-                }
-            }
-        }
-
-        return outImage;
-    }
 }

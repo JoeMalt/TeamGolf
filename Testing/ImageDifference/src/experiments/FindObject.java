@@ -1,7 +1,7 @@
-package experiments;
-
+import org.opencv.calib3d.Calib3d;
 import org.opencv.core.*;
 import org.opencv.features2d.*;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.xfeatures2d.SURF;
 
@@ -11,6 +11,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import static java.lang.Double.max;
 import static org.opencv.features2d.Features2d.drawMatches;
@@ -26,7 +28,7 @@ class FindObject {
 
     public void run(String pathObject, String pathScene, String pathResult) throws IOException {
 
-        System.out.println("\nRunning experiments.FindObject");
+        System.out.println("\nRunning FindObject");
 
         Mat img_1 = Imgcodecs.imread("".concat(pathObject), 0); //0 = CV_LOAD_IMAGE_GRAYSCALE
         Mat img_2 = Imgcodecs.imread("".concat(pathScene), 0);

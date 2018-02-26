@@ -1,5 +1,3 @@
-package experiments;
-
 public class PDFs {
 
 
@@ -59,19 +57,6 @@ public class PDFs {
     public static String SCAN_THRESHOLDED =  "scanned_pdfs/scan_thresholded.jpg";
     public static String SCAN_THRESHOLD_TRANSLATED =  "scanned_pdfs/scan_thresholded_translated.png";
     public static String SCAN_TRANSFORMED =  "scanned_pdfs/scan_transformed.png";
-
-
-
-
-    // New idea experiments.PDFs
-    public static String ORIGINAL_NEW = "originals_new/original.png";
-    public static String TRANSFORMED_NEW = "originals_new/modified.png";
-
-
-    public static String P1 = "originals_new/1.png";
-    public static String P2 = "originals_new/2.png";
-
-
 
 
 }
