@@ -41,6 +41,7 @@ public class AnnotationIdentifier {
 
             // TODO(koc): fix errors thrown by CL, adjust to different OSes
             try {
+                System.out.println("Starting python");
                 // run python script with decision tree
                 String pythonScriptPath = Paths.get(RELATIVE_PATH, "src", "main", "java", "MixedRealityPDF",
                         "AnnotationProcessing", "Identification", "decision_tree.py").toString();
@@ -69,7 +70,7 @@ public class AnnotationIdentifier {
         record.add(Double.toString(featureExtractor.getDominantColour(image)));
         record.add(Double.toString(image.getWidth()));
         record.add(Double.toString(image.getHeight()));
-        if(!key.isEmpty())  record.add(key);
+        if(!key.isEmpty()) record.add(key);
         writeLineCSV(fileWriter, record);
     }
 
