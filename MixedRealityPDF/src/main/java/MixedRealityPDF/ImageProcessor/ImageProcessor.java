@@ -1,16 +1,15 @@
 package MixedRealityPDF.ImageProcessor;
 
-import MixedRealityPDF.ImageProcessor.Alignment.PDFWrapper;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.nio.Buffer;
 
 public class ImageProcessor {
 
   public static BufferedImage alignTo(BufferedImage original, BufferedImage modified){
-      BufferedImage alignedMarkings = PDFWrapper.align(original, modified);
-      return alignedMarkings;
+      // TODO(Dip) uncomment when finished with unuglifying your code.
+      //BufferedImage alignedMarkings = PDFWrapper.align(original, modified);
+      //return alignedMarkings;
+      return null;
   }
 
   public static BufferedImage getDifference(BufferedImage original, BufferedImage modified){

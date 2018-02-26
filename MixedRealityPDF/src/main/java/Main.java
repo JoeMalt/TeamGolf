@@ -24,11 +24,10 @@ public class Main {
     String pdfFilePath = "";
 
     BufferedImage scanImage = ImageIO.read(new File(imageFilepath));
-    ImageProcessor scan = new ImageProcessor(scanImage);
     PDDocument pdf = PDDocument.load(new File(pdfFilePath));
     Document doc = new Document(pdf);
 
-    PDFPenAndPaper document = new PDFPenAndPaper(scan, doc.getPageImageProcessor(0));
+    PDFPenAndPaper document = new PDFPenAndPaper(scanImage, doc.getPageImage(0));
 
     // full pdf image of difference (just annotations)
     Image fullImage = null;
