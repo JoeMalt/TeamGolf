@@ -1,5 +1,6 @@
 package MixedRealityPDF.UserInterface;
 
+import MixedRealityPDF.PDFPenAndPaper;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -14,6 +15,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MixedRealityPDFGUI extends Application{
     public static void main(String[] args) {
@@ -179,9 +181,18 @@ public class MixedRealityPDFGUI extends Application{
 
         // TODO: call the code that actually does something
         // Assume this to be blocking
-
+        try {
+            new PDFPenAndPaper(originalFile, scannedFile, outputFile);
+        }
+        catch(IOException e){
+            System.out.println(e.toString());
+        }
 
         // Show the original scene and a dialog indicating that processing is complete
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, "Processing complete!", ButtonType.OK);
+        alert.show();
+        showFileSelectionScene(s);
+
     }
 
 
