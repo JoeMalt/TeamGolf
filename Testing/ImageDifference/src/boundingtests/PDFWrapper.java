@@ -78,7 +78,7 @@ public class PDFWrapper {
     boolean[][] blackPixelArray;
     boolean[][] redPixelArray;
 
-    PDFWrapper(BufferedImage b) {
+    public PDFWrapper(BufferedImage b) {
         this.bufferedImage = b;
 
         originalHeight = bufferedImage.getHeight();

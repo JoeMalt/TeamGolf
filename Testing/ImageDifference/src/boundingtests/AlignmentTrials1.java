@@ -33,9 +33,6 @@ public class AlignmentTrials1 {
 
         PDFWrapper.save(alignedScan, "output_images_new/alignedscan"+ date());
 
-        System.out.println("here");
-
-
     }
 
 
