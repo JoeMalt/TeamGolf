@@ -2,7 +2,6 @@ package MixedRealityPDF.ImageProcessor;
 
 import MixedRealityPDF.ImageProcessor.Alignment.ImageWrapper;
 import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 

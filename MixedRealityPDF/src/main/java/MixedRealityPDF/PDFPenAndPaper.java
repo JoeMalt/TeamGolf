@@ -9,9 +9,11 @@ import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
 import MixedRealityPDF.ImageProcessor.ImageProcessor;
+import org.apache.pdfbox.pdmodel.PDDocument;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,10 +23,17 @@ public class PDFPenAndPaper {
 
   Collection<Annotation> annotations;
 
-  // TODO(everyone) Initialize static variables.
+  // TODO(everyone) Initialize static variables
   private static IDifferenceMap imageDiff;
   private static IClusterDetector clusterDetector;
   private static IAnnotationIdentifier annId;
+
+  public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile,
+                        File OutputFile) throws IOException{
+    PDDocument pdfOriginal = PDDocument.load(pdfOriginalFile);
+    PDDocument pdfScanned = PDDocument.load(pdfScannedFile);
+    //TODO 
+  }
 
 
   public PDFPenAndPaper(BufferedImage scannedImage, BufferedImage pdfPageImage)

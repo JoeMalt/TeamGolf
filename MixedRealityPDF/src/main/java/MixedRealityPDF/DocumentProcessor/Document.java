@@ -1,6 +1,5 @@
 package MixedRealityPDF.DocumentProcessor;
 
-import MixedRealityPDF.ImageProcessor.ImageProcessor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.rendering.PDFRenderer;
@@ -14,7 +13,7 @@ public class Document {
 
   private PDDocument pdfDocument;
   private int pages;
-  private ImageProcessor[] images;
+  private BufferedImage[] images;
 
 
   public Document(String path) throws IOException{
@@ -30,12 +29,9 @@ public class Document {
   private void init(PDDocument pdfDocument) throws IOException{
     pages = pdfDocument.getNumberOfPages();
     PDFRenderer renderer = new PDFRenderer(pdfDocument);
-
-
-    images = new ImageProcessor[pages];
-
+    images = new BufferedImage[pages];
     for(int i = 0; i < pages; i++){
-      images[i] = new ImageProcessor(renderer.renderImage(i));
+      images[i] = renderer.renderImage(i);
     }
 
 
@@ -50,14 +46,6 @@ public class Document {
   }
 
   public BufferedImage getPageImage(int page){
-    return images[page].getImage();
-  }
-
-  public BufferedImage getPageImageBNW(int page){
-    return images[page].getBlackAndWhiteImage();
-  }
-
-  public ImageProcessor getPageImageProcessor(int page){
     return images[page];
   }
 
