@@ -1,4 +1,4 @@
-package boundingtests;
+package MixedRealityPDF.ImageProcessor.Alignment;
 
 import java.awt.image.BufferedImage;
 
@@ -63,6 +63,7 @@ public class Coordinate {
         return squareDistanceFrom(this, ORIGIN) < squareDistanceFrom(A, ORIGIN);
     }
 
+
     public boolean beatsB(Coordinate B, BufferedImage image) {
         return squareDistanceFrom(this, getTopRight(image)) < squareDistanceFrom(B, getTopRight(image));
     }
@@ -72,6 +73,8 @@ public class Coordinate {
     public boolean beatsD(Coordinate D, BufferedImage image) {
         return squareDistanceFrom(this, getBottomLeft(image)) < squareDistanceFrom(D, getBottomLeft(image));
     }
+
+
 
 }
 
