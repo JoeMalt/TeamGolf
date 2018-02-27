@@ -22,7 +22,7 @@ public class Main {
     Image fullImage = null;
     // list of bounding boxes from segmentation stage
     List<AnnotationBoundingBox> boundingBoxes = null;
-    AnnotationIdentifier identifier = new AnnotationIdentifier(fullImage, boundingBoxes);
+    AnnotationIdentifier identifier = new AnnotationIdentifier();
     identifier.createTreeTrainingFile();
 
     List<Annotation> annotationList;

@@ -57,10 +57,10 @@ public class PDFPenAndPaper {
 
     Image modifiedPDFImage = ImageIO.read(new File(imageFilepath));
     Image originalPDFImage = new PDFRenderer(pdfFilePath).getImage();
-    Image differenceMapImage = differenceMap.findDifference(originalPDFImage,
+    BufferedImage differenceMapImage = (BufferedImage) differenceMap.findDifference(originalPDFImage,
             modifiedPDFImage);
     Collection<AnnotationBoundingBox> clusterPoints = clusterDetector.cluster((BufferedImage) differenceMapImage);
-    annotations = annotationIdentifier.identifyAnnotations(differenceMapImage, clusterPoints);
+    annotations = annotationIdentifier.identifyAnnotations(differenceMapImage, clusterPoints, 0);
   }
 
   public List<Annotation> getAnnotations() {

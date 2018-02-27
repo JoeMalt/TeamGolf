@@ -2,12 +2,18 @@ package MixedRealityPDF.AnnotationProcessor.Identification;
 
 import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Text;
+import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
+import com.sun.org.apache.xalan.internal.utils.FeatureManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.reflect.Array;
+import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,68 +23,136 @@ import java.util.List;
 /**
  * Decides what sort of Annotation parts of document specified by bounding boxes are.
  * **/
-public class AnnotationIdentifier {
-    private Collection<AnnotationBoundingBox> points;
+public class AnnotationIdentifier implements IAnnotationIdentifier{
     private FeatureExtractor featureExtractor;
-    private String RELATIVE_PATH;
-    private Image fullImage;
+    private String relativePath;
 
-    public AnnotationIdentifier(Image fullImage, Collection<AnnotationBoundingBox> points) {
-        this.points = points;
-        this.fullImage = fullImage;
-        this.featureExtractor = new FeatureExtractor();
+    public AnnotationIdentifier(){
+        featureExtractor = new FeatureExtractor();
         Path currentRelativePath = Paths.get("");
-        this.RELATIVE_PATH = currentRelativePath.toAbsolutePath().toString();
+        relativePath = currentRelativePath.toAbsolutePath().toString();
     }
 
-    public Collection<Annotation> identifyAnnotations(){
-        ArrayList<BufferedImage> annotationImages = cropAnnotations((BufferedImage) fullImage);
-        ArrayList<Annotation> identifiedAnnotations = new ArrayList<>();
+    /**
+     * Central method which is invoked by the main pipeline.
+     * Crops out annotations from the full difference image of a PDF page according to their bounding boxes, analyses
+     * the resulting images in a Python decision tree and outputs an identified collection of Annotation objects, specific
+     * to their type
+     * @param fullImage image of the full PDF page with its difference taken so that it's only full of annotations in colour
+     * @param points collection of AnnotationBoundingBoxes which specify location of annotations on the page
+     * @param pageNumber index of the PDF page
+     * @return collection of identified annotations
+     * **/
+    public Collection<Annotation> identifyAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points, int pageNumber) {
+        ArrayList<BufferedImage> annotationImages = cropAnnotations(fullImage, points);
         FileWriter writer = initializeFileWriter("predictionData.csv");
 
-        for(BufferedImage annotationImage : annotationImages){
+        for (BufferedImage annotationImage : annotationImages) {
             saveFeaturesToCSV(annotationImage, writer, "");
+        }
 
-            // TODO(koc): fix errors thrown by CL, adjust to different OSes
-            try {
-                System.out.println("Starting python");
-                // run python script with decision tree
-                String pythonScriptPath = Paths.get(RELATIVE_PATH, "src", "main", "java", "MixedRealityPDF",
-                        "AnnotationProcessing", "Identification", "decision_tree.py").toString();
+        closeWriter(writer);
 
-                ProcessBuilder pb = new ProcessBuilder("python", pythonScriptPath);
-                Process p = pb.start();
+        ArrayList<String> keys = runDecisionTree();
+        return createAnnotationObjects(keys, points, annotationImages, pageNumber);
+    }
 
-                // retrieve output from python script
-                BufferedReader bfr = new BufferedReader(new InputStreamReader(p.getInputStream()));
-                String line = "";
-                while ((line = bfr.readLine()) != null) {
-                    System.out.println(line);
-                }
-            }catch(IOException ioe){
-                System.err.println("Error executing python script from command line");
-                ioe.printStackTrace();
+    /**
+     * Loops through all images to create their objects depending on class determined by key from python output.
+     * This requires data for images to be in parallel across all data structures so that iterating over them gives
+     * data corresponding to the same annotation with each step: image with index i in annotationImages[i] will have its
+     * bounding box at points[i] and its key at decisionTreeOutput[i]
+     *
+     * @param keys output from decision tree in the form of strings: "highlight", "text" and "underline"
+     * @param points bounding boxes for annotations, necessary to get their x-y coordinates
+     * @param annotationImages annotation images, necessary to get their dimentions
+     * @param pageNumber index of PDF page
+     * @return collection of annotation objects, each of specific type according to their key
+     * **/
+    private ArrayList<Annotation> createAnnotationObjects(Collection<String> keys, Collection<AnnotationBoundingBox> points, Collection<BufferedImage> annotationImages, int pageNumber){
+        ArrayList<Annotation> identifiedAnnotations = new ArrayList<>();
+        Iterator<String> keyIt = keys.iterator();
+        Iterator<AnnotationBoundingBox> boxIt = points.iterator();
+        Iterator<BufferedImage> imageIt = annotationImages.iterator();
+        int x, y, width, height;
+        String key;
+        AnnotationBoundingBox currentBox;
+        BufferedImage annotationImage;
+
+        while(keyIt.hasNext() && boxIt.hasNext() && imageIt.hasNext()){
+            key = keyIt.next();
+            currentBox = boxIt.next();
+            annotationImage = imageIt.next();
+            x = currentBox.getBottomLeft().getX();
+            y = currentBox.getBottomLeft().getY();
+            width = annotationImage.getWidth();
+            height = annotationImage.getHeight();
+
+            switch (key) {
+                case "highlight":
+                    identifiedAnnotations.add(new Highlight(x, y, width, height, pageNumber));
+                    System.out.println("highlight");
+                    break;
+                case "text":
+                    identifiedAnnotations.add(new Text(x, y, width, height, pageNumber));
+                    System.out.println("text");
+                    break;
+                case "uderline":
+                    identifiedAnnotations.add(new UnderLine(x, y, width, pageNumber));
+                    System.out.println("underline");
+                    break;
             }
         }
 
         return identifiedAnnotations;
     }
 
+    /**
+     * Invokes python script which holds the main decision tree mechanism by calling it from Command Line.**/
+    private ArrayList<String> runDecisionTree(){
+        String annotationKey;
+        ArrayList<String> decisionTreeOutput = new ArrayList<>();
+
+        // run python script with decision tree
+        String pythonScriptPath = Paths.get(relativePath, "src", "main", "java", "MixedRealityPDF",
+                "AnnotationProcessor", "Identification", "decision_tree.py").toString();
+        try {
+            // start Python script
+            ProcessBuilder builder = new ProcessBuilder("python3", pythonScriptPath);
+            Process process = builder.start();
+            System.out.println(builder.command());
+
+            // read in each line of python output
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream()));
+            while ((annotationKey = reader.readLine()) != null) {
+                decisionTreeOutput.add(annotationKey);
+            }
+            reader.close();
+        }catch(IOException ie){
+            System.err.println("Error executing python script from command line");
+            ie.printStackTrace();
+        }
+        return decisionTreeOutput;
+    }
+
+    /**
+     * Analyse image passed to get its features and dimentions and save them all into CSV format.**/
     private void saveFeaturesToCSV(BufferedImage image, FileWriter fileWriter, String key){
         ArrayList<String> record = new ArrayList<>();
         record.add(Double.toString(featureExtractor.getCoverage(image)));
         record.add(Double.toString(featureExtractor.getDominantColour(image)));
         record.add(Double.toString(image.getWidth()));
         record.add(Double.toString(image.getHeight()));
+        // save the key field only in case it's passed in = it's training data
         if(!key.isEmpty()) record.add(key);
         writeLineCSV(fileWriter, record);
     }
 
     private FileWriter initializeFileWriter(String filePath){
-        String csvPath = Paths.get(RELATIVE_PATH, "Data", filePath).toString();
+        String csvPath = Paths.get(relativePath, "Data", filePath).toString();
         FileWriter writer = null;
         try {
-            System.out.println(csvPath);
             writer = new FileWriter(new File(csvPath));
         }catch(IOException ioe) {
             System.err.println("Error reading CSV file");
@@ -86,11 +160,20 @@ public class AnnotationIdentifier {
         return writer;
     }
 
+    /**
+     * Creates CSV file used for training decision tree in Python.
+     * This method needs to be run only once so the file is created, but the decision tree itself is recreated each
+     * time the script is called.
+     * The file is in MixedRealityPDF/Data directory and uses training data acquired from readClassImageMap() method.
+     * Names of individual features corresponding to FeatureExtractor classes are written as the first line (stored in
+     * firstLine ArrayList).
+     * **/
     public void createTreeTrainingFile(){
         // decided to go with the approach of passing data to Python via CSVs because Jython is too complicated and
         // slow compared with fileIO
         FileWriter writer = initializeFileWriter("trainingData.csv");
 
+        // get the images to train with
         Map<String, ArrayList<BufferedImage>> classImageMap = null;
         try{
             classImageMap = readClassImageMap();
@@ -98,25 +181,19 @@ public class AnnotationIdentifier {
             System.err.println("Error reading images for training ");
         }
 
+        // write the first line of CSV file with column names (names of features)
         ArrayList<String> firstLine = new ArrayList<>();
-        // names of features
         firstLine.addAll(Arrays.asList("coverage", "colour", "width", "height", "key"));
         writeLineCSV(writer, firstLine);
 
+        // extract features from each image and save them to CSV file
         for (Map.Entry<String, ArrayList<BufferedImage>> entry : classImageMap.entrySet()) {
             ArrayList<BufferedImage> images = entry.getValue();
             for (BufferedImage image : images) {
                 saveFeaturesToCSV(image, writer, entry.getKey());
             }
         }
-
-        try{
-            writer.flush();
-            writer.close();
-        }catch(IOException ioe){
-            System.err.println("Error closing writer");
-            ioe.printStackTrace();
-        }
+        closeWriter(writer);
 
     }
 
@@ -132,9 +209,10 @@ public class AnnotationIdentifier {
 
         int numbOfFiles;
         for(String dirName : dirNames) {
-            Path dirPath = Paths.get(Paths.get(RELATIVE_PATH, "Data", dirName).toString());
+            Path dirPath = Paths.get(Paths.get(relativePath, "Data", dirName).toString());
             numbOfFiles = (int) Files.list(dirPath).count();
 
+            // load each image and add it to the output list
             ArrayList<BufferedImage> imagesList = new ArrayList<>();
             BufferedImage image;
             File imagePath;
@@ -148,7 +226,20 @@ public class AnnotationIdentifier {
         return imagesInClasses;
     }
 
-    private ArrayList<BufferedImage> cropAnnotations(BufferedImage fullImage){
+    private void closeWriter(FileWriter writer){
+        try{
+            writer.flush();
+            writer.close();
+        }catch(IOException ioe){
+            System.err.println("Error closing writer");
+            ioe.printStackTrace();
+        }
+    }
+
+    /**
+     * Crops out annotations out of the full image of the PDF difference according to bounding boxes passed from
+     * segmentation stage. **/
+    private static ArrayList<BufferedImage> cropAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points){
         BufferedImage image;
         ClusteringPoint topLeft;
         int width;

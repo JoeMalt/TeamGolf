@@ -29,20 +29,24 @@ public class Test {
                 new ClusteringPoint(500, 500), new ClusteringPoint(800, 500),
                 new ClusteringPoint(500, 800), new ClusteringPoint(800, 800));
 
+        AnnotationBoundingBox box4 = new AnnotationBoundingBox(
+                new ClusteringPoint(700, 700), new ClusteringPoint(940, 700),
+                new ClusteringPoint(700, 900), new ClusteringPoint(940, 900));
+
         ArrayList<AnnotationBoundingBox> list = new ArrayList<>();
         list.add(boxWithNoText);
         list.add(boxWithLittleText);
         list.add(boxWithManyText);
+        list.add(box4);
 
-        AnnotationIdentifier identifier = new AnnotationIdentifier(fullImage, list);
-        identifier.identifyAnnotations();
+        AnnotationIdentifier identifier = new AnnotationIdentifier();
+        identifier.identifyAnnotations(fullImage, list, 0);
     }
 
     private static BufferedImage readFullImage(String filename){
         BufferedImage fullImage = null;
         try {
             String filepath = Paths.get(RELATIVE_PATH, "Data", filename).toString();
-            System.out.println(filepath);
             fullImage = ImageIO.read(new File(filepath));
         }catch(IOException ioe){
             System.err.println(String.format("IOException reading image %s", filename));
