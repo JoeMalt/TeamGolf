@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class AlignmentTrials1 {
-
+/*
 
     public static void main(String[] args) throws IOException {
         BufferedImage original = ImageIO.read(new File(PDFs.ORIGINAL_NEW));
@@ -34,7 +34,7 @@ public class AlignmentTrials1 {
         PDFWrapper.save(alignedScan, "output_images_new/alignedscan"+ date());
 
     }
-
+*/
 
 
     private static String date() {
