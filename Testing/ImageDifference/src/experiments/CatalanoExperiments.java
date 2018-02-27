@@ -1,9 +1,10 @@
-// author: dsr31
+package experiments;// author: dsr31
 
 import Catalano.Core.IntPoint;
 import Catalano.Imaging.Corners.SusanCornersDetector;
 import Catalano.Imaging.FastBitmap;
 import Catalano.Imaging.Filters.*;
+import experiments.PDFs;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
