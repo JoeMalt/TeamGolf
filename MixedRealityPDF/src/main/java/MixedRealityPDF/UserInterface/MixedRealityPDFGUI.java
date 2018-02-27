@@ -179,8 +179,8 @@ public class MixedRealityPDFGUI extends Application{
         s.setScene(progressScene);
         s.show();
 
-        // TODO: call the code that actually does something
-        // Assume this to be blocking
+        // Creating a new PDFPenAndPaper starts the pipeline
+        // This blocks until processing is complete
         try {
             new PDFPenAndPaper(originalFile, scannedFile, outputFile);
         }
