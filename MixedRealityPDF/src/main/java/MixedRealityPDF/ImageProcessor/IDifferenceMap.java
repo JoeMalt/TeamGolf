@@ -1,4 +1,4 @@
-package MixedRealityPDF.DocumentProcessor;
+package MixedRealityPDF.ImageProcessor;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

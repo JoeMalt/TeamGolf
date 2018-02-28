@@ -25,6 +25,8 @@ public class DBSCANClusterDetector implements IClusterDetector {
     // may give slightly more accurate bounding boxes (and catch tiny annotations), but are slower.
     private static int SCALED_IMAGE_WIDTH = 500;
 
+    public DBSCANClusterDetector(){};
+
     /**
      *
      * @param im: BufferedImage on which to perform the clustering

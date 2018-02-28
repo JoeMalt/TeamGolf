@@ -4,11 +4,14 @@ import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
+import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
-import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
-import MixedRealityPDF.ImageProcessor.ImageProcessor;
+import MixedRealityPDF.ImageProcessor.Alignment.ImageWrapper;
+import MixedRealityPDF.ImageProcessor.IAlignment;
+import MixedRealityPDF.ImageProcessor.IDifferenceMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -19,31 +22,60 @@ import java.util.List;
 
 public class PDFPenAndPaper {
 
-  Collection<Annotation> annotations;
+  Collection<Annotation> annotations = new ArrayList<>();
 
   // TODO(everyone) Initialize static variables
-  private static IDifferenceMap imageDiff;
-  private static IClusterDetector clusterDetector;
+  private static IDifferenceMap imageDiff = new ImageWrapper();
+  private static IClusterDetector clusterDetector = new DBSCANClusterDetector();
   private static IAnnotationIdentifier annId;
+  private static IAlignment alignment = new ImageWrapper();
 
   public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile,
                         File OutputFile) throws IOException{
-    PDDocument pdfOriginal = PDDocument.load(pdfOriginalFile);
-    PDDocument pdfScanned = PDDocument.load(pdfScannedFile);
-    //TODO 
+    try(
+            PDDocument original = PDDocument.load(pdfOriginalFile);
+            PDDocument scanned  = PDDocument.load(pdfScannedFile);
+    ){
+      init(original, scanned);
+      applyAnnotations(pdfOriginalFile);
+    }
   }
 
 
   public PDFPenAndPaper(BufferedImage scannedImage, BufferedImage pdfPageImage)
           throws IOException {
-    init(scannedImage, pdfPageImage);
+    init(pdfPageImage, scannedImage);
   }
 
-  private void init(BufferedImage scan, BufferedImage pdfPage){
-    BufferedImage difference = ImageProcessor.getDifference(pdfPage, scan);
+  private void init(BufferedImage pdfPage, BufferedImage scan){
+    assert(annotations != null);
+    scan = alignment.align(pdfPage, scan);
+    scan = imageDiff.findDifference(pdfPage, scan);
     Collection<AnnotationBoundingBox> clusterPoints;
-    clusterPoints = clusterDetector.cluster(difference);
-    annotations = annId.identifyAnnotations(difference, clusterPoints);
+    clusterPoints = clusterDetector.cluster(scan);
+    annotations = annId.identifyAnnotations(scan, clusterPoints);
+  }
+
+  private void init(PDDocument original, PDDocument scan) throws  IOException{
+    assert(original.getNumberOfPages() == scan.getNumberOfPages());
+    PDFRenderer originalRenderer = new PDFRenderer(original);
+    PDFRenderer scanRenderer = new PDFRenderer(scan);
+
+    for(int i=0; i<original.getNumberOfPages(); i++){
+      BufferedImage pdfPage = originalRenderer.renderImage(i);
+      BufferedImage scanImg = scanRenderer.renderImage(i);
+      init(pdfPage, scanImg);
+    }
+  }
+
+  public void applyAnnotations(File pdfFile) throws IOException {
+    try(PDDocument doc = PDDocument.load(pdfFile)){
+      int pageNumber = doc.getNumberOfPages();
+      for(Annotation ann : annotations){
+        if(ann.getPageNumber() < pageNumber)
+          ann.applyAnnotation(doc.getPage(ann.getPageNumber()));
+      }
+    }
   }
 
   public List<Annotation> getAnnotations() {

@@ -32,6 +32,10 @@ public abstract class Annotation {
     return y;
   }
 
+  public int getPageNumber() {
+    return pageNumber;
+  }
+
   public Point2D.Float getLocation(){
     return new Point2D.Float(x, y);
   }
