@@ -44,10 +44,10 @@ public class PDFPenAndPaper {
 
   public PDFPenAndPaper(BufferedImage scannedImage, BufferedImage pdfPageImage)
           throws IOException {
-    init(pdfPageImage, scannedImage);
+    initSinglePage(pdfPageImage, scannedImage);
   }
 
-  private void init(BufferedImage pdfPage, BufferedImage scan){
+  private void initSinglePage(BufferedImage pdfPage, BufferedImage scan){
     assert(annotations != null);
     scan = alignment.align(pdfPage, scan);
     scan = imageDiff.findDifference(pdfPage, scan);
@@ -64,7 +64,7 @@ public class PDFPenAndPaper {
     for(int i=0; i<original.getNumberOfPages(); i++){
       BufferedImage pdfPage = originalRenderer.renderImage(i);
       BufferedImage scanImg = scanRenderer.renderImage(i);
-      init(pdfPage, scanImg);
+      initSinglePage(pdfPage, scanImg);
     }
   }
 
