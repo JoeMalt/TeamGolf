@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Document {
+/*
 
   private PDDocument pdfDocument;
   private int pages;
@@ -20,6 +21,7 @@ public class Document {
     init(pdfDocument);
   }
 
+
   public Document(PDDocument pdfDocument) throws IOException {
     init(pdfDocument);
   }
@@ -27,11 +29,11 @@ public class Document {
   private void init(PDDocument pdfDocument) throws IOException{
     pages = pdfDocument.getNumberOfPages();
     PDFRenderer renderer = new PDFRenderer(pdfDocument);
-
     images = new BufferedImage[pages];
     for(int i = 0; i < pages; i++){
       images[i] = renderer.renderImage(i);
     }
+
 
   }
 
@@ -46,4 +48,7 @@ public class Document {
   public BufferedImage getPageImage(int page){
     return images[page];
   }
+
+
+ */
 }

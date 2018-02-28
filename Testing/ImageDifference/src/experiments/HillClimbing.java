@@ -1,3 +1,5 @@
+package experiments;
+
 import javafx.util.Pair;
 
 import javax.imageio.ImageIO;

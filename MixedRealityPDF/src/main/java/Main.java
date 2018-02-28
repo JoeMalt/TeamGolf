@@ -1,11 +1,9 @@
 import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
-import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.Identification.AnnotationIdentifier;
 import MixedRealityPDF.DocumentProcessor.Document;
-import MixedRealityPDF.ImageProcessor.ImageProcessor;
 import MixedRealityPDF.PDFPenAndPaper;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
@@ -18,7 +16,7 @@ import java.util.List;
 
 public class Main {
 
-
+/*
   public static void main(String[] args) throws IOException{
     String imageFilepath = "";
     String pdfFilePath = "";
@@ -44,8 +42,8 @@ public class Main {
 
     List<UnderLine> underlineList;
     document.getUnderlines();
-
-    List<NewLine> newLineList;
-    document.getNewLineAnnotations();
   }
+  */
+
+
 }

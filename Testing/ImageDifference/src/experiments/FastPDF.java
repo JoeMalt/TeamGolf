@@ -1,3 +1,4 @@
+package experiments;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -431,7 +432,7 @@ public class FastPDF {
 
     // Downsample each dimension by a factor downsamplingFactor
     // so there will be approx dsF^2 pixels in the original for every pixel in the downsampled version
-    FastPDF(BufferedImage bufferedImage, int downsamplingFactor) {
+    public FastPDF(BufferedImage bufferedImage, int downsamplingFactor) {
 
 
         originalHeight = bufferedImage.getHeight();

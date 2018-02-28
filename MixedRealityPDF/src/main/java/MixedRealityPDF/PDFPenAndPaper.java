@@ -3,7 +3,6 @@ package MixedRealityPDF;
 import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
-import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
@@ -11,7 +10,6 @@ import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
 import MixedRealityPDF.ImageProcessor.ImageProcessor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -58,10 +56,6 @@ public class PDFPenAndPaper {
 
   public List<UnderLine> getUnderlines() {
     return getAnnotations(UnderLine.class);
-  }
-
-  public List<NewLine> getNewLineAnnotations() {
-    return getAnnotations(NewLine.class);
   }
 
   public <T extends Annotation> List<T> getAnnotations(Class<T> type) {
