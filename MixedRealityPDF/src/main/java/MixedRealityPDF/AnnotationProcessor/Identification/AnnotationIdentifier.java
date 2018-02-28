@@ -44,7 +44,6 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
      * @param pageNumber index of the PDF page
      * @return collection of identified annotations
      * **/
-    @Override
     public Collection<Annotation> identifyAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points, int pageNumber) {
         ArrayList<BufferedImage> annotationImages = cropAnnotations(fullImage, points);
         FileWriter writer = initializeFileWriter("predictionData.csv");

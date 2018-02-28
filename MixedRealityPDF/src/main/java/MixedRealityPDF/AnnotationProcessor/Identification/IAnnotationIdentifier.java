@@ -9,5 +9,7 @@ import java.util.Collection;
 
 // Given an image and a set of coordinates classify the Annotations.
 public interface IAnnotationIdentifier {
-  Collection<Annotation> identifyAnnotations(BufferedImage image, Collection<AnnotationBoundingBox> points, int pageNumber);
+
+  Collection<Annotation> identifyAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points, int pageNumber);
+
 }
