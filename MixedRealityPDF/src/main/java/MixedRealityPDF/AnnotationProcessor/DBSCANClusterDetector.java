@@ -21,8 +21,8 @@ public class DBSCANClusterDetector implements IClusterDetector {
     // Empirically, about 5 works well
     private static int DBSCAN_MINPTS = 5;
 
-    // If an image is wider than this value, scale it down to this width before clustering. Higher values
-    // may give slightly more accurate bounding boxes (and catch tiny annotations), but are slower.
+    // If an image is wider than this value, scale it down to this width before clustering, to improve performance.
+    // Higher values give more accurate bounding boxes (and catch tiny annotations), but are slower.
     private static int SCALED_IMAGE_WIDTH = 500;
 
     public DBSCANClusterDetector(){};
@@ -42,11 +42,12 @@ public class DBSCANClusterDetector implements IClusterDetector {
             scale = ((double) im.getWidth()) / SCALED_IMAGE_WIDTH;
         }
         else{
+            // If the input is less than SCALED_IMAGE_WIDTH wide, don't bother scaling it
             scaledImage = im;
         }
 
         // Calculate epsilon in pixels (as opposed to millimetres)
-        // Assumes the document is A4 (210mm wide)
+        // Assumes the image represents an A4 document (210mm wide)
         int epsilon = (int) ((DBSCAN_EPSILON_MM / 210.0) * scaledImage.getWidth());
 
         // Get a list of the pixels that are not white / transparent
@@ -65,7 +66,11 @@ public class DBSCANClusterDetector implements IClusterDetector {
     }
 
     private static BufferedImage getScaledImage(BufferedImage im, int width){
+
+        // Image.getScaledInstance performs the scaling but returns an Image not a BufferedImage
         Image scaledImage = im.getScaledInstance(width, -1, Image.SCALE_DEFAULT);
+
+        // Convert the Image to a BufferedImage by redrawing it with Graphics2D
         BufferedImage imScaled = new BufferedImage(scaledImage.getWidth(null), scaledImage.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         Graphics2D bufferedGraphics2D = imScaled.createGraphics();
         bufferedGraphics2D.drawImage(scaledImage, 0, 0, null);
@@ -91,7 +96,7 @@ public class DBSCANClusterDetector implements IClusterDetector {
     }
 
     private static List<Cluster<ClusteringPoint>> DBSCAN(Set<ClusteringPoint> points, int epsilon){
-        DBSCANClusterer<ClusteringPoint> clusterer = new DBSCANClusterer<ClusteringPoint>(epsilon, DBSCAN_MINPTS);
+        DBSCANClusterer<ClusteringPoint> clusterer = new DBSCANClusterer<>(epsilon, DBSCAN_MINPTS);
         return clusterer.cluster(points);
     }
 }
