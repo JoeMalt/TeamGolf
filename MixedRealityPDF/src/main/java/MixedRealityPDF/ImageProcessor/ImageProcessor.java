@@ -10,7 +10,7 @@ import java.awt.image.BufferedImage;
 public class ImageProcessor {
 
   public static BufferedImage alignTo(BufferedImage original, BufferedImage modified){
-      BufferedImage alignedMarkings = ImageWrapper.align(original, modified);
+      BufferedImage alignedMarkings =(new ImageWrapper()).align(original, modified);
       return alignedMarkings;
   }
 
