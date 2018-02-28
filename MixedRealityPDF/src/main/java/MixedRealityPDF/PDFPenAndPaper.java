@@ -37,7 +37,7 @@ public class PDFPenAndPaper {
             PDDocument scanned  = PDDocument.load(pdfScannedFile);
     ){
       init(original, scanned);
-      applyAnnotations(pdfOriginalFile);
+      applyAnnotations(OutputFile);
     }
   }
 
