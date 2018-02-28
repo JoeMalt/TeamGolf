@@ -30,7 +30,7 @@ def train_tree():
 def test_tree():
     clf = train_tree()
     relative_path = get_project_dir()
-    file_path = os.path.join(str(relative_path), "Data", "testingData.csv")
+    file_path = os.path.join(relative_path, "Data", "testingData.csv")
     testX = load_data(file_path)
     pred = predict(clf, testX)
 
@@ -45,12 +45,6 @@ def load_data(file_path):
 def predict(clf, testX):
     return clf.predict(testX)
 
-
-def hello():
-    relative_path = get_project_dir()
-    file_path = os.path.join(str(relative_path), "Data", "test.txt")
-    data_file = open(file_path, 'w')
-    data_file.write("Hello")
 
 clf = train_tree()
 relative_path = get_project_dir()
