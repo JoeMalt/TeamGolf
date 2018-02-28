@@ -3,12 +3,11 @@ package MixedRealityPDF;
 import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
-import MixedRealityPDF.AnnotationProcessor.Annotations.NewLine;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
-import MixedRealityPDF.DocumentProcessor.IDifferenceMap;
-import MixedRealityPDF.DocumentProcessor.PDFRenderer;
+import MixedRealityPDF.ImageProcessor.IDifferenceMap;
+import MixedRealityPDF.ImageProcessor.ColourRemoval.PDFRenderer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -57,10 +56,10 @@ public class PDFPenAndPaper {
 
     Image modifiedPDFImage = ImageIO.read(new File(imageFilepath));
     Image originalPDFImage = new PDFRenderer(pdfFilePath).getImage();
-    BufferedImage differenceMapImage = (BufferedImage) differenceMap.findDifference(originalPDFImage,
-            modifiedPDFImage);
-    Collection<AnnotationBoundingBox> clusterPoints = clusterDetector.cluster((BufferedImage) differenceMapImage);
-    annotations = annotationIdentifier.identifyAnnotations(differenceMapImage, clusterPoints, 0);
+//    BufferedImage differenceMapImage = (BufferedImage) differenceMap.findDifference(originalPDFImage,
+//            modifiedPDFImage);
+//    Collection<AnnotationBoundingBox> clusterPoints = clusterDetector.cluster((BufferedImage) differenceMapImage);
+//    annotations = annotationIdentifier.identifyAnnotations(differenceMapImage, clusterPoints, 0);
   }
 
   public List<Annotation> getAnnotations() {
@@ -75,9 +74,6 @@ public class PDFPenAndPaper {
     return getAnnotations(UnderLine.class);
   }
 
-  public List<NewLine> getNewLineAnnotations() {
-    return getAnnotations(NewLine.class);
-  }
 
   public <T extends Annotation> List<T> getAnnotations(Class<T> type) {
     int count = 0;

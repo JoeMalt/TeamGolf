@@ -88,20 +88,18 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         // identify annotations
         ArrayList<String> keys = runDecisionTree();
         ArrayList<Annotation> identifiedAnnotations = createAnnotationObjects(keys, points, annotationImages, pageNumber);
+        int i = 0;
         for(Annotation annotation : identifiedAnnotations){
             if(annotation instanceof Text){
-                System.out.println("text");
+                System.out.println(i + ": Text");
             }
             else if(annotation instanceof Highlight){
-                System.out.println("highlight");
+                System.out.println(i + ": High");
             }
             else if(annotation instanceof UnderLine){
-                System.out.println("underline");
+                System.out.println(i + ": Under");
             }
-            else{
-                System.out.println("what");
-            }
-
+            i++;
         }
         return identifiedAnnotations;
 
@@ -140,7 +138,6 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             y = Annotation.ImageYToPDFY(y, annotationImage.getHeight());
             width = annotationImage.getWidth();
             height = annotationImage.getHeight();
-
             switch (key) {
                 case "highlight":
                     identifiedAnnotations.add(new Highlight(x, y, width, height, pageNumber));
@@ -148,7 +145,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
                 case "text":
                     identifiedAnnotations.add(new Text(x, y, annotationImage, pageNumber));
                     break;
-                case "uderline":
+                case "underline":
                     identifiedAnnotations.add(new UnderLine(x, y, width, pageNumber));
                     break;
             }
