@@ -23,6 +23,10 @@ public abstract class Annotation {
     this.pageNumber = pageNumber;
   }
 
+  public static int ImageYToPDFY(int y, int imgHeight){
+    return imgHeight - y;
+  }
+
   public float getX() {
     return x;
   }

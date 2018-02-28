@@ -13,30 +13,11 @@ import java.util.List;
 
 public final class Text extends Annotation {
 
-    private final float width;
-    private final float height;
     private final BufferedImage image;
 
-    public Text(BufferedImage image, float x, float y, float width, float height, int pageNumber){
+    public Text(float x, float y, BufferedImage image, int pageNumber){
         super(x, y, pageNumber);
         this.image = image;
-        this.width = width;
-        this.height = height;
-    }
-
-    public Text(BufferedImage image, Point2D.Float p, float width, float height, int pageNumber){
-        super(p.x, p.y, pageNumber);
-        this.image = image;
-        this.width = width;
-        this.height = height;
-    }
-
-    public float getWidth() {
-        return width;
-    }
-
-    public float getHeight() {
-        return height;
     }
 
     @Override

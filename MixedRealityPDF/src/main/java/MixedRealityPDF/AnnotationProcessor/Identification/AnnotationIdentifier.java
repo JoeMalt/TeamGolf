@@ -133,8 +133,11 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             key = keyIt.next();
             currentBox = boxIt.next();
             annotationImage = imageIt.next();
+
             x = currentBox.getBottomLeft().getX();
             y = currentBox.getBottomLeft().getY();
+            // Converting imgY to pdfY. - no need to convert x.
+            y = Annotation.ImageYToPDFY(y, annotationImage.getHeight());
             width = annotationImage.getWidth();
             height = annotationImage.getHeight();
 
@@ -143,14 +146,13 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
                     identifiedAnnotations.add(new Highlight(x, y, width, height, pageNumber));
                     break;
                 case "text":
-                    identifiedAnnotations.add(new Text(annotationImage, x, y, width, height, pageNumber));
+                    identifiedAnnotations.add(new Text(x, y, annotationImage, pageNumber));
                     break;
                 case "uderline":
                     identifiedAnnotations.add(new UnderLine(x, y, width, pageNumber));
                     break;
             }
         }
-
         return identifiedAnnotations;
     }
 
