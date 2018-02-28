@@ -40,8 +40,9 @@ public final class Highlight extends Annotation {
     position.setLowerLeftY(getY());
     position.setUpperRightX(getX()+getWidth());
     position.setUpperRightY(getY()+getHeight());
-    highlight.setRectangle(position);
     float[] quads = super.getQuads(position);
+    // PDAnnotationTextMarkup needs both Rectangle and QuadPoints.
+    highlight.setRectangle(position);
     highlight.setQuadPoints(quads);
 
     ann.add(highlight);

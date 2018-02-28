@@ -46,8 +46,9 @@ public final class UnderLine extends Annotation{
     position.setLowerLeftY(getY());
     position.setUpperRightX(getX()+getLength());
     position.setUpperRightY(getY()+getThickness());
-    underline.setRectangle(position);
     float[] quads = super.getQuads(position);
+    // PDAnnotationTextMarkup needs both Rectangle and QuadPoints.
+    underline.setRectangle(position);
     underline.setQuadPoints(quads);
 
     ann.add(underline);
