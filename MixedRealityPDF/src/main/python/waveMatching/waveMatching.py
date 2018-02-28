@@ -61,6 +61,10 @@ def wave_difference(scale, original, modified):
     return errorV
 
 if(len(argv) != 5):
+    print("scan_y: wave representation of the scanned  document along the Y axis.")
+    print("scan_x: wave representation of the scanned  document along the X axis.")
+    print("orig_y: wave representation of the original document along the Y axis.")
+    print("orig_x: wave representation of the original document along the X axis.")
     print("Usage: ./wavematching scan_y scan_x orig_y orig_x")
     sys.exit()
 
