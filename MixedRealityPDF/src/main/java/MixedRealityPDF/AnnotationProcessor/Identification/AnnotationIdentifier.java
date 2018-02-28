@@ -6,14 +6,11 @@ import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Text;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
-import com.sun.org.apache.xalan.internal.utils.FeatureManager;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.Array;
-import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,6 +55,58 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         return createAnnotationObjects(keys, points, annotationImages, pageNumber);
     }
 
+    public Collection<Annotation> testIdentifyAnnotations(Collection<AnnotationBoundingBox> points, int pageNumber){
+        ArrayList<BufferedImage> annotationImages = new ArrayList<>();
+
+        // load test images
+        try {
+            int numbOfFiles;
+            Path dirPath = Paths.get(Paths.get(relativePath, "Data", "test").toString());
+            numbOfFiles = (int) Files.list(dirPath).count();
+
+            BufferedImage image;
+            File imagePath;
+            for (int i = 0; i < numbOfFiles; i++) {
+                imagePath = new File(String.format("%s/%d.png", dirPath.toString(), i));
+                image = ImageIO.read(imagePath);
+                annotationImages.add(image);
+            }
+        }catch(IOException ioe){
+            System.out.println("Error while loading test images.");
+            ioe.printStackTrace();
+        }
+
+        //save features from test data
+        FileWriter writer = initializeFileWriter("predictionData.csv");
+
+        for (BufferedImage annotationImage : annotationImages) {
+            saveFeaturesToCSV(annotationImage, writer, "");
+        }
+
+        closeWriter(writer);
+
+        // identify annotations
+        ArrayList<String> keys = runDecisionTree();
+        ArrayList<Annotation> identifiedAnnotations = createAnnotationObjects(keys, points, annotationImages, pageNumber);
+        for(Annotation annotation : identifiedAnnotations){
+            if(annotation instanceof Text){
+                System.out.println("text");
+            }
+            else if(annotation instanceof Highlight){
+                System.out.println("highlight");
+            }
+            else if(annotation instanceof UnderLine){
+                System.out.println("underline");
+            }
+            else{
+                System.out.println("what");
+            }
+
+        }
+        return identifiedAnnotations;
+
+    }
+
     /**
      * Loops through all images to create their objects depending on class determined by key from python output.
      * This requires data for images to be in parallel across all data structures so that iterating over them gives
@@ -92,15 +141,12 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             switch (key) {
                 case "highlight":
                     identifiedAnnotations.add(new Highlight(x, y, width, height, pageNumber));
-                    System.out.println("highlight");
                     break;
                 case "text":
-                    identifiedAnnotations.add(new Text(x, y, width, height, pageNumber));
-                    System.out.println("text");
+                    identifiedAnnotations.add(new Text(annotationImage, x, y, width, height, pageNumber));
                     break;
                 case "uderline":
                     identifiedAnnotations.add(new UnderLine(x, y, width, pageNumber));
-                    System.out.println("underline");
                     break;
             }
         }
@@ -121,7 +167,6 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             // start Python script
             ProcessBuilder builder = new ProcessBuilder("python3", pythonScriptPath);
             Process process = builder.start();
-            System.out.println(builder.command());
 
             // read in each line of python output
             BufferedReader reader = new BufferedReader(
@@ -201,6 +246,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
     /**
      * Reads images in folders specified in dirNames array and puts them in a map according to which folder they came
      * from, indicating the type of image they are.
+     * @throws IOException if there is an error when reading images for training
      * @return HashMap from Strings which are names of classes of annotation images to ArrayList<BufferedImage>
      *         which contains all images of that type.**/
     private Map<String, ArrayList<BufferedImage>> readClassImageMap() throws IOException{
