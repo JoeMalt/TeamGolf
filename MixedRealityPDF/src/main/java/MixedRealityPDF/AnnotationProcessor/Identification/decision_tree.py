@@ -54,9 +54,8 @@ def hello():
 
 clf = train_tree()
 relative_path = get_project_dir()
-file_path = os.path.join(str(relative_path), "Data", "testingData.csv")
+file_path = os.path.join(relative_path, "Data", "testingData.csv")
 testX = load_data(file_path)
 pred = predict(clf, testX)
 for p in pred:
     print(p)
-# test should output highlight x3, text x3 and underline x3

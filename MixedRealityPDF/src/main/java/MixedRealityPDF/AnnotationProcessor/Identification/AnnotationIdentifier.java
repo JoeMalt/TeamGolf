@@ -31,6 +31,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         featureExtractor = new FeatureExtractor();
         Path currentRelativePath = Paths.get("");
         relativePath = currentRelativePath.toAbsolutePath().toString();
+        createTreeTrainingFile();
     }
 
     /**
@@ -168,7 +169,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
      * Names of individual features corresponding to FeatureExtractor classes are written as the first line (stored in
      * firstLine ArrayList).
      * **/
-    public void createTreeTrainingFile(){
+    private void createTreeTrainingFile(){
         // decided to go with the approach of passing data to Python via CSVs because Jython is too complicated and
         // slow compared with fileIO
         FileWriter writer = initializeFileWriter("trainingData.csv");
