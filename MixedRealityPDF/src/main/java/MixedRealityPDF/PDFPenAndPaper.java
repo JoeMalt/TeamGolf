@@ -13,6 +13,7 @@ import MixedRealityPDF.ImageProcessor.Alignment.ImageWrapper;
 import MixedRealityPDF.ImageProcessor.IAlignment;
 import MixedRealityPDF.ImageProcessor.IDifferenceMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import java.awt.image.BufferedImage;
@@ -63,8 +64,10 @@ public class PDFPenAndPaper {
     PDFRenderer scanRenderer = new PDFRenderer(scan);
 
     for(int i=0; i<original.getNumberOfPages(); i++){
-      BufferedImage pdfPage = originalRenderer.renderImage(i);
-      BufferedImage scanImg = scanRenderer.renderImage(i);
+      BufferedImage pdfPage;
+      pdfPage = originalRenderer.renderImage(i, 1f, ImageType.ARGB);
+      BufferedImage scanImg;
+      scanImg = scanRenderer.renderImage(i, 1f, ImageType.ARGB);
       initSinglePage(pdfPage, scanImg, i);
     }
   }
