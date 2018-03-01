@@ -1,5 +1,7 @@
 package MixedRealityPDF.ImageProcessor.ColourRemoval;
 
+import MixedRealityPDF.ImageProcessor.Stats;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;

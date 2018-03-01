@@ -1,7 +1,6 @@
 package MixedRealityPDF.ImageProcessor.Alignment;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
+import javax.imageio.ImageIO; import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -10,7 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-import MixedRealityPDF.ImageProcessor.ColourRemoval.Stats;
+import MixedRealityPDF.ImageProcessor.ImgHelper;
+import MixedRealityPDF.ImageProcessor.Stats;
 import MixedRealityPDF.ImageProcessor.IAlignment;
 import MixedRealityPDF.ImageProcessor.IDifferenceMap;
 import javafx.util.Pair;
@@ -40,8 +40,7 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
 
   @Override
   public BufferedImage findDifference(BufferedImage original, BufferedImage modified) {
-    ImageWrapper mod = new ImageWrapper(modified);
-    return mod.getImage(false, true);
+    return ImageWrapper.getColourComponent(modified);
   }
 
   // return aligned scan without colour modifications
@@ -156,9 +155,7 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
   }
 
   private static boolean isAColouredPixel(BufferedImage bufferedImage, int x, int y, double threshold) {
-    Color c = new Color(bufferedImage.getRGB(x, y));
-    double stdev = Stats.getStdDev(new double[]{c.getRed(), c.getGreen(), c.getBlue()});
-    return (stdev > threshold);
+    return ImgHelper.isColor(bufferedImage.getRGB(x, y));
   }
 
   List<LineSegment>  xScans() {

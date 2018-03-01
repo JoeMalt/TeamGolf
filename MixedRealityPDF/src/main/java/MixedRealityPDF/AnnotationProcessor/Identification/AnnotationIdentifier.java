@@ -18,11 +18,19 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Decides what sort of Annotation parts of document specified by bounding boxes are.
+ * Decides what sort of Annotation parts of document specified by bounding boxes
+ * are.
  * **/
 public class AnnotationIdentifier implements IAnnotationIdentifier{
-    private FeatureExtractor featureExtractor;
+    private IFeatureExtractor featureExtractor;
     private String relativePath;
+
+    public AnnotationIdentifier(IFeatureExtractor FE){
+        featureExtractor = FE;
+        Path currentRelativePath = Paths.get("");
+        relativePath = currentRelativePath.toAbsolutePath().toString();
+        createTreeTrainingFile();
+    }
 
     public AnnotationIdentifier(){
         featureExtractor = new FeatureExtractor();
@@ -33,41 +41,48 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
     /**
      * Central method which is invoked by the main pipeline.
-     * Crops out annotations from the full difference image of a PDF page according to their bounding boxes, analyses
-     * the resulting images in a Python decision tree and outputs an identified collection of Annotation objects, specific
-     * to their type
-     * @param fullImage image of the full PDF page with its difference taken so that it's only full of annotations in colour
-     * @param points collection of AnnotationBoundingBoxes which specify location of annotations on the page
+     * Crops out annotations from the full difference image of a PDF page
+     * according to their bounding boxes, analyse the resulting images in a
+     * Python decision tree and outputs an identified collection of Annotation
+     * objects, specific to their type
+     * @param fullImage image of the full PDF page with its difference taken so
+     *                  that it's only full of annotations in colour
+     * @param points collection of AnnotationBoundingBoxes which specify
+     *               location of annotations on the page
      * @param pageNumber index of the PDF page
      * @return collection of identified annotations
      * **/
-    public Collection<Annotation> identifyAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points, int pageNumber) {
-        ArrayList<BufferedImage> annotationImages = cropAnnotations(fullImage, points);
+    public Collection<Annotation> identifyAnnotations(BufferedImage fullImage,
+            Collection<AnnotationBoundingBox> points, int pageNumber) {
+        ArrayList<BufferedImage> annImages = cropAnnotations(fullImage, points);
         FileWriter writer = initializeFileWriter("predictionData.csv");
 
-        for (BufferedImage annotationImage : annotationImages) {
+        for (BufferedImage annotationImage : annImages) {
             saveFeaturesToCSV(annotationImage, writer, "");
         }
 
         closeWriter(writer);
 
         ArrayList<String> keys = runDecisionTree();
-        return createAnnotationObjects(keys, points, annotationImages, pageNumber);
+        return createAnnotationObjects(keys, points, annImages, pageNumber);
     }
 
-    public Collection<Annotation> testIdentifyAnnotations(Collection<AnnotationBoundingBox> points, int pageNumber){
+    public Collection<Annotation> testIdentifyAnnotations(
+            Collection<AnnotationBoundingBox> points, int pageNumber){
         ArrayList<BufferedImage> annotationImages = new ArrayList<>();
 
         // load test images
         try {
             int numbOfFiles;
-            Path dirPath = Paths.get(Paths.get(relativePath, "Data", "test").toString());
+            Path dirPath = Paths.get(
+                    Paths.get(relativePath, "Data", "test").toString());
             numbOfFiles = (int) Files.list(dirPath).count();
 
             BufferedImage image;
             File imagePath;
             for (int i = 0; i < numbOfFiles; i++) {
-                imagePath = new File(String.format("%s/%d.png", dirPath.toString(), i));
+                imagePath = new File(
+                        String.format("%s/%d.png", dirPath.toString(), i));
                 image = ImageIO.read(imagePath);
                 annotationImages.add(image);
             }
@@ -87,7 +102,9 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
         // identify annotations
         ArrayList<String> keys = runDecisionTree();
-        ArrayList<Annotation> identifiedAnnotations = createAnnotationObjects(keys, points, annotationImages, pageNumber);
+        ArrayList<Annotation> identifiedAnnotations;
+        identifiedAnnotations = createAnnotationObjects(keys, points,
+                annotationImages, pageNumber);
         for(Annotation annotation : identifiedAnnotations){
             if(annotation instanceof Text){
                 System.out.println("text");
@@ -108,18 +125,27 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
     }
 
     /**
-     * Loops through all images to create their objects depending on class determined by key from python output.
-     * This requires data for images to be in parallel across all data structures so that iterating over them gives
-     * data corresponding to the same annotation with each step: image with index i in annotationImages[i] will have its
-     * bounding box at points[i] and its key at decisionTreeOutput[i]
+     * Loops through all images to create their objects depending on class
+     * determined by key from python output.
+     * This requires data for images to be in parallel across all data
+     * structures so that iterating over them gives data corresponding to the
+     * same annotation with each step: image with index i in annotationImages[i]
+     * will have its bounding box at points[i] and its key at
+     * decisionTreeOutput[i]
      *
-     * @param keys output from decision tree in the form of strings: "highlight", "text" and "underline"
-     * @param points bounding boxes for annotations, necessary to get their x-y coordinates
-     * @param annotationImages annotation images, necessary to get their dimentions
+     * @param keys output from decision tree in the form of strings:
+     *             "highlight", "text" and "underline"
+     * @param points bounding boxes for annotations, necessary to get
+     *               their x-y coordinates
+     * @param annotationImages annotation images, necessary to get their
+     *                         dimentions
      * @param pageNumber index of PDF page
-     * @return collection of annotation objects, each of specific type according to their key
+     * @return collection of annotation objects, each of specific type
+     * according to their key
      * **/
-    private ArrayList<Annotation> createAnnotationObjects(Collection<String> keys, Collection<AnnotationBoundingBox> points, Collection<BufferedImage> annotationImages, int pageNumber){
+    private ArrayList<Annotation> createAnnotationObjects(
+            Collection<String> keys, Collection<AnnotationBoundingBox> points,
+            Collection<BufferedImage> annotationImages, int pageNumber){
         ArrayList<Annotation> identifiedAnnotations = new ArrayList<>();
         Iterator<String> keyIt = keys.iterator();
         Iterator<AnnotationBoundingBox> boxIt = points.iterator();
@@ -143,13 +169,17 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
             switch (key) {
                 case "highlight":
-                    identifiedAnnotations.add(new Highlight(x, y, width, height, pageNumber));
+                    Highlight hl;
+                    hl = new Highlight(x, y, width, height, pageNumber);
+                    identifiedAnnotations.add(hl);
                     break;
                 case "text":
-                    identifiedAnnotations.add(new Text(x, y, annotationImage, pageNumber));
+                    Text text = new Text(x, y, annotationImage, pageNumber);
+                    identifiedAnnotations.add(text);
                     break;
                 case "uderline":
-                    identifiedAnnotations.add(new UnderLine(x, y, width, pageNumber));
+                    UnderLine ul = new UnderLine(x, y, width, pageNumber);
+                    identifiedAnnotations.add(ul);
                     break;
             }
         }
@@ -157,17 +187,21 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
     }
 
     /**
-     * Invokes python script which holds the main decision tree mechanism by calling it from Command Line.**/
+     * Invokes python script which holds the main decision tree mechanism by
+     * calling it from Command Line.
+     * **/
     private ArrayList<String> runDecisionTree(){
         String annotationKey;
         ArrayList<String> decisionTreeOutput = new ArrayList<>();
 
         // run python script with decision tree
-        String pythonScriptPath = Paths.get(relativePath, "src", "main", "java", "MixedRealityPDF",
-                "AnnotationProcessor", "Identification", "decision_tree.py").toString();
+        String pythonScriptPath = Paths.get(relativePath, "src", "main", "java",
+                "MixedRealityPDF", "AnnotationProcessor", "Identification",
+                "decision_tree.py").toString();
         try {
             // start Python script
-            ProcessBuilder builder = new ProcessBuilder("python3", pythonScriptPath);
+            ProcessBuilder builder;
+            builder = new ProcessBuilder("python3", pythonScriptPath);
             Process process = builder.start();
 
             // read in each line of python output
@@ -178,22 +212,23 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             }
             reader.close();
         }catch(IOException ie){
-            System.err.println("Error executing python script from command line");
+            System.err.println(
+                    "Error executing python script from command line");
             ie.printStackTrace();
         }
         return decisionTreeOutput;
     }
 
     /**
-     * Analyse image passed to get its features and dimentions and save them all into CSV format.**/
-    private void saveFeaturesToCSV(BufferedImage image, FileWriter fileWriter, String key){
-        ArrayList<String> record = new ArrayList<>();
-        record.add(Double.toString(featureExtractor.getCoverage(image)));
-        record.add(Double.toString(featureExtractor.getDominantColour(image)));
-        record.add(Double.toString(image.getWidth()));
-        record.add(Double.toString(image.getHeight()));
+     * Analyse image passed to get its features and dimentions and save them all
+     * into CSV format.
+     * **/
+    private void saveFeaturesToCSV(
+            BufferedImage image, FileWriter fileWriter, String key){
+        List<String> record = featureExtractor.extractFeatures(image);
         // save the key field only in case it's passed in = it's training data
-        if(!key.isEmpty()) record.add(key);
+        if(!key.isEmpty())
+            record.add(key);
         writeLineCSV(fileWriter, record);
     }
 
@@ -210,15 +245,16 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
     /**
      * Creates CSV file used for training decision tree in Python.
-     * This method needs to be run only once so the file is created, but the decision tree itself is recreated each
-     * time the script is called.
-     * The file is in MixedRealityPDF/Data directory and uses training data acquired from readClassImageMap() method.
-     * Names of individual features corresponding to FeatureExtractor classes are written as the first line (stored in
-     * firstLine ArrayList).
+     * This method needs to be run only once so the file is created, but the
+     * decision tree itself is recreated each time the script is called.
+     * The file is in MixedRealityPDF/Data directory and uses training data
+     * acquired from readClassImageMap() method.
+     * Names of individual features corresponding to FeatureExtractor classes
+     * are written as the first line (stored in firstLine ArrayList).
      * **/
     private void createTreeTrainingFile(){
-        // decided to go with the approach of passing data to Python via CSVs because Jython is too complicated and
-        // slow compared with fileIO
+        // decided to go with the approach of passing data to Python via CSVs
+        // because Jython is too complicated and slow compared with fileIO
         FileWriter writer = initializeFileWriter("trainingData.csv");
 
         // get the images to train with
@@ -229,13 +265,15 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             System.err.println("Error reading images for training ");
         }
 
-        // write the first line of CSV file with column names (names of features)
+        // write the first line of CSV file with column names (names of
+        // features)
         ArrayList<String> firstLine = new ArrayList<>();
-        firstLine.addAll(Arrays.asList("coverage", "colour", "width", "height", "key"));
+        firstLine.addAll(featureExtractor.getFeatureNames());
         writeLineCSV(writer, firstLine);
 
         // extract features from each image and save them to CSV file
-        for (Map.Entry<String, ArrayList<BufferedImage>> entry : classImageMap.entrySet()) {
+        for (Map.Entry<String, ArrayList<BufferedImage>> entry
+                : classImageMap.entrySet()) {
             ArrayList<BufferedImage> images = entry.getValue();
             for (BufferedImage image : images) {
                 saveFeaturesToCSV(image, writer, entry.getKey());
@@ -246,19 +284,24 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
     }
 
     /**
-     * Reads images in folders specified in dirNames array and puts them in a map according to which folder they came
-     * from, indicating the type of image they are.
+     * Reads images in folders specified in dirNames array and puts them in a
+     * map according to which folder they came from, indicating the type of
+     * image they are.
      * @throws IOException if there is an error when reading images for training
-     * @return HashMap from Strings which are names of classes of annotation images to ArrayList<BufferedImage>
-     *         which contains all images of that type.**/
-    private Map<String, ArrayList<BufferedImage>> readClassImageMap() throws IOException{
+     * @return HashMap from Strings which are names of classes of annotation
+     * images to ArrayList<BufferedImage> which contains all images of that
+     * type.
+     * **/
+    private Map<String, ArrayList<BufferedImage>> readClassImageMap()
+            throws IOException{
         // Directory names become keys in the map
         String [] dirNames = new String[]{"text", "underline", "highlight"};
         Map<String, ArrayList<BufferedImage>> imagesInClasses = new HashMap<>();
 
         int numbOfFiles;
         for(String dirName : dirNames) {
-            Path dirPath = Paths.get(Paths.get(relativePath, "Data", dirName).toString());
+            Path dirPath = Paths.get(Paths.get(relativePath, "Data", dirName)
+                    .toString());
             numbOfFiles = (int) Files.list(dirPath).count();
 
             // load each image and add it to the output list
@@ -266,7 +309,8 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             BufferedImage image;
             File imagePath;
             for(int i = 0; i < numbOfFiles; i++){
-                imagePath = new File(String.format("%s/%d.png", dirPath.toString(), i));
+                imagePath = new File(String.format("%s/%d.png",
+                        dirPath.toString(), i));
                 image = ImageIO.read(imagePath);
                 imagesList.add(image);
             }
@@ -286,9 +330,10 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
     }
 
     /**
-     * Crops out annotations out of the full image of the PDF difference according to bounding boxes passed from
-     * segmentation stage. **/
-    private static ArrayList<BufferedImage> cropAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points){
+     * Crops out annotations out of the full image of the PDF difference
+     * according to bounding boxes passed from segmentation stage. **/
+    private static ArrayList<BufferedImage> cropAnnotations(
+            BufferedImage fullImage, Collection<AnnotationBoundingBox> points){
         BufferedImage image;
         ClusteringPoint topLeft;
         int width;
@@ -298,10 +343,12 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             topLeft = boundingBox.getTopLeft();
             width = boundingBox.getTopRight().getX() - topLeft.getX();
             height = boundingBox.getBottomLeft().getY() - topLeft.getY();
-            BufferedImage subImage = fullImage.getSubimage(topLeft.getX(), topLeft.getY(), width, height);
+            BufferedImage subImage = fullImage.getSubimage(
+                    topLeft.getX(), topLeft.getY(), width, height);
 
             // get a copy of image because .getSubimage operates on the original
-            image = new BufferedImage(subImage.getWidth(), subImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+            image = new BufferedImage(subImage.getWidth(), subImage.getHeight(),
+                    BufferedImage.TYPE_INT_RGB);
             Graphics g = image.createGraphics();
             g.drawImage(subImage, 0, 0, null);
 
@@ -324,15 +371,16 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         try {
             writeLine(w, values, ',', ' ');
         }catch(IOException ioe){
-            System.err.println(String.format("Error writing to CSV: %s", values.toString()));
+            System.err.println(String.format("Error writing to CSV: %s",
+                    values.toString()));
             ioe.printStackTrace();
         }
     }
 
-    private static void writeLine(Writer w, List<String> values, char separators, char customQuote) throws IOException {
-
+    private static void writeLine(Writer w, List<String> values,
+                                  char separators, char customQuote)
+            throws IOException {
         boolean first = true;
-
         StringBuilder sb = new StringBuilder();
         for (String value : values) {
             if (!first) {
@@ -350,7 +398,8 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
      * Debugging function saving annotation cutouts from the big image**/
     public void saveAnnotationBoxes(ArrayList<BufferedImage> annotationImages){
         Path currentRelativePath = Paths.get("");
-        String RELATIVE_PATH = String.format("%s/Data/", currentRelativePath.toAbsolutePath().toString());
+        String RELATIVE_PATH = String.format("%s/Data/",
+                currentRelativePath.toAbsolutePath().toString());
         int i = 0;
         for(BufferedImage image : annotationImages) {
             String filename = String.format("annotation_box%d.jpg", i);
@@ -362,7 +411,5 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             }
             i++;
         }
-
-
     }
 }

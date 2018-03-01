@@ -1,25 +1,10 @@
 package MixedRealityPDF.ImageProcessor;
 
-import MixedRealityPDF.ImageProcessor.Alignment.ImageWrapper;
-import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 
-// TODO : delete ???
-public class ImageProcessor {
-
-  public static BufferedImage alignTo(BufferedImage original, BufferedImage modified){
-      BufferedImage alignedMarkings =(new ImageWrapper()).align(original, modified);
-      return alignedMarkings;
-  }
-
-  public static BufferedImage getDifference(BufferedImage original, BufferedImage modified){
-      BufferedImage aligned = alignTo(original, modified);
-      return ImageWrapper.getColourComponent(aligned);
-  }
-
-
+public class ImgHelper {
   public static BufferedImage computeBlackAndWhite(BufferedImage image){
     // true white, so that true luminosity of the image would be preserved.
     int threshold = 255*3;
@@ -67,6 +52,16 @@ public class ImageProcessor {
       }
     }
     return imageBNW;
+  }
+
+  public static boolean isColor(int c){
+    return isColor(c, 0.1f);
+  }
+
+  public static boolean isColor(int c, float threshold){
+    double[] rgb = new double[]{getRed(c), getGreen(c), getBlue(c)};
+    double stdev = Stats.getStdDev(rgb);
+    return (stdev > threshold);
   }
 
   public static int getLuminosity(int c){

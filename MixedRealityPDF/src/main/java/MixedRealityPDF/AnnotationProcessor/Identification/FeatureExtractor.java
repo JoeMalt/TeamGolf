@@ -1,11 +1,30 @@
 package MixedRealityPDF.AnnotationProcessor.Identification;
 
+import MixedRealityPDF.ImageProcessor.ImgHelper;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class FeatureExtractor {
+public class FeatureExtractor implements IFeatureExtractor{
+
+    public FeatureExtractor(){}
+
+    @Override
+    public Collection<String> getFeatureNames() {
+        return Arrays.asList("coverage", "colour", "width", "height", "key");
+    }
+
+    @Override
+    public List<String> extractFeatures(BufferedImage img) {
+        ArrayList<String> record = new ArrayList<>();
+        record.add(Double.toString(getCoverage(img)));
+        record.add(Double.toString(getDominantColour(img)));
+        record.add(Double.toString(img.getWidth()));
+        record.add(Double.toString(img.getHeight()));
+        return record;
+    }
+
     /**
      * Analyses passed image inspecting ratio of whitespace to marking.
      * @param image annotation cropped out to be inspected.
@@ -17,7 +36,7 @@ public class FeatureExtractor {
         for(int x = 0; x < image.getWidth(); x++){
             for(int y = 0; y < image.getHeight(); y++){
                 colour = image.getRGB(x, y);
-                if(colour != -1){
+                if(ImgHelper.isColor(colour)){
                     covered++;
                 }
             }
@@ -27,10 +46,13 @@ public class FeatureExtractor {
     }
 
     /**
-     * Insects all pixels of passed image and counts number of occurences of each colour to return the most frequently
+     * Insects all pixels of passed image and counts number of occurences of
+     * each colour to return the most frequently
      * occurring one.
      * @param image cropped annotation to be annalysed
-     * @return integer encoding of most frequent RGB value; -1 if no colour other than white**/
+     * @return integer encoding of most frequent RGB value; -1 if no colour
+     * other than white
+     * **/
     public int getDominantColour(BufferedImage image){
         HashMap<Integer, Integer> colourCount = new HashMap<>();
         int colour;
@@ -50,7 +72,8 @@ public class FeatureExtractor {
 
         Map.Entry<Integer, Integer> maxEntry = null;
         for (Map.Entry<Integer, Integer> entry : colourCount.entrySet()) {
-            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
+            if (maxEntry == null
+                    || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
                 maxEntry = entry;
             }
         }
@@ -58,9 +81,11 @@ public class FeatureExtractor {
     }
 
     // faster way of getting RGB but buggy
-    // TODO(Aga): try to fix. DataBuffer can't be cast from Int to Byte but should be because BufferedImage is in RBG mode.
+    // TODO(Aga): try to fix. DataBuffer can't be cast from Int to Byte but
+    // should be because BufferedImage is in RBG mode.
     private int getFastRGB(BufferedImage image, int x, int y){
-        byte[] pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
+        byte[] pixels;
+        pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         int width = image.getWidth();
         boolean hasAlphaChannel = image.getAlphaRaster() != null;
         int pixelLength = 3;

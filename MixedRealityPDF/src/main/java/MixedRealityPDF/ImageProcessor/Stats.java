@@ -1,4 +1,4 @@
-package MixedRealityPDF.ImageProcessor.ColourRemoval;
+package MixedRealityPDF.ImageProcessor;
 
 public class Stats {
 
