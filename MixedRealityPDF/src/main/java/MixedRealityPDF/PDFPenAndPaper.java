@@ -32,7 +32,7 @@ public class PDFPenAndPaper {
   private static IAlignment alignment = new ImageWrapper();
 
   public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile,
-                        File OutputFile) throws IOException{
+                        String OutputFilePath) throws IOException{
     try(
             PDDocument original = PDDocument.load(pdfOriginalFile);
             PDDocument scanned  = PDDocument.load(pdfScannedFile);
