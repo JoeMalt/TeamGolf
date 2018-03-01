@@ -11,25 +11,26 @@ import java.io.IOException;
 
 public final class Text extends Annotation {
 
-    private final BufferedImage image;
+  private final BufferedImage image;
 
-    public Text(float x, float y, BufferedImage image, int pageNumber){
-        super(x, y, pageNumber);
-        this.image = image;
-    }
+  public Text(float x, float y, BufferedImage image, int pageNumber){
+    super(x, y, pageNumber);
+    this.image = image;
+  }
 
-    public BufferedImage getImage() {
-        return image;
-    }
+  public BufferedImage getImage() {
+    return image;
+  }
 
-    @Override
-    public void applyAnnotation(PDDocument doc) throws IOException{
-        PDPage page = doc.getPage(getPageNumber());
-        PDImageXObject image = JPEGFactory.createFromImage(doc, getImage());
-        PDPageContentStream contents = new PDPageContentStream(doc, page);
-        contents.drawImage(image, getX(), getY());
-        contents.close();
-    }
+  @Override
+  public void applyAnnotation(PDDocument doc) throws IOException{
+    PDPage page = doc.getPage(getPageNumber());
+    PDImageXObject image = JPEGFactory.createFromImage(doc, getImage());
+    PDPageContentStream contents;
+    contents = new PDPageContentStream(doc, page, true, true, true);
+    contents.drawImage(image, getX(), getY());
+    contents.close();
+  }
 }
 
 

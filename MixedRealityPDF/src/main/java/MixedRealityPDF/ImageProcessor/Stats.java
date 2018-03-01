@@ -1,6 +1,6 @@
 package MixedRealityPDF.ImageProcessor;
 
-public class Stats {
+class Stats {
 
     public static double getMean(double[] data) {
         double sum = 0.0;

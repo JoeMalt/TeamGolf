@@ -1,7 +1,7 @@
 package MixedRealityPDF.ImageProcessor;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 
 
 public class ImgHelper {
@@ -66,6 +66,20 @@ public class ImgHelper {
 
   public static int getLuminosity(int c){
     return getRed(c) + getGreen(c) + getBlue(c);
+  }
+
+  private Image TransformGrayToTransparency(BufferedImage image)
+  {
+    ImageFilter filter = new RGBImageFilter()
+    {
+      public final int filterRGB(int x, int y, int rgb)
+      {
+        return (rgb << 8) & 0xFF000000;
+      }
+    };
+
+    ImageProducer ip = new FilteredImageSource(image.getSource(), filter);
+    return Toolkit.getDefaultToolkit().createImage(ip);
   }
 
   private static int getRed(int c){
