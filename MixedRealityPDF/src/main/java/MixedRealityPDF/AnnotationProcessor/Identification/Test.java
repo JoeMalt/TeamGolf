@@ -16,7 +16,7 @@ public class Test {
     public static void main(String [] args){
         AnnotationBoundingBox box;
         ArrayList<AnnotationBoundingBox> points = new ArrayList<>();
-        for(int i = 0; i < 11; i++){
+        for(int i = 0; i < 14; i++){
             box = new AnnotationBoundingBox(
                     new ClusteringPoint(0, 0), new ClusteringPoint(10, 0),
                     new ClusteringPoint(0, 10), new ClusteringPoint(10, 10));

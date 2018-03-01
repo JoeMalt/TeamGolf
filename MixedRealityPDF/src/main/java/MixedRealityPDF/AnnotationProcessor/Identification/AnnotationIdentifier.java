@@ -75,18 +75,15 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
         // load test images
         try {
-            int numbOfFiles;
             Path dirPath = Paths.get(
                     Paths.get(relativePath, "Data", "test").toString());
-            numbOfFiles = (int) Files.list(dirPath).count();
-
             BufferedImage image;
-            File imagePath;
-            for (int i = 0; i < numbOfFiles; i++) {
-                imagePath = new File(
-                        String.format("%s/%d.png", dirPath.toString(), i));
-                image = ImageIO.read(imagePath);
-                annotationImages.add(image);
+            File[] files = new File(dirPath.toString()).listFiles();
+            for (File file : files) {
+                if (file.isFile()) {
+                    image = ImageIO.read(file.getAbsoluteFile());
+                    annotationImages.add(image);
+                }
             }
         }catch(IOException ioe){
             System.err.println("Error while loading test images.");
@@ -156,6 +153,10 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         String key;
         AnnotationBoundingBox currentBox;
         BufferedImage annotationImage;
+
+        System.out.println("keys: " + keys.size());
+        System.out.println("points: " + points.size());
+        System.out.println("images: " + annotationImages.size());
 
         while(keyIt.hasNext() && boxIt.hasNext() && imageIt.hasNext()){
             key = keyIt.next();
@@ -299,25 +300,22 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         String [] dirNames = new String[]{"text", "underline", "highlight"};
         Map<String, ArrayList<BufferedImage>> imagesInClasses = new HashMap<>();
 
-        int numbOfFiles;
         for(String dirName : dirNames) {
             Path dirPath = Paths.get(Paths.get(relativePath, "Data", dirName)
                     .toString());
-            numbOfFiles = (int) Files
-                    .list(dirPath)
-                    .filter(p -> p.endsWith(".png") || p.endsWith(".jpg"))
-                    .count();
 
             // load each image and add it to the output list
             ArrayList<BufferedImage> imagesList = new ArrayList<>();
             BufferedImage image;
-            File imagePath;
-            for(int i = 0; i < numbOfFiles; i++){
-                imagePath = new File(String.format("%s/%d.png",
-                        dirPath.toString(), i));
-                image = ImageIO.read(imagePath);
-                imagesList.add(image);
+
+            File[] files = new File(dirPath.toString()).listFiles();
+            for (File file : files) {
+                if (file.isFile()) {
+                    image = ImageIO.read(file.getAbsoluteFile());
+                    imagesList.add(image);
+                }
             }
+
             imagesInClasses.put(dirName, imagesList);
         }
         return imagesInClasses;
