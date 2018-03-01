@@ -26,7 +26,6 @@ public class PDFPenAndPaper {
 
   Collection<Annotation> annotations = new ArrayList<>();
 
-  // TODO(everyone) Initialize static variables
   private static IDifferenceMap imageDiff = new ImageWrapper();
   private static IClusterDetector clusterDetector = new DBSCANClusterDetector();
   private static IAnnotationIdentifier annId = new AnnotationIdentifier();

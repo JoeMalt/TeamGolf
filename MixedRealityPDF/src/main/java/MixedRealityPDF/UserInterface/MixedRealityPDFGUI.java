@@ -181,12 +181,12 @@ public class MixedRealityPDFGUI extends Application{
 
         // Creating a new PDFPenAndPaper starts the pipeline
         // This blocks until processing is complete
-        try {
-            new PDFPenAndPaper(originalFile, scannedFile, outputFile);
-        }
-        catch(IOException e){
-            System.out.println(e.toString());
-        }
+//        try {
+//            new PDFPenAndPaper(originalFile, scannedFile, outputFile);
+//        }
+//        catch(IOException e){
+//            System.out.println(e.toString());
+//        }
 
         // Show the original scene and a dialog indicating that processing is complete
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Processing complete!", ButtonType.OK);
