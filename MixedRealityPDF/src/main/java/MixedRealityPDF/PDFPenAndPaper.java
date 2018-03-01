@@ -71,10 +71,9 @@ public class PDFPenAndPaper {
 
   public void applyAnnotations(File pdfFile) throws IOException {
     try(PDDocument doc = PDDocument.load(pdfFile)){
-      int pageNumber = doc.getNumberOfPages();
       for(Annotation ann : annotations){
-        if(ann.getPageNumber() < pageNumber)
-          ann.applyAnnotation(doc.getPage(ann.getPageNumber()));
+        if(ann.getPageNumber() < doc.getNumberOfPages())
+          ann.applyAnnotation(doc);
       }
     }
   }

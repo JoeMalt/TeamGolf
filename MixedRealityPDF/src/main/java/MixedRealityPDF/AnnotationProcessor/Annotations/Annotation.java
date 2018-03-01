@@ -1,6 +1,6 @@
 package MixedRealityPDF.AnnotationProcessor.Annotations;
 
-import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB;
@@ -9,8 +9,10 @@ import java.io.IOException;
 
 public abstract class Annotation {
 
-  protected static PDColor BLACK = new PDColor(new float[]{0,0,0}, PDDeviceRGB.INSTANCE);
-  protected static PDColor YELLOW =new PDColor(new float[]{247/255f,255/255f,0/255f}, PDDeviceRGB.INSTANCE);
+  protected static PDColor BLACK  = new PDColor(
+          new float[]{0,0,0}, PDDeviceRGB.INSTANCE);
+  protected static PDColor YELLOW = new PDColor(
+          new float[]{247/255f,255/255f,0/255f}, PDDeviceRGB.INSTANCE);
 
   private final float x;
   private final float y;
@@ -39,7 +41,7 @@ public abstract class Annotation {
     return pageNumber;
   }
 
-  public abstract void applyAnnotation(PDPage page) throws IOException;
+  public abstract void applyAnnotation(PDDocument doc) throws IOException;
 
   protected float[] getQuads(PDRectangle rectangle){
     float[] quads = new float[8];

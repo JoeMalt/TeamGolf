@@ -1,5 +1,6 @@
 package MixedRealityPDF.AnnotationProcessor.Annotations;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
@@ -28,8 +29,9 @@ public final class Highlight extends Annotation {
   }
 
   @Override
-  public void applyAnnotation(PDPage doc) throws IOException{
-    List<PDAnnotation> ann = doc.getAnnotations();
+  public void applyAnnotation(PDDocument doc) throws IOException{
+    PDPage page = doc.getPage(getPageNumber());
+    List<PDAnnotation> ann = page.getAnnotations();
     PDAnnotationTextMarkup highlight;
     highlight = new PDAnnotationTextMarkup(
             PDAnnotationTextMarkup.SUB_TYPE_HIGHLIGHT);

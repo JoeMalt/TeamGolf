@@ -1,15 +1,13 @@
 package MixedRealityPDF.AnnotationProcessor.Annotations;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
-import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB;
-import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
-import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationTextMarkup;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.List;
 
 public final class Text extends Annotation {
 
@@ -20,9 +18,17 @@ public final class Text extends Annotation {
         this.image = image;
     }
 
+    public BufferedImage getImage() {
+        return image;
+    }
+
     @Override
-    public void applyAnnotation(PDPage doc) throws IOException{
-        //TODO: Implement
+    public void applyAnnotation(PDDocument doc) throws IOException{
+        PDPage page = doc.getPage(getPageNumber());
+        PDImageXObject image = JPEGFactory.createFromImage(doc, getImage());
+        PDPageContentStream contents = new PDPageContentStream(doc, page);
+        contents.drawImage(image, getX(), getY());
+        contents.close();
     }
 }
 
