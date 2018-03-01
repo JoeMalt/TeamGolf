@@ -33,14 +33,22 @@ public class PDFPenAndPaper {
   private static IAlignment alignment = new ImageWrapper();
 
   public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile,
-                        File OutputFile) throws IOException{
+                        String outputFile) throws IOException{
     try(
             PDDocument original = PDDocument.load(pdfOriginalFile);
             PDDocument scanned  = PDDocument.load(pdfScannedFile);
+            PDDocument copy     = copy(original);
     ){
       init(original, scanned);
-      applyAnnotations(OutputFile);
+      applyAnnotations(copy);
     }
+  }
+
+  private PDDocument copy(PDDocument doc) throws IOException{
+    PDDocument copy = new PDDocument();
+    for(int i=0; i<doc.getNumberOfPages(); i++)
+      copy.importPage(doc.getPage(i));
+    return copy;
   }
 
 
@@ -72,12 +80,10 @@ public class PDFPenAndPaper {
     }
   }
 
-  public void applyAnnotations(File pdfFile) throws IOException {
-    try(PDDocument doc = PDDocument.load(pdfFile)){
-      for(Annotation ann : annotations){
-        if(ann.getPageNumber() < doc.getNumberOfPages())
-          ann.applyAnnotation(doc);
-      }
+  public void applyAnnotations(PDDocument doc) throws IOException {
+    for(Annotation ann : annotations){
+      if(ann.getPageNumber() < doc.getNumberOfPages())
+        ann.applyAnnotation(doc);
     }
   }
 
