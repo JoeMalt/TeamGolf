@@ -12,7 +12,7 @@ public class FeatureExtractor implements IFeatureExtractor{
 
     @Override
     public Collection<String> getFeatureNames() {
-        return Arrays.asList("coverage", "colour", "width", "height", "key");
+        return Arrays.asList("coverage", "colour", "width", "height");
     }
 
     @Override
