@@ -303,7 +303,10 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         for(String dirName : dirNames) {
             Path dirPath = Paths.get(Paths.get(relativePath, "Data", dirName)
                     .toString());
-            numbOfFiles = (int) Files.list(dirPath).count();
+            numbOfFiles = (int) Files
+                    .list(dirPath)
+                    .filter(p -> p.endsWith(".png") || p.endsWith(".jpg"))
+                    .count();
 
             // load each image and add it to the output list
             ArrayList<BufferedImage> imagesList = new ArrayList<>();
