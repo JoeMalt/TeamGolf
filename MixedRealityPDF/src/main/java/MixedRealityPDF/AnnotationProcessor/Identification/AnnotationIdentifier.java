@@ -33,7 +33,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
     }
 
     public AnnotationIdentifier(){
-        featureExtractor = new FeatureExtractor();
+        featureExtractor = new FeatureExtractorV2();
         Path currentRelativePath = Paths.get("");
         relativePath = currentRelativePath.toAbsolutePath().toString();
         createTreeTrainingFile();
@@ -56,6 +56,8 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
             Collection<AnnotationBoundingBox> points, int pageNumber) {
         ArrayList<BufferedImage> annImages = cropAnnotations(fullImage, points);
         FileWriter writer = initializeFileWriter("predictionData.csv");
+
+        writeLineCSV(writer, new ArrayList<>(featureExtractor.getFeatureNames()));
 
         for (BufferedImage annotationImage : annImages) {
             saveFeaturesToCSV(annotationImage, writer, "");
@@ -87,12 +89,14 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
                 annotationImages.add(image);
             }
         }catch(IOException ioe){
-            System.out.println("Error while loading test images.");
+            System.err.println("Error while loading test images.");
             ioe.printStackTrace();
         }
 
         //save features from test data
         FileWriter writer = initializeFileWriter("predictionData.csv");
+
+        writeLineCSV(writer, new ArrayList<>(featureExtractor.getFeatureNames()));
 
         for (BufferedImage annotationImage : annotationImages) {
             saveFeaturesToCSV(annotationImage, writer, "");
@@ -264,8 +268,8 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
         // write the first line of CSV file with column names (names of
         // features)
-        ArrayList<String> firstLine = new ArrayList<>();
-        firstLine.addAll(featureExtractor.getFeatureNames());
+        ArrayList<String> firstLine = new ArrayList<>(featureExtractor.getFeatureNames());
+        firstLine.add("key");
         writeLineCSV(writer, firstLine);
 
         // extract features from each image and save them to CSV file
@@ -345,7 +349,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
             // get a copy of image because .getSubimage operates on the original
             image = new BufferedImage(subImage.getWidth(), subImage.getHeight(),
-                    BufferedImage.TYPE_INT_RGB);
+                    BufferedImage.TYPE_INT_ARGB);
             Graphics g = image.createGraphics();
             g.drawImage(subImage, 0, 0, null);
 
