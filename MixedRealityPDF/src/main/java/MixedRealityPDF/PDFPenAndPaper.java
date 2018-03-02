@@ -7,6 +7,7 @@ import MixedRealityPDF.AnnotationProcessor.Annotations.Text;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
+import MixedRealityPDF.AnnotationProcessor.Identification.AnnotationIdentifier;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 import MixedRealityPDF.ImageProcessor.Alignment.ImageWrapper;
 import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
@@ -30,8 +31,8 @@ public class PDFPenAndPaper {
 
   private static IDifferenceMap imageDiff = new ColorExtractor();
   private static IClusterDetector clusterDetector = new DBSCANClusterDetector();
-  //private static IAnnotationIdentifier annId = new AnnotationIdentifier();
-  private static IAnnotationIdentifier annId = null;
+  private static IAnnotationIdentifier annId = new AnnotationIdentifier();
+  //private static IAnnotationIdentifier annId = null;
   private static IAlignment alignment = new ImageWrapper();
 
   public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile,

@@ -6,6 +6,7 @@ import MixedRealityPDF.AnnotationProcessor.Annotations.Highlight;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Text;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
+import com.sun.org.apache.xpath.internal.SourceTree;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -16,6 +17,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Decides what sort of Annotation parts of document specified by bounding boxes
@@ -65,7 +69,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
 
         closeWriter(writer);
 
-        ArrayList<String> keys = runDecisionTree();
+        List<String> keys = runDecisionTree();
         return createAnnotationObjects(keys, points, annImages, pageNumber);
     }
 
@@ -102,7 +106,7 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
         closeWriter(writer);
 
         // identify annotations
-        ArrayList<String> keys = runDecisionTree();
+        List<String> keys = runDecisionTree();
         ArrayList<Annotation> identifiedAnnotations;
         identifiedAnnotations = createAnnotationObjects(keys, points,
                 annotationImages, pageNumber);
@@ -192,27 +196,35 @@ public class AnnotationIdentifier implements IAnnotationIdentifier{
      * Invokes python script which holds the main decision tree mechanism by
      * calling it from Command Line.
      * **/
-    private ArrayList<String> runDecisionTree(){
+    private List<String> runDecisionTree(){
         String annotationKey;
-        ArrayList<String> decisionTreeOutput = new ArrayList<>();
-
+        List<String> decisionTreeOutput = new ArrayList<>();
         // run python script with decision tree
         String pythonScriptPath = Paths.get(relativePath, "src", "main", "java",
                 "MixedRealityPDF", "AnnotationProcessor", "Identification",
                 "decision_tree.py").toString();
         try {
-            // start Python script
-            ProcessBuilder builder;
-            builder = new ProcessBuilder("python3", pythonScriptPath);
-            Process process = builder.start();
+            // create Python output file
+            Path pyOutPath = Paths.get(relativePath, "Data", "pythonOut.txt");
+            new File(pyOutPath.toString()).createNewFile();
+//            // start Python script
+//            ProcessBuilder runPythonScript = new ProcessBuilder("python3", pythonScriptPath);
+//            runPythonScript.start();
 
-            // read in each line of python output
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()));
-            while ((annotationKey = reader.readLine()) != null) {
-                decisionTreeOutput.add(annotationKey);
+            Runtime.getRuntime().exec("python3 " + pythonScriptPath);
+
+            try(BufferedReader br = new BufferedReader(new FileReader(pyOutPath.toString()))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    decisionTreeOutput.add(line);
+                }
             }
-            reader.close();
+
+            System.out.println("number of keys: " + decisionTreeOutput.size());
+            for(String key : decisionTreeOutput){
+                System.out.println("key = " + key);
+            }
+
         }catch(IOException ie){
             System.err.println(
                     "Error executing python script from command line");

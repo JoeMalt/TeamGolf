@@ -51,5 +51,8 @@ relative_path = get_project_dir()
 file_path = os.path.join(relative_path, "Data", "predictionData.csv")
 testX = load_data(file_path)
 pred = predict(clf, testX)
+
+output_filepath = os.path.join(relative_path, "Data", "pythonOut.txt")
+output_file = open(output_filepath, "w")
 for p in pred:
-    print(p)
+    output_file.write(p + "\n")
