@@ -100,9 +100,9 @@ public class PDFPenAndPaper {
 
     for(int i=0; i<original.getNumberOfPages(); i++){
       BufferedImage pdfPage;
-      pdfPage = originalRenderer.renderImage(i, 1f, ImageType.RGB);
+      pdfPage = originalRenderer.renderImage(i, 2f, ImageType.RGB);
       BufferedImage scanImg;
-      scanImg = scanRenderer.renderImage(i, 1f, ImageType.RGB);
+      scanImg = scanRenderer.renderImage(i, 2f, ImageType.RGB);
       initSinglePage(pdfPage, scanImg, i);
     }
   }
