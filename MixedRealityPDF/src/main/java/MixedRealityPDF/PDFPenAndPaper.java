@@ -102,7 +102,7 @@ public class PDFPenAndPaper {
       BufferedImage pdfPage;
       pdfPage = originalRenderer.renderImage(i, 1f, ImageType.RGB);
       BufferedImage scanImg;
-      scanImg = scanRenderer.renderImage(i, 1f, ImageType.ARGB);
+      scanImg = scanRenderer.renderImage(i, 1f, ImageType.RGB);
       initSinglePage(pdfPage, scanImg, i);
     }
   }
