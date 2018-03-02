@@ -7,9 +7,9 @@ import MixedRealityPDF.AnnotationProcessor.Annotations.Text;
 import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
-import MixedRealityPDF.AnnotationProcessor.Identification.AnnotationIdentifier;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 import MixedRealityPDF.ImageProcessor.Alignment.ImageWrapper;
+import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
 import MixedRealityPDF.ImageProcessor.IAlignment;
 import MixedRealityPDF.ImageProcessor.IDifferenceMap;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -17,7 +17,6 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -29,9 +28,10 @@ public class PDFPenAndPaper {
 
   Collection<Annotation> annotations = new ArrayList<>();
 
-  private static IDifferenceMap imageDiff = new ImageWrapper();
+  private static IDifferenceMap imageDiff = new ColorExtractor();
   private static IClusterDetector clusterDetector = new DBSCANClusterDetector();
-  private static IAnnotationIdentifier annId = new AnnotationIdentifier();
+  //private static IAnnotationIdentifier annId = new AnnotationIdentifier();
+  private static IAnnotationIdentifier annId = null;
   private static IAlignment alignment = new ImageWrapper();
 
   public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile,
@@ -88,6 +88,7 @@ public class PDFPenAndPaper {
     } catch (Exception e){
       e.printStackTrace();
     }
+
     Collection<AnnotationBoundingBox> clusterPoints;
     clusterPoints = clusterDetector.cluster(scan);
     annotations = annId.identifyAnnotations(scan, clusterPoints, page);

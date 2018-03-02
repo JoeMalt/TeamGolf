@@ -20,6 +20,9 @@ public class FeatureExtractorV2 implements IFeatureExtractor {
 
   @Override
   public List<String> extractFeatures(BufferedImage img) {
+    if(img == null){
+      return null;
+    }
     BufferedImage blackNWhite = ImgHelper.computeBlackAndWhite(img);
     ArrayList<String> vector = new ArrayList<>();
     float invArea = 1 / (float)(img.getHeight() * img.getWidth());

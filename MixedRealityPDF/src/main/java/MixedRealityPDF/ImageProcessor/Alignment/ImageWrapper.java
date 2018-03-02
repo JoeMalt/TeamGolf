@@ -9,16 +9,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
-import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetector;
-import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetectorTest;
 import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
 import MixedRealityPDF.ImageProcessor.IAlignment;
-import MixedRealityPDF.ImageProcessor.IDifferenceMap;
 import MixedRealityPDF.ImageProcessor.Stats;
 import javafx.util.Pair;
 
-public class ImageWrapper implements IAlignment, IDifferenceMap {
+public class ImageWrapper implements IAlignment {
 
   public ImageWrapper(){}
 
@@ -467,10 +463,5 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
     graphics2D.dispose();
 
     return scaledModifiedImage;
-  }
-
-  @Override
-  public BufferedImage findDifference(BufferedImage original, BufferedImage modified) {
-    return ColorExtractor.extractColorComponent(modified);
   }
 }
