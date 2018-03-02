@@ -16,6 +16,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -60,8 +62,32 @@ public class PDFPenAndPaper {
 
   private void initSinglePage(BufferedImage pdf, BufferedImage scan, int page){
     assert(annotations != null);
+    try{
+      File out = new File("Data/PDF.png");
+      ImageIO.write(pdf, "png", out);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
+    try{
+      File out = new File("Data/scan.png");
+      ImageIO.write(scan, "png", out);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
     scan = alignment.align(pdf, scan);
+    try{
+      File out = new File("Data/alignment.png");
+      ImageIO.write(scan, "png", out);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
     scan = imageDiff.findDifference(pdf, scan);
+    try{
+      File out = new File("Data/diff.png");
+      ImageIO.write(scan, "png", out);
+    } catch (Exception e){
+      e.printStackTrace();
+    }
     Collection<AnnotationBoundingBox> clusterPoints;
     clusterPoints = clusterDetector.cluster(scan);
     annotations = annId.identifyAnnotations(scan, clusterPoints, page);
@@ -74,7 +100,7 @@ public class PDFPenAndPaper {
 
     for(int i=0; i<original.getNumberOfPages(); i++){
       BufferedImage pdfPage;
-      pdfPage = originalRenderer.renderImage(i, 1f, ImageType.ARGB);
+      pdfPage = originalRenderer.renderImage(i, 1f, ImageType.RGB);
       BufferedImage scanImg;
       scanImg = scanRenderer.renderImage(i, 1f, ImageType.ARGB);
       initSinglePage(pdfPage, scanImg, i);

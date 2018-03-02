@@ -13,235 +13,14 @@ import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetectorTest;
 import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
+import MixedRealityPDF.ImageProcessor.IAlignment;
+import MixedRealityPDF.ImageProcessor.IDifferenceMap;
 import MixedRealityPDF.ImageProcessor.Stats;
 import javafx.util.Pair;
 
-public class ImageWrapper {
+public class ImageWrapper implements IAlignment, IDifferenceMap {
 
-
-  public static void main(String[] args) throws IOException {
-    // testColourExtraction();
-    // generateFinalReportTestData();
-    generateNewTestData();
-  }
-
-  private static void testColourExtraction() throws IOException {
-    String inputPath = "Data/FinalReportImages/modified.png";
-    String outputPath = "Data/FinalReportImages/extracted-modified.png";
-    BufferedImage colorExtracted = ColorExtractor.extractColorComponent(ImageIO.read(new File(inputPath)));
-    save(colorExtracted, outputPath );
-
-  }
-
-
-
-
-  private static void generateFinalReportTestData() throws IOException {
-
-    String outputDir = "Data/FinalReportImages/";
-
-    BufferedImage originalRawInput = ImageIO.read(new File("Data/FinalReportImages/original.png"));
-    BufferedImage modifiedRawInput = ImageIO.read(new File("Data/FinalReportImages/modified.png"));
-
-    BufferedImage resizedModifiedRawInput = scaleToFirstArgument(originalRawInput, modifiedRawInput);
-
-    BufferedImage blackComponent1 = getBlackComponent(modifiedRawInput);
-    BufferedImage blackComponent2 = ColorExtractor.extractBlackComponent(modifiedRawInput);
-
-    BufferedImage colourComponent1 = getColourComponent(modifiedRawInput);
-    BufferedImage colourComponent2 = ColorExtractor.extractColorComponent(modifiedRawInput);
-
-    ImageWrapper imageWrapperOriginal = new ImageWrapper(originalRawInput);
-    ImageWrapper imageWrapperModified = new ImageWrapper(resizedModifiedRawInput);
-    ImageWrapper imageWrapperModified2 = new ImageWrapper(resizedModifiedRawInput);
-
-    TextBoundingBox tbbOriginal = imageWrapperOriginal.boundingBox();
-    TextBoundingBox tbbModified = imageWrapperModified.boundingBox();
-
-        /*
-        BufferedImage bbOriginal = ImageWrapper.overlayBB(imageWrapperOriginal.bufferedImage, tbbOriginal);
-
-        BufferedImage bbModified = ImageWrapper.overlayBB(imageWrapperModified.bufferedImage, tbbModified);
-
-
-        save(bbOriginal, outputDir+"originalbb.png");
-        save(bbModified, outputDir+"modifiedbb.png");
-        */
-
-
-    BufferedImage aligned = correctAlignment(tbbModified, tbbOriginal, imageWrapperModified2.bufferedImage);
-
-    save(aligned, outputDir+"aligned.png");
-
-    BufferedImage colourOfAligned = ColorExtractor.extractColorComponent(aligned);
-
-    save(colourOfAligned, outputDir+"colour-of-aligned.png");
-
-    DBSCANClusterDetectorTest.testClustering(outputDir+"colour-of-aligned.png", outputDir+"segments.png");
-
-  }
-
-
-  private static void generateNewTestData() throws IOException {
-    String baseDirectory = "Data/new test data 1 Mar/";
-    DBSCANClusterDetector dbscanClusterDetector = new DBSCANClusterDetector();
-    for (int i = 1; i <= 10 ; i++) {
-      String inputDirectory = baseDirectory+"scanned-"+String.format("%02d", i)+".png";
-
-      System.out.println("inputDirectory = " + inputDirectory);
-
-      BufferedImage originalBI = ImageIO.read(new File(inputDirectory));
-      BufferedImage diffBI = ColorExtractor.extractColorComponent(originalBI);
-
-      save(diffBI, baseDirectory + i + ".png");
-      DBSCANClusterDetectorTest.testClustering(baseDirectory + i + ".png", baseDirectory + i + "--withclusters.png");
-
-
-      int ctr = 0;
-
-      for (AnnotationBoundingBox abb : dbscanClusterDetector.cluster(diffBI)) {
-
-        int x = abb.getTopLeft().getX();
-        int y = abb.getTopLeft().getY();
-        int w = abb.getTopRight().getX() - abb.getTopLeft().getX();
-        int h = abb.getBottomLeft().getY() - abb.getTopLeft().getY();
-
-        BufferedImage annotationBI = ColorExtractor.extractColorComponent(diffBI.getSubimage(x, y, w, h)) ;
-
-        save(annotationBI, baseDirectory + i + "--annotation--" + ctr + ".png");
-        ctr++;
-
-      }
-
-
-    }
-  }
-
-  private static void generateTestData() throws IOException {
-
-    String s4 = "Data/TestData -- DifferenceOutputForDecisionTrees/resized_AnnotatedScan4.png";
-    String s6 = "Data/TestData -- DifferenceOutputForDecisionTrees/resized_AnnotatedScan6.png";
-    String s9 ="Data/TestData -- DifferenceOutputForDecisionTrees/resized_AnnotatedScan9.png";
-    String s10 = "Data/TestData -- DifferenceOutputForDecisionTrees/resized_AnnotatedScan10.png";
-
-    String s11 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan1.png";
-    String s12 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan2.png";
-    String s13 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan3.png";
-    String s14 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan4.png";
-    String s15 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan5.png";
-    String s16 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan6.png";
-    String s17 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan7.png";
-    String s18 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan10.png";
-    String s19 = "Data/TestData -- DifferenceOutputForDecisionTrees/Test 1 heavy annotations.pdf.png";
-    String s20 = "Data/TestData -- DifferenceOutputForDecisionTrees/Test 2 heavy annotations.pdf.png";
-    String s21 = "Data/TestData -- DifferenceOutputForDecisionTrees/Test 3 heavy annotations.pdf.png";
-    String s22 = "Data/TestData -- DifferenceOutputForDecisionTrees/Test 4 heavy annotations.pdf.png";
-    String s23 = "Data/TestData -- DifferenceOutputForDecisionTrees/Test 4 light annotations.pdf.png";
-    String s24 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan8.png";
-    String s25 = "Data/TestData -- DifferenceOutputForDecisionTrees/AnnotatedScan9.png";
-    String s26 = "Data/TestData -- DifferenceOutputForDecisionTrees/newdata1.png";
-    String s27 = "Data/TestData -- DifferenceOutputForDecisionTrees/newdata2.png";
-
-    String o4 ="Data/TestData -- DifferenceOutputForDecisionTrees/resized_TestDoc4.png";
-    String o6 ="Data/TestData -- DifferenceOutputForDecisionTrees/resized_TestDoc6.png";
-    String o9 ="Data/TestData -- DifferenceOutputForDecisionTrees/resized_TestDoc9.png";
-    String o10 ="Data/TestData -- DifferenceOutputForDecisionTrees/resized_TestDoc10.png";
-
-    String directoryPath = "Data/TestData -- DifferenceOutputForDecisionTrees/";
-
-    String[] originalDocumentPaths = new String[]{o4, o6, o9, o10};
-    String[] modifiedDocumentPaths = new String[]{s4, s6, s9, s10, s11, s12, s13, s14, s15, s16, s17, s18, s19, s20, s21, s22, s23, s24, s25, s26, s27};
-
-    DBSCANClusterDetector dbscanClusterDetector = new DBSCANClusterDetector();
-
-    for (int i = 0; i < modifiedDocumentPaths.length ; i++) {
-
-      System.out.println("i = " + i);
-
-
-      if (i < originalDocumentPaths.length) {
-
-        String originalDocPath = originalDocumentPaths[i];
-        String modifiedDocPath = modifiedDocumentPaths[i];
-
-
-        BufferedImage originalBI = ImageIO.read(new File(originalDocPath));
-        BufferedImage modifiedBI = ImageIO.read(new File(modifiedDocPath));
-
-
-        BufferedImage alignedDiffNoColourMod = align(originalBI, modifiedBI);
-        BufferedImage alignedDiff = ColorExtractor.extractColorComponent(alignedDiffNoColourMod);
-
-
-        save(alignedDiff, directoryPath + i + ".png");
-        DBSCANClusterDetectorTest.testClustering(directoryPath + i + ".png", directoryPath + i + "--withclusters.png");
-
-        int ctr = 0;
-
-        for (AnnotationBoundingBox abb : dbscanClusterDetector.cluster(alignedDiff)) {
-
-
-          int x = abb.getTopLeft().getX();
-          int y = abb.getTopLeft().getY();
-          int w = abb.getTopRight().getX() - abb.getTopLeft().getX();
-          int h = abb.getBottomLeft().getY() - abb.getTopLeft().getY();
-
-          BufferedImage annotationBI = alignedDiffNoColourMod.getSubimage(x, y, w, h);
-
-          save(annotationBI, directoryPath + i + "--annotation--" + ctr + ".png");
-          ctr++;
-
-        }
-
-      } else {
-
-        String modifiedDocPath = modifiedDocumentPaths[i];
-
-        BufferedImage originalBI = ImageIO.read(new File(modifiedDocPath));
-        BufferedImage diffBI = ColorExtractor.extractColorComponent(originalBI);
-
-
-        save(diffBI, directoryPath + i + ".png");
-        DBSCANClusterDetectorTest.testClustering(directoryPath + i + ".png", directoryPath + i + "--withclusters.png");
-
-
-        int ctr = 0;
-
-        for (AnnotationBoundingBox abb : dbscanClusterDetector.cluster(diffBI)) {
-
-          int x = abb.getTopLeft().getX();
-          int y = abb.getTopLeft().getY();
-          int w = abb.getTopRight().getX() - abb.getTopLeft().getX();
-          int h = abb.getBottomLeft().getY() - abb.getTopLeft().getY();
-
-          BufferedImage annotationBI = originalBI.getSubimage(x, y, w, h);
-
-          save(annotationBI, directoryPath + i + "--annotation--" + ctr + ".png");
-          ctr++;
-
-        }
-
-      }
-    }
-  }
-
-  private static void testAlignment() throws IOException {
-    String origFP = "Data/scans/new2a.png";
-    String newFP = "Data/scans/new1a.png";
-
-    BufferedImage origBI = ImageIO.read(new File(origFP));
-    BufferedImage newBI = ImageIO.read(new File(newFP));
-
-    ImageWrapper origPDFW = new ImageWrapper(origBI);
-    ImageWrapper newPDFW = new ImageWrapper(newBI);
-
-    String outPath1 = "Data/scans/new1a--new.png";
-    String outPath2 = "Data/scans/new2a--new.png";
-
-    save(newPDFW.getImage(false, true), outPath1);
-    save(ImageWrapper.align(origBI, newBI), outPath1);
-  }
-
+  public ImageWrapper(){}
 
   /**
    *
@@ -251,7 +30,8 @@ public class ImageWrapper {
    * moved such that the bounding box of text (i.e. non-colour pixels) is aligned with that of the BufferedImage `original'.
    * No colour modifications are made to the aligned image.
    */
-  public static BufferedImage align(BufferedImage original, BufferedImage modified) {
+  @Override
+  public BufferedImage align(BufferedImage original, BufferedImage modified) {
 
     ImageWrapper originalImageWrapper = new ImageWrapper(original);
     ImageWrapper modifiedImageWrapper = new ImageWrapper(modified);
@@ -689,5 +469,8 @@ public class ImageWrapper {
     return scaledModifiedImage;
   }
 
-
+  @Override
+  public BufferedImage findDifference(BufferedImage original, BufferedImage modified) {
+    return ColorExtractor.extractColorComponent(modified);
+  }
 }
