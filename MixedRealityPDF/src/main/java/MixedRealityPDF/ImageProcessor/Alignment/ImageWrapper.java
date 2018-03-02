@@ -30,7 +30,7 @@ public class ImageWrapper implements IAlignment {
   public BufferedImage align(BufferedImage original, BufferedImage modified) {
 
     ImageWrapper originalImageWrapper = new ImageWrapper(original);
-    ImageWrapper modifiedImageWrapper = new ImageWrapper(modified);
+    ImageWrapper modifiedImageWrapper = new ImageWrapper(ImageWrapper.scaleToFirstArgument(original, modified));
 
     // Need to extract just the black component to find the bounding box of the black text
     BufferedImage blackComponentOfModified = modifiedImageWrapper.getImage(true, false);

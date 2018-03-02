@@ -30,7 +30,7 @@ public class ImageWrapperBottomLeft implements IAlignment {
   public BufferedImage align(BufferedImage original, BufferedImage modified) {
 
     ImageWrapperBottomLeft originalImageWrapper = new ImageWrapperBottomLeft(original);
-    ImageWrapperBottomLeft modifiedImageWrapper = new ImageWrapperBottomLeft(modified);
+    ImageWrapperBottomLeft modifiedImageWrapper = new ImageWrapperBottomLeft(ImageWrapperBottomLeft.scaleToFirstArgument(original, modified));
 
     // Need to extract just the black component to find the bounding box of the black text
     BufferedImage blackComponentOfModified = modifiedImageWrapper.getImage(true, false);
@@ -442,8 +442,6 @@ public class ImageWrapperBottomLeft implements IAlignment {
 
     double kx = original.getWidth()/modified.getWidth();
     double ky = original.getHeight()/modified.getHeight();
-
-
 
     AffineTransform at = new AffineTransform();
     at.scale(kx, ky);
