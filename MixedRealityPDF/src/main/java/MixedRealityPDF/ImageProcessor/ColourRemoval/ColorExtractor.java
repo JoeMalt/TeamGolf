@@ -28,7 +28,7 @@ public class ColorExtractor  {
 
 
     protected static BufferedImage extractCol(BufferedImage a, double threshold) {
-        BufferedImage out = new BufferedImage(a.getWidth(), a.getHeight(), a.getType());
+        BufferedImage out = new BufferedImage(a.getWidth(), a.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int x=0; x<a.getWidth(); x++) {
             for (int y=0; y<a.getHeight(); y++) {
                 Color aCol = new Color( a.getRGB(x,y) , true);
