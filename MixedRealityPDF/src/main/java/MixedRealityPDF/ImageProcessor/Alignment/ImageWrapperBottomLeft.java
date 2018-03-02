@@ -1,5 +1,10 @@
 package MixedRealityPDF.ImageProcessor.Alignment;
 
+import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
+import MixedRealityPDF.ImageProcessor.IAlignment;
+import MixedRealityPDF.ImageProcessor.Stats;
+import javafx.util.Pair;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -9,14 +14,9 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
-import MixedRealityPDF.ImageProcessor.IAlignment;
-import MixedRealityPDF.ImageProcessor.Stats;
-import javafx.util.Pair;
+public class ImageWrapperBottomLeft implements IAlignment {
 
-public class ImageWrapper implements IAlignment {
-
-  public ImageWrapper(){}
+  public ImageWrapperBottomLeft(){}
 
   /**
    *
@@ -29,15 +29,15 @@ public class ImageWrapper implements IAlignment {
   @Override
   public BufferedImage align(BufferedImage original, BufferedImage modified) {
 
-    ImageWrapper originalImageWrapper = new ImageWrapper(original);
-    ImageWrapper modifiedImageWrapper = new ImageWrapper(ImageWrapper.scaleToFirstArgument(original, modified));
+    ImageWrapperBottomLeft originalImageWrapper = new ImageWrapperBottomLeft(original);
+    ImageWrapperBottomLeft modifiedImageWrapper = new ImageWrapperBottomLeft(ImageWrapperBottomLeft.scaleToFirstArgument(original, modified));
 
     // Need to extract just the black component to find the bounding box of the black text
     BufferedImage blackComponentOfModified = modifiedImageWrapper.getImage(true, false);
 
     // Perform alignment based on the original and the black component of the modified image
     TextBoundingBox originalBB = originalImageWrapper.boundingBox();
-    TextBoundingBox scanBB = (new ImageWrapper(blackComponentOfModified)).boundingBox();
+    TextBoundingBox scanBB = (new ImageWrapperBottomLeft(blackComponentOfModified)).boundingBox();
 
     // Apply the transformation to the image without any colour modifications.
     BufferedImage correctlyAlignedImage = correctAlignment(scanBB, originalBB, modifiedImageWrapper.bufferedImage);
@@ -84,7 +84,7 @@ public class ImageWrapper implements IAlignment {
    * @param bufferedImage
    * Take a BufferedImage instance and initialise the blackPixelArray and colouredPixelArray fields.
    */
-  private ImageWrapper(BufferedImage bufferedImage) {
+  private ImageWrapperBottomLeft(BufferedImage bufferedImage) {
 
     this.bufferedImage = bufferedImage;
 
@@ -321,8 +321,8 @@ public class ImageWrapper implements IAlignment {
    * @return A coordinate (dx, dy) such that if (x, y) is a point in the scan then (x + dx, y + dy) is the corresponding position in the original (before scaling).
    */
   private static Coordinate findTranslation(TextBoundingBox bbscan, TextBoundingBox bborig) {
-    int dx = (bborig.coordA.x - bbscan.coordA.x);
-    int dy = (bborig.coordA.y - bbscan.coordA.y);
+    int dx = (bborig.coordD.x - bbscan.coordD.x);
+    int dy = (bborig.coordD.y - bbscan.coordD.y);
     return new Coordinate(dx, dy);
   }
 
@@ -413,7 +413,7 @@ public class ImageWrapper implements IAlignment {
    */
   private static BufferedImage correctAlignment(TextBoundingBox bbscan, TextBoundingBox bborig, BufferedImage inputImage) {
     Coordinate translation = findTranslation(bbscan, bborig);
-    Pair<Double, Double> scales = ImageWrapper.findScaling(bbscan, bborig);
+    Pair<Double, Double> scales = ImageWrapperBottomLeft.findScaling(bbscan, bborig);
     BufferedImage translatedImage = translate(translation.x, translation.y, inputImage);
 
     double kx = scales.getKey();
@@ -442,8 +442,6 @@ public class ImageWrapper implements IAlignment {
 
     double kx = original.getWidth()/modified.getWidth();
     double ky = original.getHeight()/modified.getHeight();
-
-
 
     AffineTransform at = new AffineTransform();
     at.scale(kx, ky);

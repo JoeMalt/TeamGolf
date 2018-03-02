@@ -2,23 +2,45 @@ package MixedRealityPDF.AnnotationProcessor.Identification;
 
 import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
 import MixedRealityPDF.AnnotationProcessor.Annotations.Annotation;
+import MixedRealityPDF.AnnotationProcessor.Annotations.Text;
 import MixedRealityPDF.AnnotationProcessor.ClusteringPoint;
+import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
-// Given an image and a set of coordinates classify the Annotations.
-public interface IAnnotationIdentifier {
-  Collection<Annotation> identifyAnnotations(
-          BufferedImage fullImage,
-          Collection<AnnotationBoundingBox> points, int pageNumber);
+public class EverythingIsText implements IAnnotationIdentifier {
 
-  /**
-   * Crops out annotations out of the full image of the PDF difference
-   * according to bounding boxes passed from segmentation stage. **/
-  static ArrayList<BufferedImage> cropAnnotations(
+  public EverythingIsText(){}
+
+  @Override
+  public Collection<Annotation> identifyAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points, int pageNumber) {
+    ArrayList<BufferedImage> annImages = cropAnnotations(fullImage, points);
+
+    System.out.println("points: " + points.size());
+
+    ArrayList<Annotation> text = new ArrayList<>(annImages.size());
+    Iterator<AnnotationBoundingBox> itp =  points.iterator();
+    Iterator<BufferedImage> iti =  annImages.iterator();
+
+    while(itp.hasNext() && iti.hasNext()){
+      AnnotationBoundingBox box = itp.next();
+      BufferedImage im = iti.next();
+
+      int x = box.getBottomLeft().getX();
+      int y = box.getBottomLeft().getY();
+      y = Annotation.ImageYToPDFY(y, fullImage.getHeight());
+      Text txt = new Text(x, y, im, pageNumber);
+      text.add(txt);
+    }
+
+    return text;
+  }
+
+  private static ArrayList<BufferedImage> cropAnnotations(
           BufferedImage fullImage, Collection<AnnotationBoundingBox> points){
     BufferedImage image;
     ClusteringPoint topLeft;
