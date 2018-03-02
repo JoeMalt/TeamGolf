@@ -1,6 +1,7 @@
 package MixedRealityPDF.ImageProcessor.Alignment;
 
-import javax.imageio.ImageIO; import java.awt.*;
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -8,44 +9,30 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-
-import MixedRealityPDF.ImageProcessor.ImgHelper;
-import MixedRealityPDF.ImageProcessor.Stats;
+import MixedRealityPDF.AnnotationProcessor.AnnotationBoundingBox;
+import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetector;
+import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetectorTest;
+import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
 import MixedRealityPDF.ImageProcessor.IAlignment;
 import MixedRealityPDF.ImageProcessor.IDifferenceMap;
+import MixedRealityPDF.ImageProcessor.Stats;
 import javafx.util.Pair;
 
 public class ImageWrapper implements IAlignment, IDifferenceMap {
 
-  public ImageWrapper(){};
+  public ImageWrapper(){}
 
-  // Testing -- TODO : delete
-  public static void main(String[] args) throws IOException {
-    ImageWrapper iw = new ImageWrapper();
-    String origFP = "Data/scans/new2a.png";
-    String newFP = "Data/scans/new1a.png";
-
-    BufferedImage origBI = ImageIO.read(new File(origFP));
-    BufferedImage newBI = ImageIO.read(new File(newFP));
-
-    //ImageWrapper origPDFW = new ImageWrapper(origBI);
-    //ImageWrapper newPDFW = new ImageWrapper(newBI);
-
-    String outPath1 = "Data/scans/new1a--new.png";
-    String outPath2 = "Data/scans/new2a--new.png";
-
-    //save(newPDFW.getImage(false, true), outPath1);
-    save(iw.align(origBI, newBI), outPath1);
-  }
-
-  @Override
-  public BufferedImage findDifference(BufferedImage original, BufferedImage modified) {
-    return ImageWrapper.getColourComponent(modified);
-  }
-
-  // return aligned scan without colour modifications
+  /**
+   *
+   * @param original
+   * @param modified
+   * @return A BufferedImage instance which is of the same dimensions as the modified image, with the image pixels
+   * moved such that the bounding box of text (i.e. non-colour pixels) is aligned with that of the BufferedImage `original'.
+   * No colour modifications are made to the aligned image.
+   */
   @Override
   public BufferedImage align(BufferedImage original, BufferedImage modified) {
+
     ImageWrapper originalImageWrapper = new ImageWrapper(original);
     ImageWrapper modifiedImageWrapper = new ImageWrapper(modified);
 
@@ -56,71 +43,102 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
     TextBoundingBox originalBB = originalImageWrapper.boundingBox();
     TextBoundingBox scanBB = (new ImageWrapper(blackComponentOfModified)).boundingBox();
 
-    // Apply the transformation to the image with the colour and the black text.
+    // Apply the transformation to the image without any colour modifications.
     BufferedImage correctlyAlignedImage = correctAlignment(scanBB, originalBB, modifiedImageWrapper.bufferedImage);
+
     return correctlyAlignedImage;
   }
 
+
+  /**
+   *
+   * @param image
+   * @return A BufferedImage instance of the same dimensions as `image', but discarding (i.e. setting to white)
+   * any pixels that are not either white or black.
+   */
   public static BufferedImage getBlackComponent(BufferedImage image) {
-    ImageWrapper imageWrapper = new ImageWrapper(image);
-    return imageWrapper.getImage(true, false);
+    return ColorExtractor.extractBlackComponent(image);
+    // ImageWrapper imageWrapper = new ImageWrapper(image);
+    // return imageWrapper.getImage(true, false);
   }
 
+  /**
+   *
+   * @param image
+   * @return A BufferedImage instance of the same dimensions as `image', but discarding (i.e. setting to white) any
+   * pixels that are not considered `black'.
+   */
   public static BufferedImage getColourComponent(BufferedImage image) {
-    ImageWrapper imageWrapper = new ImageWrapper(image);
-    return imageWrapper.getImage(false, true);
+    return ColorExtractor.extractColorComponent(image);
+    // ImageWrapper imageWrapper = new ImageWrapper(image);
+    // return imageWrapper.getImage(false, true);
   }
-
-
 
   BufferedImage bufferedImage;
   int originalHeight, originalWidth;
 
-  // x, y indexed
+  // Array representations of the pixels in the input image with which an ImageWrapper
+  // instance is constructed. An entry is `true' iff that pixel (x, y) is considered a `black' pixel or a `coloured' pixel,
+  // respectively.
   boolean[][] blackPixelArray;
   boolean[][] colouredPixelArray;
 
-  private ImageWrapper(BufferedImage b) {
-    this.bufferedImage = b;
 
-    originalHeight = bufferedImage.getHeight();
-    originalWidth = bufferedImage.getWidth();
+  /**
+   * @param bufferedImage
+   * Take a BufferedImage instance and initialise the blackPixelArray and colouredPixelArray fields.
+   */
+  private ImageWrapper(BufferedImage bufferedImage) {
+
+    this.bufferedImage = bufferedImage;
+
+    originalHeight = this.bufferedImage.getHeight();
+    originalWidth = this.bufferedImage.getWidth();
 
     blackPixelArray = new boolean[originalWidth][originalHeight];
     colouredPixelArray = new boolean[originalWidth][originalHeight];
 
     for (int currXOffset = 0; currXOffset  < originalWidth; currXOffset++) {
       for (int currYOffset = 0; currYOffset< originalHeight; currYOffset++) {
-        blackPixelArray[currXOffset][currYOffset] = isABlackPixel(bufferedImage, currXOffset, currYOffset, 0.1);
-        colouredPixelArray[currXOffset][currYOffset] = isAColouredPixel(bufferedImage, currXOffset, currYOffset, 0.1);
+        blackPixelArray[currXOffset][currYOffset] = isABlackPixel(this.bufferedImage, currXOffset, currYOffset, 0.2);
+        colouredPixelArray[currXOffset][currYOffset] = isAColouredPixel(this.bufferedImage, currXOffset, currYOffset, 0.1);
       }
     }
   }
 
+  /**
+   *
+   * @param justBlack
+   * @param justColour
+   * @return If justBlack == false && justColour == false then return the original image.
+   * If justBlack == true  && justColour == false then return the black component of the image.
+   * If justBlack == false && justColour == true then return the coloured component of the image.
+   * If justBlack == true && justColour == true then return the original image.
+   */
   private BufferedImage getImage(boolean justBlack, boolean justColour) {
     BufferedImage outputBufferedImage  = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), 1+bufferedImage.getType());
     for (int x = 0; x < originalWidth; x++) {
       for (int y = 0; y < originalHeight; y++) {
         if (justColour && !justBlack) {
           if (colouredPixelArray[x][y]) {
-            outputBufferedImage.setRGB(x, y, (new Color(255, 0, 0)).getRGB());
+            outputBufferedImage.setRGB(x, y, bufferedImage.getRGB(x, y));
           } else {
-            outputBufferedImage.setRGB(x, y, (new Color(255, 255, 255)).getRGB());
+            outputBufferedImage.setRGB(x, y, Color.WHITE.getRGB());
           }
         } else if (justBlack && !justColour) {
           if (blackPixelArray[x][y]){
-            outputBufferedImage.setRGB(x, y, (new Color(0,0,0)).getRGB());
+            outputBufferedImage.setRGB(x, y, Color.BLACK.getRGB());
           } else {
-            outputBufferedImage.setRGB(x, y, (new Color(255, 255, 255)).getRGB());
+            outputBufferedImage.setRGB(x, y, Color.WHITE.getRGB());
           }
         } else {
           if (colouredPixelArray[x][y]) {
-            outputBufferedImage.setRGB(x, y, (new Color(255, 0, 0)).getRGB());
+            outputBufferedImage.setRGB(x, y, bufferedImage.getRGB(x, y));
           }
           else if (blackPixelArray[x][y]){
-            outputBufferedImage.setRGB(x, y, (new Color(0,0,0)).getRGB());
+            outputBufferedImage.setRGB(x, y, Color.BLACK.getRGB());
           } else {
-            outputBufferedImage.setRGB(x, y, (new Color(255, 255, 255)).getRGB());
+            outputBufferedImage.setRGB(x, y, Color.WHITE.getRGB());
           }
         }
       }
@@ -128,20 +146,23 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
     return outputBufferedImage;
   }
 
-  private static void save(BufferedImage toSave, String outputpath) throws IOException {
-    File outputFile = new File(outputpath);
-    ImageIO.write(toSave, "png", outputFile);
-  }
 
+  /**
+   *
+   * @param bufferedImage
+   * @param x
+   * @param y
+   * @param threshold
+   * @return true iff the pixel at (x, y) is considered to be a black pixel. A higher threshold value makes the test
+   * less strict -- so as threshold is made larger, more grey pixels get accepted as black.
+   */
   private static boolean isABlackPixel(BufferedImage bufferedImage, int x, int y, double threshold) {
 
     Color c = new Color(bufferedImage.getRGB(x, y));
-
     int sumlengthsquared = (int) (Math.pow(c.getRed(), 2) + Math.pow(c.getGreen(), 2) + Math.pow(c.getBlue(), 2));
 
     // (255 ^2) * 3  is the max value of sumlengthsquared (white + white)
     if (sumlengthsquared > threshold * Math.pow(255 , 2) * 3) {
-
       // It was deemed to be a white pixel
       return false;
     } else if (sumlengthsquared < threshold * Math.pow(255, 2) * 3){
@@ -149,16 +170,34 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
       return true;
     } else {
       // Lies between the black and white threshold
-      // TODO: (Reconsider?) Default to a white pixel (as the background is assumed white)
+      // Default to a white pixel (as the background is assumed white)
       return false;
     }
   }
 
+  /**
+   *
+   * @param bufferedImage
+   * @param x
+   * @param y
+   * @param threshold
+   * @return true iff the pixel at (x, y) in bufferedImage is considered to be a coloured pixel. A larger threshold makes the test
+   * more strict -- a larger threshold requires the pixel to be more colourful (i.e. have a larger standard deviation among its
+   * RGB components) to be considered as a coloured pixel.
+   */
   private static boolean isAColouredPixel(BufferedImage bufferedImage, int x, int y, double threshold) {
-    return ImgHelper.isColor(bufferedImage.getRGB(x, y));
+    Color c = new Color(bufferedImage.getRGB(x, y));
+    double stdev = Stats.getStdDev(new double[]{c.getRed(), c.getGreen(), c.getBlue()})/255;
+    return (stdev > threshold);
   }
 
-  List<LineSegment>  xScans() {
+
+  /**
+   * Perform horizontal scans across the image.
+   * Keep track of the start and end positions at which each scan line intersects the text in the image (assumed black)
+   * @return A list of Line Segments corresponding to where the horizontal scan lines intersected the text of the image.
+   */
+  private List<LineSegment>  xScans() {
 
     List<LineSegment> segments = new LinkedList<>();
 
@@ -189,6 +228,11 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
     return segments;
   }
 
+
+  /**
+   *
+   * @return A BufferedImage instance with the bounding box of text overlaid as a rectangle.
+   */
   private BufferedImage getWithBoundingBox() {
 
     BufferedImage underlyingImage = getImage(false, false);
@@ -197,22 +241,37 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
 
   }
 
+
+  /**
+   *
+   * @return A TextBoundingBox instance containing the parameters of the bounding box of the text in the image.
+   */
   private TextBoundingBox boundingBox() {
+
     Coordinate possA = null, possB = null, possC = null, possD = null;
+
+
     List<LineSegment> xScansList = xScans();
+
+
     for (LineSegment lineSeg: xScansList) {
+
       Coordinate startPoint = lineSeg.start;
       Coordinate finishPoint = lineSeg.finish;
+
 
       if (possA == null || startPoint.beatsA(possA)) {
         possA = startPoint.getCopy();
       }
+
       if (possB == null || finishPoint.beatsB(possB, bufferedImage)) {
         possB = finishPoint.getCopy();
       }
+
       if (possC == null || finishPoint.beatsC(possC, bufferedImage)) {
         possC = finishPoint.getCopy();
       }
+
       if (possD == null || startPoint.beatsD(possD, bufferedImage)) {
         possD = startPoint.getCopy();
       }
@@ -220,44 +279,19 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
 
     TextBoundingBox tbb = new TextBoundingBox(possA, possB, possC, possD);
     return tbb;
-        /*
-
-        // TODO: modify logic to incorporate minimum line segment length
-        // So instead of firstSegment use first segment which has the minimum line length, similarly instead of lastSegment...
-
-        int threshold = 300;
-
-        List<LineSegment> xScansList = xScans();
-
-        Coordinate possA = null, possB = null, possC = null, possD = null;
 
 
-        LineSegment firstSegment = xScansList.get(0);
-
-        int index = 0;
-        while(firstSegment.xprojlength() < threshold && index < xScans().size()) {
-            index++;
-            firstSegment = xScansList.get(index);
-        }
-
-        LineSegment lastSegment = xScansList.get(xScansList.size() - 1);
-
-        index = xScansList.size() - 1;
-        while(lastSegment.xprojlength() < threshold && index >= 0) {
-            index--;
-            lastSegment = xScansList.get(index);
-        }
-
-        possA = firstSegment.start;
-        possB = firstSegment.finish;
-        possC = lastSegment.finish;
-        possD = lastSegment.start;
-
-
-        */
   }
 
+
+  /**
+   *
+   * @param underlyingImage
+   * @param boundingBoxCoordinates
+   * @return A BufferedImage instance with the provided bounding box drawn on the image.
+   */
   private static BufferedImage overlayBB(BufferedImage underlyingImage, TextBoundingBox boundingBoxCoordinates) {
+
     Graphics2D bufferedGraphics2D = underlyingImage.createGraphics();
     bufferedGraphics2D.setPaint(Color.GREEN);
     int[] xpoints = new int[4];
@@ -284,12 +318,11 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
     return underlyingImage;
   }
 
-  /*
-     Input
-            bbscan -- boundingtests box of scan
-            bborig -- boundingtests box of original
-      Output
-            coordinate (dx, dy) such that if (x, y) is a point in the scan then (x + dx, y + dy) is the corresponding position in the original (before scaling).
+  /**
+   *
+   * @param bbscan
+   * @param bborig
+   * @return A coordinate (dx, dy) such that if (x, y) is a point in the scan then (x + dx, y + dy) is the corresponding position in the original (before scaling).
    */
   private static Coordinate findTranslation(TextBoundingBox bbscan, TextBoundingBox bborig) {
     int dx = (bborig.coordA.x - bbscan.coordA.x);
@@ -297,20 +330,17 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
     return new Coordinate(dx, dy);
   }
 
-  /*
-      Input
-            bbscan -- boundingtests box of scan
-            bborig -- boundingtests box of original
-      Output
-            coordinate (kx, ky)
-            where
-              kx -- stretch factor to be applied to the scan ..
-              ky -- stretch factor to be applied to the scan ..
 
-              such that, assuming that the stretch is applied with a centre point which is chosen as a point of alignment between the scan and the original,
-              then, the stretched scan will be aligned with the original.
+
+  /**
+   *
+   * @param bbscan
+   * @param bborig
+   * @return A Pair of Double values (kx, ky) where kx and ky are the stretch factors to be applied to the image of the modified document,
+   * taking the centre point to be the top left corner of the text bounding box of the original image, to bring the bounding boxes into alignment.
    */
   private static Pair<Double, Double> findScaling(TextBoundingBox bbscan, TextBoundingBox bborig) {
+
     Coordinate Bprime = bbscan.coordB;
     Coordinate Aprime = bbscan.coordA;
 
@@ -320,100 +350,127 @@ public class ImageWrapper implements IAlignment, IDifferenceMap {
     Coordinate Dprime = bbscan.coordD;
     Coordinate D = bborig.coordD;
 
+
     double kx = Math.abs((double) (B.x - A.x) / (Bprime.x - Aprime.x));
     double ky = Math.abs((double) (D.y - A.y) / (Dprime.y - Aprime.y));
 
     return new Pair<>(kx, ky);
+
+
   }
 
-  private static BufferedImage applyTranslate_new(int dx, int dy, BufferedImage toTranslate) {
-    if (true) {
-      throw new IllegalArgumentException("Implement this method");
-    }
 
+  /**
+   *
+   * @param dx
+   * @param dy
+   * @param input
+   * @return Shift every pixel in `input' from (x, y) to (x + dx, y + dy).
+   */
+  private static BufferedImage translate(int dx, int dy, BufferedImage input) {
     AffineTransform at = new AffineTransform();
     at.translate(dx, dy);
 
-    BufferedImage whiteImage = new BufferedImage(toTranslate.getWidth(), toTranslate.getHeight(), toTranslate.getType());
-    for (int x = 0; x < whiteImage.getWidth(); x++) {
-      for (int y = 0; y < whiteImage.getHeight(); y++) {
-        whiteImage.setRGB(x, y, Color.WHITE.getRGB());
-      }
-    }
+    BufferedImage outputImage = new BufferedImage(input.getWidth(), input.getHeight(), input.getType());
+    Graphics2D graphics2D = outputImage.createGraphics();
+    graphics2D.setTransform(at);
 
-    Graphics2D g2d = whiteImage.createGraphics();
-    g2d.drawImage(toTranslate, at, null);
-    return null;
-  }
-
-  /*
-     this will output an image where the pixel
-          toTranslate(x, y)
-     is found at position
-          (x + dx, y + dy)
-   */
-  private static BufferedImage applyTranslate(int dx, int dy, BufferedImage toTranslate) {
-    BufferedImage outputImage = new BufferedImage(toTranslate.getWidth(), toTranslate.getHeight(), toTranslate.getType());
-    for (int x = 0; x < toTranslate.getWidth(); x++) {
-      for (int y = 0; y < toTranslate.getHeight(); y++) {
-        outputImage.setRGB(x, y, Color.WHITE.getRGB());
-      }
-    }
-    for (int x = 0; x < toTranslate.getWidth(); x++) {
-      for (int y = 0; y < toTranslate.getHeight(); y++) {
-
-        int rgbval;
-        if (x+dx >= 0 && x+dx < toTranslate.getWidth() && y+dy >= 0 && y+dy < toTranslate.getHeight()) {
-          rgbval = toTranslate.getRGB(x, y);
-          outputImage.setRGB(x + dx, y + dy, rgbval);
-        }
-      }
-    }
+    graphics2D.drawImage(input, 0, 0, null);
+    graphics2D.dispose();
     return outputImage;
   }
 
-  private static BufferedImage applyScalingAboutCentrePoint(int x0, int y0, double kx, double ky, BufferedImage toScale) {
-    BufferedImage translatedImage = new BufferedImage(toScale.getWidth(), toScale.getHeight(), toScale.getType());
 
-    for (int x = 0; x < toScale.getWidth(); x++) {
-      for (int y = 0; y < toScale.getHeight(); y++) {
-        translatedImage.setRGB(x, y, Color.WHITE.getRGB());
-      }
-    }
+  /**
+   *
+   * @param x0
+   * @param y0
+   * @param kx
+   * @param ky
+   * @param inputImage
+   * @return Scale the `inputImage' by kx, ky in the x- and y- directions respectively, taking (x0, y0) as the centre point.
+   */
+  private static BufferedImage scaleAboutCentre(int x0, int y0, double kx, double ky, BufferedImage inputImage) {
+    AffineTransform at = new AffineTransform();
+    at.translate(-x0, -y0);
+    at.scale(kx, ky);
+    at.translate(x0, y0);
 
-    int xprime = -1, yprime = -1;
-    for (int y = 0; y < toScale.getHeight(); y++) {
+    BufferedImage outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), inputImage.getType());
+    Graphics2D graphics2D = outputImage.createGraphics();
+    graphics2D.setTransform(at);
 
-      System.out.println("xprime = " + xprime);
-      System.out.println("yprime = " + yprime);
-      System.out.println();
+    graphics2D.drawImage(inputImage, 0, 0, null);
+    graphics2D.dispose();
 
-      for (int x = 0; x < toScale.getWidth(); x++) {
-
-        double xprime_d = x0 + (x - x0) * kx;
-        double yprime_d = y0 + (y - y0) * ky;
-        xprime = (int) Math.floor(xprime_d);
-        yprime = (int) Math.floor(yprime_d);
-
-        int rgbval;
-        if(xprime >= 0 && xprime < toScale.getWidth() && yprime >= 0 && yprime < toScale.getHeight()) {
-          rgbval = toScale.getRGB(x, y);
-          translatedImage.setRGB(xprime, yprime, rgbval);
-        }
-      }
-    }
-    return translatedImage;
-
+    return outputImage;
   }
 
+
+  /**
+   *
+   * @param bbscan
+   * @param bborig
+   * @param inputImage
+   * @return Return an image of the same dimensions as inputImage but with the pixels moved around such that
+   * the bounding box of the text now has coordinates given by `bborig'.
+   */
   private static BufferedImage correctAlignment(TextBoundingBox bbscan, TextBoundingBox bborig, BufferedImage inputImage) {
     Coordinate translation = findTranslation(bbscan, bborig);
     Pair<Double, Double> scales = ImageWrapper.findScaling(bbscan, bborig);
-    BufferedImage translatedImage = applyTranslate(translation.x, translation.y,inputImage);
+    BufferedImage translatedImage = translate(translation.x, translation.y, inputImage);
+
     double kx = scales.getKey();
     double ky = scales.getValue();
-    BufferedImage scaledTranslatedImage = applyScalingAboutCentrePoint(bborig.coordA.x, bborig.coordA.y, kx, ky, translatedImage);
+
+    BufferedImage scaledTranslatedImage = scaleAboutCentre(bborig.coordA.x, bborig.coordA.y, kx, ky, translatedImage);
+
     return scaledTranslatedImage;
+
   }
 
+  private static void save(BufferedImage toSave, String outputpath) throws IOException {
+    File outputFile = new File(outputpath);
+    ImageIO.write(toSave, "png", outputFile);
+  }
+
+
+  /**
+   *
+   * @param original
+   * @param modified
+   * @return A BufferedImage instance with the same content as `modified' but scaled such that the dimensions of the image
+   * are the same as that of `original'.
+   */
+  private static BufferedImage scaleToFirstArgument(BufferedImage original, BufferedImage modified) {
+
+    double kx = original.getWidth()/modified.getWidth();
+    double ky = original.getHeight()/modified.getHeight();
+
+
+
+    AffineTransform at = new AffineTransform();
+    at.scale(kx, ky);
+    BufferedImage scaledModifiedImage = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+
+    for (int x = 0; x < scaledModifiedImage.getWidth(); x++) {
+      for (int y = 0; y < scaledModifiedImage.getHeight(); y++) {
+        scaledModifiedImage.setRGB(x, y, Color.WHITE.getRGB());
+      }
+    }
+
+
+
+    Graphics2D graphics2D = scaledModifiedImage.createGraphics();
+    graphics2D.setTransform(at);
+    graphics2D.drawImage(modified, 0, 0, null);
+    graphics2D.dispose();
+
+    return scaledModifiedImage;
+  }
+
+  @Override
+  public BufferedImage findDifference(BufferedImage original, BufferedImage modified) {
+    return ColorExtractor.extractColorComponent(modified);
+  }
 }
