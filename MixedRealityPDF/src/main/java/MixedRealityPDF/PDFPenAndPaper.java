@@ -8,6 +8,7 @@ import MixedRealityPDF.AnnotationProcessor.Annotations.UnderLine;
 import MixedRealityPDF.AnnotationProcessor.DBSCANClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.IClusterDetector;
 import MixedRealityPDF.AnnotationProcessor.Identification.AnnotationIdentifier;
+import MixedRealityPDF.AnnotationProcessor.Identification.EverythingIsText;
 import MixedRealityPDF.AnnotationProcessor.Identification.IAnnotationIdentifier;
 import MixedRealityPDF.ImageProcessor.Alignment.ImageWrapper;
 import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
@@ -31,8 +32,9 @@ public class PDFPenAndPaper {
 
   private static IDifferenceMap imageDiff = new ColorExtractor();
   private static IClusterDetector clusterDetector = new DBSCANClusterDetector();
-  private static IAnnotationIdentifier annId = new AnnotationIdentifier();
+  //private static IAnnotationIdentifier annId = new AnnotationIdentifier();
   //private static IAnnotationIdentifier annId = null;
+  private static IAnnotationIdentifier annId = new EverythingIsText();
   private static IAlignment alignment = new ImageWrapper();
 
   public PDFPenAndPaper(File pdfOriginalFile, File pdfScannedFile,
@@ -102,9 +104,10 @@ public class PDFPenAndPaper {
 
     for(int i=0; i<original.getNumberOfPages(); i++){
       BufferedImage pdfPage;
-      pdfPage = originalRenderer.renderImage(i, 2f, ImageType.RGB);
+      pdfPage = originalRenderer.renderImage(i, 1f, ImageType.RGB);
+      
       BufferedImage scanImg;
-      scanImg = scanRenderer.renderImage(i, 2f, ImageType.ARGB);
+      scanImg = scanRenderer.renderImage(i, 1f, ImageType.ARGB);
       initSinglePage(pdfPage, scanImg, i);
     }
   }

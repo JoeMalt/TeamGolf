@@ -84,16 +84,22 @@ public class ImageWrapper implements IAlignment {
   /**
    *
    * @param original
-   * @param modified
+   * @param modifiedBeforeARCorrect
    * @return A BufferedImage instance which is of the same dimensions as the modified image, with the image pixels
    * moved such that the bounding box of text (i.e. non-colour pixels) is aligned with that of the BufferedImage `original'.
    * No colour modifications are made to the aligned image.
    */
   @Override
-  public BufferedImage align(BufferedImage original, BufferedImage modified) {
+  public BufferedImage align(BufferedImage original, BufferedImage modifiedBeforeARCorrect) {
+
+    BufferedImage modified = ImageWrapper.scaleToFirstArgument(original, modifiedBeforeARCorrect);
+
 
     ImageWrapper originalImageWrapper = new ImageWrapper(original);
+
+
     ImageWrapper modifiedImageWrapper = new ImageWrapper(modified);
+
 
     // Need to extract just the black component to find the bounding box of the black text
     BufferedImage blackComponentOfModified = modifiedImageWrapper.getImage(true, false);
