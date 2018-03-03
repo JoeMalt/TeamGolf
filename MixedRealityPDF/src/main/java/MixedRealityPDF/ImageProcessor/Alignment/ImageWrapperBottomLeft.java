@@ -16,6 +16,12 @@ import java.util.List;
 
 public class ImageWrapperBottomLeft implements IAlignment {
 
+
+
+
+
+
+
   public ImageWrapperBottomLeft(){}
 
   /**
@@ -30,8 +36,7 @@ public class ImageWrapperBottomLeft implements IAlignment {
   public BufferedImage align(BufferedImage original, BufferedImage modified) {
 
     ImageWrapperBottomLeft originalImageWrapper = new ImageWrapperBottomLeft(original);
-    ImageWrapperBottomLeft modifiedImageWrapper = new ImageWrapperBottomLeft(ImageWrapperBottomLeft.scaleToFirstArgument(original, modified));
-
+    ImageWrapperBottomLeft modifiedImageWrapper = new ImageWrapperBottomLeft(modified);
     // Need to extract just the black component to find the bounding box of the black text
     BufferedImage blackComponentOfModified = modifiedImageWrapper.getImage(true, false);
 
