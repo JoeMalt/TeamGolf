@@ -112,30 +112,6 @@ public class ImageWrapper implements IAlignment {
   }
 
 
-  /**
-   *
-   * @param image
-   * @return A BufferedImage instance of the same dimensions as `image', but discarding (i.e. setting to white)
-   * any pixels that are not either white or black.
-   */
-  public static BufferedImage getBlackComponent(BufferedImage image) {
-    return ColorExtractor.extractBlackComponent(image);
-    // ImageWrapper imageWrapper = new ImageWrapper(image);
-    // return imageWrapper.getImage(true, false);
-  }
-
-  /**
-   *
-   * @param image
-   * @return A BufferedImage instance of the same dimensions as `image', but discarding (i.e. setting to white) any
-   * pixels that are not considered `black'.
-   */
-  public static BufferedImage getColourComponent(BufferedImage image) {
-    return ColorExtractor.extractColorComponent(image);
-    // ImageWrapper imageWrapper = new ImageWrapper(image);
-    // return imageWrapper.getImage(false, true);
-  }
-
   BufferedImage bufferedImage;
   int originalHeight, originalWidth;
 
