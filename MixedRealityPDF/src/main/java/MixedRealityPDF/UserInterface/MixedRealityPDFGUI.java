@@ -6,6 +6,8 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -191,11 +193,14 @@ public class MixedRealityPDFGUI extends Application{
         // Show the original scene and a dialog indicating that processing is complete
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Processing complete!", ButtonType.OK);
         alert.show();
-        showViewScene(s);
+        showViewScene(s, 10); //todo number of pages
 
     }
 
-    private void showViewScene(Stage s){
+    private void showViewScene(Stage s, int num_pages){
+
+        int displayed_page_number = 1;
+
         TabPane tpViewSceneContent = new TabPane();
 
         // Buttons to switch page, used in all views
@@ -208,32 +213,92 @@ public class MixedRealityPDFGUI extends Application{
         pageToggleControlsPane.setCenter(lblPageToggleStatus);
         pageToggleControlsPane.setRight(btnPageToggleNext);
 
-        // Contents of the Alignment tab
-        GridPane alignmentPane = new GridPane();
-        alignmentPane.getChildren().add(new Label("alignment pane"));
+
+        // Contents of the Original Image tab
+        GridPane originalPane = new GridPane();
+        Image imgOriginal = new Image(new File("Data/intermediates/page1_original.png").toURI().toString());
+        ImageView ivOriginalImage = new ImageView(imgOriginal);
+        ivOriginalImage.setPreserveRatio(true);
+        ivOriginalImage.setFitWidth(350.0); // todo put this in CSS
+        originalPane.getChildren().add(ivOriginalImage);
+
+        // Contents of the Scanned Image tab
+        GridPane scannedPane = new GridPane();
+        Image imgScanned = new Image(new File("Data/intermediates/page1_scanned.png").toURI().toString());
+        ImageView ivScannedImage = new ImageView(imgScanned);
+        ivScannedImage.setPreserveRatio(true);
+        ivScannedImage.setFitWidth(350.0); // todo put this in CSS
+        scannedPane.getChildren().add(ivScannedImage);
+
+        // Contents of the AlignedImage tab
+        GridPane alignedPane = new GridPane();
+        Image imgAligned = new Image(new File("Data/intermediates/page1_aligned.png").toURI().toString());
+        ImageView ivAlignedImage = new ImageView(imgAligned);
+        ivAlignedImage.setPreserveRatio(true);
+        ivAlignedImage.setFitWidth(350.0); // todo put this in CSS
+        alignedPane.getChildren().add(ivAlignedImage);
 
         // Contents of the extraction tab
-        GridPane extractionPane = new GridPane();
-        extractionPane.getChildren().add(new Label("extraction pane"));
+        GridPane extractedPane = new GridPane();
+        Image imgExtracted = new Image(new File("Data/intermediates/page1_extracted.png").toURI().toString());
+        ImageView ivExtractedImage = new ImageView(imgExtracted);
+        ivExtractedImage.setPreserveRatio(true);
+        ivExtractedImage.setFitWidth(350.0); // todo put this in CSS
+        extractedPane.getChildren().add(ivExtractedImage);
 
         // Contents of the segmentation / identification tab
-        GridPane segmentationPane = new GridPane();
-        segmentationPane.getChildren().add(new Label("segmentation pane"));
+        BorderPane segmentationPane = new BorderPane();
+        Button segmentationAnnotationTogglePrev = new Button("Previous");
+        Button segmentationAnnotationToggleNext = new Button("Next");
+        GridPane segmentationContentPane = new GridPane();
+        Image imgAnnotation = new Image(new File("Data/intermediates/annotations/page1_ann1.png").toURI().toString());
+        ImageView ivAnnotation = new ImageView(imgAnnotation);
+        ivAnnotation.setPreserveRatio(true);
+        ivAnnotation.setFitWidth(200.0); //todo set max height / width, as shape may be variable
 
+        // todo read classifications from a file
+        Label lblClassification = new Label("Classification: unknown");
+        segmentationContentPane.getChildren().add(ivAnnotation);
+        segmentationContentPane.getChildren().add(lblClassification);
+        segmentationContentPane.setRowIndex(lblClassification, 2);
+
+        segmentationPane.setLeft(segmentationAnnotationTogglePrev);
+        segmentationPane.setRight(segmentationAnnotationToggleNext);
+        segmentationPane.setCenter(segmentationContentPane);
+
+        // Contents of the output tab
+        GridPane outputPane = new GridPane();
+        Image imgOutput = new Image(new File("Data/intermediates/page1_output.png").toURI().toString());
+        ImageView ivOutputImage = new ImageView(imgOutput);
+        ivOutputImage.setPreserveRatio(true);
+        ivOutputImage.setFitWidth(350.0); // todo put this in CSS
+        outputPane.getChildren().add(ivOutputImage);
 
 
         // Define the tabs and their contents
 
+        Tab originalTab = new Tab();
+        originalTab.setText("Original page");
+        originalTab.setClosable(false);
+        originalTab.setContent(originalPane);
+        tpViewSceneContent.getTabs().add(originalTab);
+
+        Tab scannedTab = new Tab();
+        scannedTab.setText("Scanned page");
+        scannedTab.setClosable(false);
+        scannedTab.setContent(scannedPane);
+        tpViewSceneContent.getTabs().add(scannedTab);
+
         Tab alignmentTab = new Tab();
-        alignmentTab.setText("Alignment");
+        alignmentTab.setText("Aligned page");
         alignmentTab.setClosable(false);
-        alignmentTab.setContent(alignmentPane);
+        alignmentTab.setContent(alignedPane);
         tpViewSceneContent.getTabs().add(alignmentTab);
 
         Tab extractionTab = new Tab();
-        extractionTab.setText("Extraction");
+        extractionTab.setText("Extracted annotations");
         extractionTab.setClosable(false);
-        extractionTab.setContent(extractionPane);
+        extractionTab.setContent(extractedPane);
         tpViewSceneContent.getTabs().add(extractionTab);
 
         Tab segmentationTab = new Tab();
@@ -258,6 +323,6 @@ public class MixedRealityPDFGUI extends Application{
     public void start(Stage primaryStage) {
         //showFileSelectionScene(primaryStage); //todo reenable
         // todo: clear intermediate output when restarting e.g. in showFileSelectionScene
-        showViewScene(primaryStage);
+        showViewScene(primaryStage, 10);
     }
 }
