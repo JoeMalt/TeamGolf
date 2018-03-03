@@ -5,10 +5,8 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
@@ -193,13 +191,73 @@ public class MixedRealityPDFGUI extends Application{
         // Show the original scene and a dialog indicating that processing is complete
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Processing complete!", ButtonType.OK);
         alert.show();
-        showFileSelectionScene(s);
+        showViewScene(s);
 
+    }
+
+    private void showViewScene(Stage s){
+        TabPane tpViewSceneContent = new TabPane();
+
+        // Buttons to switch page, used in all views
+        BorderPane pageToggleControlsPane = new BorderPane();
+        Button btnPageTogglePrev = new Button("Previous");
+        Label lblPageToggleStatus = new Label ("Page m of n");
+        Button btnPageToggleNext = new Button("Next");
+
+        pageToggleControlsPane.setLeft(btnPageTogglePrev);
+        pageToggleControlsPane.setCenter(lblPageToggleStatus);
+        pageToggleControlsPane.setRight(btnPageToggleNext);
+
+        // Contents of the Alignment tab
+        GridPane alignmentPane = new GridPane();
+        alignmentPane.getChildren().add(new Label("alignment pane"));
+
+        // Contents of the extraction tab
+        GridPane extractionPane = new GridPane();
+        extractionPane.getChildren().add(new Label("extraction pane"));
+
+        // Contents of the segmentation / identification tab
+        GridPane segmentationPane = new GridPane();
+        segmentationPane.getChildren().add(new Label("segmentation pane"));
+
+
+
+        // Define the tabs and their contents
+
+        Tab alignmentTab = new Tab();
+        alignmentTab.setText("Alignment");
+        alignmentTab.setClosable(false);
+        alignmentTab.setContent(alignmentPane);
+        tpViewSceneContent.getTabs().add(alignmentTab);
+
+        Tab extractionTab = new Tab();
+        extractionTab.setText("Extraction");
+        extractionTab.setClosable(false);
+        extractionTab.setContent(extractionPane);
+        tpViewSceneContent.getTabs().add(extractionTab);
+
+        Tab segmentationTab = new Tab();
+        segmentationTab.setText("Segmentation / Identification");
+        segmentationTab.setClosable(false);
+        segmentationTab.setContent(segmentationPane);
+        tpViewSceneContent.getTabs().add(segmentationTab);
+
+
+        // The view consists of a BorderPane which contains a TabPane for content and a BorderPane for the page controls
+        BorderPane bpViewScene = new BorderPane();
+        bpViewScene.setBottom(pageToggleControlsPane);
+        bpViewScene.setCenter(tpViewSceneContent);
+
+        Scene viewScene = new Scene(bpViewScene, 800, 600); //TODO check size
+        s.setScene(viewScene);
+        s.show();
     }
 
 
     @Override
     public void start(Stage primaryStage) {
-        showFileSelectionScene(primaryStage);
+        //showFileSelectionScene(primaryStage); //todo reenable
+        // todo: clear intermediate output when restarting e.g. in showFileSelectionScene
+        showViewScene(primaryStage);
     }
 }
