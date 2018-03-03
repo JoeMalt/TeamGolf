@@ -8,10 +8,21 @@ import java.io.IOException;
 import java.util.Collection;
 
 public class DBSCANClusterDetectorTest {
+
+
     public static void main(String[] args) {
+        String diffMapPath = "Data/diff.png";
+        String outPath = "Data/segmented_diff.png";
+        DBSCANClusterDetectorTest.overlayClusters(diffMapPath, outPath);
+    }
+
+
+    public static void overlayClusters(String diffMapPath, String outPath) {
+
         try {
             long startTime = System.nanoTime();
-            BufferedImage im = ImageIO.read(new File("/home/joe/IBGroupProject/ColorExtractor_Out6.png"));
+
+            BufferedImage im = ImageIO.read(new File(diffMapPath));
             DBSCANClusterDetector cd = new DBSCANClusterDetector();
             Collection<AnnotationBoundingBox> s = cd.cluster(im);
             // draw the bounding boxes back onto the image
@@ -29,7 +40,8 @@ public class DBSCANClusterDetectorTest {
                 g2d.drawLine(boundingBox.getBottomLeft().getX(), boundingBox.getBottomLeft().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
                 g2d.drawLine(boundingBox.getTopRight().getX(), boundingBox.getTopRight().getY(), boundingBox.getBottomRight().getX(), boundingBox.getBottomRight().getY());
             }
-            ImageIO.write(im, "PNG", new File("/home/joe/IBGroupProject/test11_out.png"));
+
+
             System.out.println("Time taken: " + (double) (System.nanoTime() - startTime) / 1000000000L + " seconds");
         }
         catch (IOException e){

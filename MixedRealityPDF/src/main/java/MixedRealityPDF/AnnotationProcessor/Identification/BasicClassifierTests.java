@@ -24,9 +24,9 @@ public class BasicClassifierTests {
         // testCoverageDetector();
         // testBasicAspectRatioDetector();
         // testSubimageAspectRatioDetector();
-        testClassifier();
+        // testClassifier();
     }
-
+/*
 
 
     private static void testClassifier() throws IOException {
@@ -36,7 +36,6 @@ public class BasicClassifierTests {
 
         BasicClassifier basicClassifier = new BasicClassifier();
 
-        /*
         Annotation predictionHighlight = BasicClassifier.identifySingleAnnotation(highlightTest, getSimpleBoundingBoxForWholeImage(highlightTest), 1);
         Annotation predictionUnderline = BasicClassifier.identifySingleAnnotation(underlineTest, getSimpleBoundingBoxForWholeImage(underlineTest), 1);
         Annotation predictionText = BasicClassifier.identifySingleAnnotation(textTest, getSimpleBoundingBoxForWholeImage(textTest), 1);
@@ -45,7 +44,7 @@ public class BasicClassifierTests {
         System.out.println("predictionUnderline = " + predictionUnderline);
         System.out.println("predictionText = " + predictionText);
 
-        */
+
     }
 
     private static AnnotationBoundingBox getSimpleBoundingBoxForWholeImage (BufferedImage annotationSubimage) {
@@ -104,4 +103,6 @@ public class BasicClassifierTests {
         String dirName = "Data/highlight";
         BasicClassifier.getAllFileNamesInDirectory(dirName);
     }
+
+    */
 }

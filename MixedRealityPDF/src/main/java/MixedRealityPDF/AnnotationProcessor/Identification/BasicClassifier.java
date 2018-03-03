@@ -25,7 +25,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
     private static final String textDir = "Data/text";
 
 
-    public static Annotation identifySingleAnnotation(BufferedImage fullImage,
+    private static Annotation identifySingleAnnotation(BufferedImage fullImage,
                                                       BufferedImage annotationSubImage,
                                                       AnnotationBoundingBox annotationBoundingBox,
                                                       int pageNumber,
@@ -116,7 +116,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
     }
 
 
-    public static List<Color> getColoredPixelList(BufferedImage subImage) {
+    private  static List<Color> getColoredPixelList(BufferedImage subImage) {
         List<Color> colorsOfPixelsInInputImage = new LinkedList<>();
         for (int x = 0; x < subImage.getWidth(); x++) {
             for (int y = 0; y <  subImage.getHeight(); y++) {
@@ -127,7 +127,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
         }
         return colorsOfPixelsInInputImage;
     }
-    public static Double getFractionOfNonTransparentPixels(BufferedImage subImage) {
+    private  static Double getFractionOfNonTransparentPixels(BufferedImage subImage) {
 
 
         int totalNumPixels = (subImage.getHeight()) * subImage.getWidth();
@@ -148,7 +148,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
 
 
 
-    public static int getHeightOfActualAnnotation(BufferedImage subImage) {
+    private static int getHeightOfActualAnnotation(BufferedImage subImage) {
         BufferedImage blackNWhite = ImgHelper.computeBlackAndWhite(subImage);
         ArrayList<String> vector = new ArrayList<>();
         FeatureExtractorV2 featureExtractorV2 = new FeatureExtractorV2();
@@ -156,7 +156,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
         return height;
     }
 
-    public static double aspectRatio(BufferedImage subImage, boolean morePreciseHeight) {
+    private static double aspectRatio(BufferedImage subImage, boolean morePreciseHeight) {
 
         if (!morePreciseHeight) {
             return subImage.getWidth() / (double) subImage.getHeight();

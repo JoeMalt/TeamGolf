@@ -17,11 +17,6 @@ import javafx.util.Pair;
 
 public class ImageWrapper implements IAlignment {
 
-  public static void main(String[] args) throws IOException {
-    testAspectRatio();
-  }
-
-
   private static void testAspectRatio() throws IOException {
 
     String originalPath = "Data/ImageWrapperTestData/PDF_white_bkg1.png";
@@ -73,6 +68,7 @@ public class ImageWrapper implements IAlignment {
 
 
   }
+
 
 
 
