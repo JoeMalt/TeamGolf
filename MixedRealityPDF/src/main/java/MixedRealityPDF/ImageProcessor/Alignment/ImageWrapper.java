@@ -56,7 +56,6 @@ public class ImageWrapper implements IAlignment {
     save(originalBIWithBB, baseOutputDirectory+"originalBIWithBB.png");
     save(resizedModifiedBIWithBB, baseOutputDirectory+"resizedModifiedBIWithBB.png");
 
-
     ImageWrapper imageWrapper = new ImageWrapper();
 
     BufferedImage alignedBIafterARResizing = imageWrapper.align(originalBufferedImage, resizedModifiedBufferedImage);
@@ -71,8 +70,6 @@ public class ImageWrapper implements IAlignment {
     System.out.println("tbbAlignedResizedScan = " + tbbAlignedResizedScan);
 
     save(alignedBIafterARResizing, baseOutputDirectory+"alignedBIafterARResizing.png");
-
-
 
 
   }
