@@ -45,6 +45,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
                 // aspect ratio = width / height ...
                 // aspect ratio is higher than the threshold in this case ...
                 // choose [underline] -- or but just default to (text) here
+                System.out.println("aspectRatio(annotationSubImage, false) = " + aspectRatio(annotationSubImage, false));
 
                 if (defaultToText) {
                     toAdd = new Text(toAdd_x, toAdd_y, annotationSubImage, pageNumber);
@@ -93,7 +94,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
                     annotationSubImage,
                     annotationBoundingBox,
                     pageNumber,
-                    false,
+                    true,
                     coverageThreshold,
                     aspectRatioThreshold);
 
