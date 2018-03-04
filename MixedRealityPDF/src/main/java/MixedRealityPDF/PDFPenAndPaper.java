@@ -64,27 +64,35 @@ public class PDFPenAndPaper {
   private void initSinglePage(BufferedImage pdf, BufferedImage scan, int page){
     assert(annotations != null);
     try{
-      File out = new File("Data/PDF.png");
+      File out = new File("Data/intermediates/pages/" + page + "/original.png");
+      out.getParentFile().mkdirs();
+      out.createNewFile();
       ImageIO.write(pdf, "png", out);
     } catch (Exception e){
       e.printStackTrace();
     }
     try{
-      File out = new File("Data/scan.png");
+      File out = new File("Data/intermediates/pages/" + page + "/scanned.png");
+      out.getParentFile().mkdirs();
+      out.createNewFile();
       ImageIO.write(scan, "png", out);
     } catch (Exception e){
       e.printStackTrace();
     }
     scan = alignment.align(pdf, scan);
     try{
-      File out = new File("Data/alignment.png");
+      File out = new File("Data/intermediates/pages/" + page + "/aligned.png");
+      out.getParentFile().mkdirs();
+      out.createNewFile();
       ImageIO.write(scan, "png", out);
     } catch (Exception e){
       e.printStackTrace();
     }
     scan = imageDiff.findDifference(pdf, scan);
     try{
-      File out = new File("Data/diff.png");
+      File out = new File("Data/intermediates/pages/" + page + "/extracted.png");
+      out.getParentFile().mkdirs();
+      out.createNewFile();
       ImageIO.write(scan, "png", out);
     } catch (Exception e){
       e.printStackTrace();

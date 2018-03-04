@@ -398,9 +398,9 @@ public class MixedRealityPDFGUI extends Application{
 
     @Override
     public void start(Stage primaryStage) {
-        //showFileSelectionScene(primaryStage); //todo reenable
+        showFileSelectionScene(primaryStage); //todo reenable
         // todo: clear intermediate output when restarting e.g. in showFileSelectionScene
-        showViewScene(primaryStage, 1,10);
+        //showViewScene(primaryStage, 1,10);
     }
 
     // Inner class to manage state in the Annotation Display tab in ViewScene
