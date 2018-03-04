@@ -60,6 +60,9 @@ public class Coordinate {
     public static final Coordinate ORIGIN = new Coordinate(0, 0);
 
     public boolean beatsA(Coordinate A) {
+
+
+
         return squareDistanceFrom(this, ORIGIN) < squareDistanceFrom(A, ORIGIN);
     }
 

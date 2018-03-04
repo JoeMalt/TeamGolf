@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import MixedRealityPDF.AnnotationProcessor.Annotations.Text;
 import MixedRealityPDF.ImageProcessor.ColourRemoval.ColorExtractor;
 import MixedRealityPDF.ImageProcessor.IAlignment;
 import MixedRealityPDF.ImageProcessor.Stats;
@@ -16,21 +17,82 @@ import javafx.util.Pair;
 
 public class ImageWrapper implements IAlignment {
 
+  private static void testAspectRatio() throws IOException {
+
+    String originalPath = "Data/ImageWrapperTestData/PDF_white_bkg1.png";
+    String modifiedPath = "Data/ImageWrapperTestData/scan.png";
+    String outputPath = "Data/ImageWrapperTestData/alignment_out.png";
+
+    String baseOutputDirectory = "Data/ImageWrapperTestData/";
+
+    BufferedImage originalBufferedImage = ImageIO.read(new File(originalPath));
+    BufferedImage modifiedBufferedImage = ImageIO.read(new File(modifiedPath));
+
+    save(originalBufferedImage, baseOutputDirectory+"originalBufferedImage.png");
+    save(modifiedBufferedImage, baseOutputDirectory+"modifiedBufferedImage.png");
+
+
+    BufferedImage resizedModifiedBufferedImage = ImageWrapper.scaleToFirstArgument(originalBufferedImage, modifiedBufferedImage);
+
+    save(resizedModifiedBufferedImage, baseOutputDirectory+"resizedModifiedBufferedImage.png");
+
+
+    ImageWrapper imageWrapperOriginal = new ImageWrapper(originalBufferedImage);
+    ImageWrapper imageWrapperModifiedScan = new ImageWrapper(resizedModifiedBufferedImage);
+
+    TextBoundingBox tbbOriginal = imageWrapperOriginal.boundingBox();
+    TextBoundingBox tbbResizedModified = imageWrapperModifiedScan.boundingBox();
+
+
+    BufferedImage originalBIWithBB = (new ImageWrapper(originalBufferedImage)).getWithBoundingBox();
+    BufferedImage resizedModifiedBIWithBB =(new ImageWrapper(resizedModifiedBufferedImage)).getWithBoundingBox();
+
+
+    save(originalBIWithBB, baseOutputDirectory+"originalBIWithBB.png");
+    save(resizedModifiedBIWithBB, baseOutputDirectory+"resizedModifiedBIWithBB.png");
+
+    ImageWrapper imageWrapper = new ImageWrapper();
+
+    BufferedImage alignedBIafterARResizing = imageWrapper.align(originalBufferedImage, resizedModifiedBufferedImage);
+
+
+    TextBoundingBox tbbAlignedResizedScan = (new ImageWrapper(alignedBIafterARResizing)).boundingBox();
+
+    BufferedImage alignedResizedScanWithBoundingBox = (new ImageWrapper(alignedBIafterARResizing)).getWithBoundingBox();
+    save(alignedResizedScanWithBoundingBox, baseOutputDirectory+"alignedResizedScanWithBoundingBox.png");
+
+    System.out.println("tbbOriginal = " + tbbOriginal);
+    System.out.println("tbbAlignedResizedScan = " + tbbAlignedResizedScan);
+
+    save(alignedBIafterARResizing, baseOutputDirectory+"alignedBIafterARResizing.png");
+
+
+  }
+
+
+
+
   public ImageWrapper(){}
 
   /**
    *
    * @param original
-   * @param modified
+   * @param modifiedBeforeARCorrect
    * @return A BufferedImage instance which is of the same dimensions as the modified image, with the image pixels
    * moved such that the bounding box of text (i.e. non-colour pixels) is aligned with that of the BufferedImage `original'.
    * No colour modifications are made to the aligned image.
    */
   @Override
-  public BufferedImage align(BufferedImage original, BufferedImage modified) {
+  public BufferedImage align(BufferedImage original, BufferedImage modifiedBeforeARCorrect) {
+
+    BufferedImage modified = ImageWrapper.scaleToFirstArgument(original, modifiedBeforeARCorrect);
+
 
     ImageWrapper originalImageWrapper = new ImageWrapper(original);
-    ImageWrapper modifiedImageWrapper = new ImageWrapper(ImageWrapper.scaleToFirstArgument(original, modified));
+
+
+    ImageWrapper modifiedImageWrapper = new ImageWrapper(modified);
+
 
     // Need to extract just the black component to find the bounding box of the black text
     BufferedImage blackComponentOfModified = modifiedImageWrapper.getImage(true, false);
@@ -45,30 +107,6 @@ public class ImageWrapper implements IAlignment {
     return correctlyAlignedImage;
   }
 
-
-  /**
-   *
-   * @param image
-   * @return A BufferedImage instance of the same dimensions as `image', but discarding (i.e. setting to white)
-   * any pixels that are not either white or black.
-   */
-  public static BufferedImage getBlackComponent(BufferedImage image) {
-    return ColorExtractor.extractBlackComponent(image);
-    // ImageWrapper imageWrapper = new ImageWrapper(image);
-    // return imageWrapper.getImage(true, false);
-  }
-
-  /**
-   *
-   * @param image
-   * @return A BufferedImage instance of the same dimensions as `image', but discarding (i.e. setting to white) any
-   * pixels that are not considered `black'.
-   */
-  public static BufferedImage getColourComponent(BufferedImage image) {
-    return ColorExtractor.extractColorComponent(image);
-    // ImageWrapper imageWrapper = new ImageWrapper(image);
-    // return imageWrapper.getImage(false, true);
-  }
 
   BufferedImage bufferedImage;
   int originalHeight, originalWidth;
@@ -96,6 +134,7 @@ public class ImageWrapper implements IAlignment {
 
     for (int currXOffset = 0; currXOffset  < originalWidth; currXOffset++) {
       for (int currYOffset = 0; currYOffset< originalHeight; currYOffset++) {
+
         blackPixelArray[currXOffset][currYOffset] = isABlackPixel(this.bufferedImage, currXOffset, currYOffset, 0.2);
         colouredPixelArray[currXOffset][currYOffset] = isAColouredPixel(this.bufferedImage, currXOffset, currYOffset, 0.1);
       }
@@ -231,7 +270,8 @@ public class ImageWrapper implements IAlignment {
    */
   private BufferedImage getWithBoundingBox() {
 
-    BufferedImage underlyingImage = getImage(false, false);
+    BufferedImage underlyingImage = ImageWrapper.scaleAboutCentre(0,0, 1.0, 1.0, getImage(false, false));
+
     TextBoundingBox boundingBoxCoordinates = boundingBox();
     return overlayBB(underlyingImage, boundingBoxCoordinates);
 
@@ -289,6 +329,7 @@ public class ImageWrapper implements IAlignment {
   private static BufferedImage overlayBB(BufferedImage underlyingImage, TextBoundingBox boundingBoxCoordinates) {
 
     Graphics2D bufferedGraphics2D = underlyingImage.createGraphics();
+
     bufferedGraphics2D.setPaint(Color.GREEN);
     int[] xpoints = new int[4];
     int[] ypoints = new int[4];
@@ -367,7 +408,18 @@ public class ImageWrapper implements IAlignment {
     AffineTransform at = new AffineTransform();
     at.translate(dx, dy);
 
+
+
     BufferedImage outputImage = new BufferedImage(input.getWidth(), input.getHeight(), input.getType());
+
+
+    for (int x = 0; x < outputImage.getWidth() ; x++) {
+      for (int y = 0; y < outputImage.getHeight(); y++) {
+        outputImage.setRGB(x, y, Color.WHITE.getRGB());
+      }
+    }
+
+
     Graphics2D graphics2D = outputImage.createGraphics();
     graphics2D.setTransform(at);
 
@@ -388,11 +440,20 @@ public class ImageWrapper implements IAlignment {
    */
   private static BufferedImage scaleAboutCentre(int x0, int y0, double kx, double ky, BufferedImage inputImage) {
     AffineTransform at = new AffineTransform();
-    at.translate(-x0, -y0);
-    at.scale(kx, ky);
+
     at.translate(x0, y0);
+    at.scale(kx, ky);
+    at.translate(-x0, -y0);
+
 
     BufferedImage outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), inputImage.getType());
+
+    for (int x = 0; x < outputImage.getWidth() ; x++) {
+      for (int y = 0; y < outputImage.getHeight(); y++) {
+        outputImage.setRGB(x, y, Color.WHITE.getRGB());
+      }
+    }
+
     Graphics2D graphics2D = outputImage.createGraphics();
     graphics2D.setTransform(at);
 
@@ -416,9 +477,17 @@ public class ImageWrapper implements IAlignment {
     Pair<Double, Double> scales = ImageWrapper.findScaling(bbscan, bborig);
     BufferedImage translatedImage = translate(translation.x, translation.y, inputImage);
 
+
+    TextBoundingBox tbbOfTranslatedImage = (new ImageWrapper(translatedImage)).boundingBox();
+
+    System.out.println("tbbOfTranslatedImage = " + tbbOfTranslatedImage);
+
     double kx = scales.getKey();
     double ky = scales.getValue();
 
+
+    System.out.println("bborig.coordA = " + bborig.coordA);
+    
     BufferedImage scaledTranslatedImage = scaleAboutCentre(bborig.coordA.x, bborig.coordA.y, kx, ky, translatedImage);
 
     return scaledTranslatedImage;
@@ -440,22 +509,29 @@ public class ImageWrapper implements IAlignment {
    */
   private static BufferedImage scaleToFirstArgument(BufferedImage original, BufferedImage modified) {
 
-    double kx = original.getWidth()/modified.getWidth();
-    double ky = original.getHeight()/modified.getHeight();
+    double kx = original.getWidth()/(double)modified.getWidth();
+    double ky = original.getHeight()/(double)modified.getHeight();
 
 
+    System.out.println("kx = " + kx);
+    System.out.println("ky = " + ky);
 
     AffineTransform at = new AffineTransform();
     at.scale(kx, ky);
     BufferedImage scaledModifiedImage = new BufferedImage(original.getWidth(), original.getHeight(), original.getType());
+
+
+    for (int x = 0; x < scaledModifiedImage.getWidth() ; x++) {
+      for (int y = 0; y < scaledModifiedImage.getHeight(); y++) {
+        scaledModifiedImage.setRGB(x, y, Color.WHITE.getRGB());
+      }
+    }
 
     for (int x = 0; x < scaledModifiedImage.getWidth(); x++) {
       for (int y = 0; y < scaledModifiedImage.getHeight(); y++) {
         scaledModifiedImage.setRGB(x, y, Color.WHITE.getRGB());
       }
     }
-
-
 
     Graphics2D graphics2D = scaledModifiedImage.createGraphics();
     graphics2D.setTransform(at);

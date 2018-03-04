@@ -10,7 +10,7 @@ public class PDFPenAndPaperTest {
     String pathOut = "Data/PDFs/doc2_out.pdf";
 
     File original = new File(pathOriginal);
-    File scanned = new File(pathScanned);
+    File scanned = new File(pathScanned );
 
     PDFPenAndPaper ppap = new PDFPenAndPaper(original, scanned, pathOut);
   }
