@@ -73,7 +73,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
         double coverageThreshold = 0.35;
 
         // 10  - works better in most cases.
-        double aspectRatioThreshold = 20;
+        double aspectRatioThreshold = 10;
 
         List<Annotation> classifiedAnnotations = new LinkedList<>();
 
@@ -93,7 +93,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
                     annotationSubImage,
                     annotationBoundingBox,
                     pageNumber,
-                    true,
+                    false,
                     coverageThreshold,
                     aspectRatioThreshold);
 

@@ -41,7 +41,7 @@ public final class UnderLine extends Annotation{
     PDAnnotationTextMarkup underline = new PDAnnotationTextMarkup(
             PDAnnotationTextMarkup.SUB_TYPE_UNDERLINE);
     underline.setRectangle(new PDRectangle(getX(), getY(), getLength(), 100f));
-    underline.setColor(super.BLACK);
+    underline.setColor(super.RED);
 
     PDRectangle position = new PDRectangle();
     position.setLowerLeftX(getX());

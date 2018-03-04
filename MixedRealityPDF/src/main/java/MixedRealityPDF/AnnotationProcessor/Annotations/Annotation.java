@@ -13,6 +13,9 @@ public abstract class Annotation {
           new float[]{0,0,0}, PDDeviceRGB.INSTANCE);
   protected static PDColor YELLOW = new PDColor(
           new float[]{247/255f,255/255f,0/255f}, PDDeviceRGB.INSTANCE);
+  protected static PDColor RED = new PDColor(
+          new float[]{255,0,0}, PDDeviceRGB.INSTANCE);
+
 
   private final float x;
   private final float y;
