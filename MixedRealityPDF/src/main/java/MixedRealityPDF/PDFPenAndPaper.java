@@ -37,6 +37,9 @@ public class PDFPenAndPaper {
   //private static IAnnotationIdentifier annId = null;
 
 
+
+
+
   //private static IAnnotationIdentifier annId = new EverythingIsText();
 
   private static IAnnotationIdentifier annId = new BasicClassifier();

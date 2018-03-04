@@ -102,8 +102,7 @@ public class BasicClassifier implements IAnnotationIdentifier{
         }
         return classifiedAnnotations;
     }
-
-    public static List<File> getAllFileNamesInDirectory(String myDirectoryPath) {
+    private static List<File> getAllFileNamesInDirectory(String myDirectoryPath) {
         File directoryFile = new File(myDirectoryPath);
         File[] files = directoryFile.listFiles();
         List<File> filesToReturn = new LinkedList<>();
@@ -114,8 +113,6 @@ public class BasicClassifier implements IAnnotationIdentifier{
         }
         return filesToReturn;
     }
-
-
     private  static List<Color> getColoredPixelList(BufferedImage subImage) {
         List<Color> colorsOfPixelsInInputImage = new LinkedList<>();
         for (int x = 0; x < subImage.getWidth(); x++) {
@@ -145,8 +142,6 @@ public class BasicClassifier implements IAnnotationIdentifier{
 
         return nonTransparentCount/(double)totalNumPixels;
     }
-
-
 
     private static int getHeightOfActualAnnotation(BufferedImage subImage) {
         BufferedImage blackNWhite = ImgHelper.computeBlackAndWhite(subImage);
