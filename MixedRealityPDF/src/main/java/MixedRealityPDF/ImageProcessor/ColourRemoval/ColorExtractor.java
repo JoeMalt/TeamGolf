@@ -11,6 +11,9 @@ import java.io.IOException;
 
 public class ColorExtractor implements IDifferenceMap {
 
+
+
+
     @Override
     public BufferedImage findDifference(BufferedImage original, BufferedImage modified) {
         return extractColorComponent(modified);
@@ -35,7 +38,7 @@ public class ColorExtractor implements IDifferenceMap {
     }
 
 
-    protected static BufferedImage extractBlack(BufferedImage a, double threshold) {
+    private static BufferedImage extractBlack(BufferedImage a, double threshold) {
         BufferedImage out = new BufferedImage(a.getWidth(), a.getHeight(), a.getType());
         for (int x=0; x<a.getWidth(); x++) {
             for (int y=0; y<a.getHeight(); y++) {

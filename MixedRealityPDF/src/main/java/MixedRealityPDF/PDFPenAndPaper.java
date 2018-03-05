@@ -86,6 +86,8 @@ public class PDFPenAndPaper {
     } catch (Exception e){
       e.printStackTrace();
     }
+
+
     scan = alignment.align(pdf, scan);
     try{
       File out = new File("Data/alignment.png");
@@ -100,6 +102,8 @@ public class PDFPenAndPaper {
     } catch (Exception e){
       e.printStackTrace();
     }
+
+
 
     Collection<AnnotationBoundingBox> clusterPoints;
     clusterPoints = clusterDetector.cluster(scan);

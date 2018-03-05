@@ -487,7 +487,7 @@ public class ImageWrapper implements IAlignment {
 
 
     System.out.println("bborig.coordA = " + bborig.coordA);
-    
+
     BufferedImage scaledTranslatedImage = scaleAboutCentre(bborig.coordA.x, bborig.coordA.y, kx, ky, translatedImage);
 
     return scaledTranslatedImage;

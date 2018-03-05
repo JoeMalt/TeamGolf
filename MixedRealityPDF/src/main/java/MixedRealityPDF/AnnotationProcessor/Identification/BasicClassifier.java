@@ -31,7 +31,8 @@ public class BasicClassifier implements IAnnotationIdentifier{
                                                       int pageNumber,
                                                       boolean defaultToText,
                                                       double coverageThreshold,
-                                                      double aspectRatioThreshold) {
+                                                      double aspectRatioThreshold,
+                                                       double heightRatioThreshold) {
 
         int toAdd_x = annotationBoundingBox.getTopLeft().getX();
         int toAdd_y = annotationBoundingBox.getTopLeft().getY();
@@ -50,7 +51,14 @@ public class BasicClassifier implements IAnnotationIdentifier{
                 if (defaultToText) {
                     toAdd = new Text(toAdd_x, toAdd_y, annotationSubImage, pageNumber);
                 } else {
-                    toAdd = new UnderLine(toAdd_x, toAdd_y, annotationBoundingBox.getTopRight().getX()-annotationBoundingBox.getTopLeft().getX(), pageNumber);
+
+                    if (heightAsFractionOfImageHeight(fullImage, annotationSubImage) < heightRatioThreshold) {
+                        toAdd = new UnderLine(toAdd_x, toAdd_y, annotationBoundingBox.getTopRight().getX()-annotationBoundingBox.getTopLeft().getX(), pageNumber);
+                    } else {
+                        float highlight_width = annotationBoundingBox.getTopRight().getX() - annotationBoundingBox.getTopLeft().getX();
+                        float highlight_height = annotationBoundingBox.getBottomLeft().getY() - annotationBoundingBox.getTopLeft().getY();
+                        toAdd = new Highlight(toAdd_x, toAdd_y, highlight_width, highlight_height, pageNumber);
+                    }
                 }
             } else {
                 // high coverage but relatively small aspect ratio -- choose [highlight]
@@ -68,6 +76,9 @@ public class BasicClassifier implements IAnnotationIdentifier{
         return toAdd;
     }
 
+
+
+
     @Override
     public Collection<Annotation> identifyAnnotations(BufferedImage fullImage, Collection<AnnotationBoundingBox> points, int pageNumber) {
 
@@ -75,6 +86,8 @@ public class BasicClassifier implements IAnnotationIdentifier{
 
         // 10  - works better in most cases.
         double aspectRatioThreshold = 10;
+
+        double heightRatioThreshold = 0.015;
 
         List<Annotation> classifiedAnnotations = new LinkedList<>();
 
@@ -87,16 +100,15 @@ public class BasicClassifier implements IAnnotationIdentifier{
 
             BufferedImage annotationSubImage = fullImage.getSubimage(topLeftX, topLeftY, annotationWidth, annotationHeight);
 
-
-
             Annotation toAdd = BasicClassifier.identifySingleAnnotation(
                     fullImage,
                     annotationSubImage,
                     annotationBoundingBox,
                     pageNumber,
-                    true,
+                    false,
                     coverageThreshold,
-                    aspectRatioThreshold);
+                    aspectRatioThreshold,
+                    heightRatioThreshold);
 
             classifiedAnnotations.add(toAdd);
 
@@ -143,6 +155,14 @@ public class BasicClassifier implements IAnnotationIdentifier{
 
         return nonTransparentCount/(double)totalNumPixels;
     }
+
+
+
+
+    private static double heightAsFractionOfImageHeight(BufferedImage fullImage, BufferedImage subImage) {
+        return subImage.getHeight()/(double)fullImage.getHeight();
+    }
+
 
     private static int getHeightOfActualAnnotation(BufferedImage subImage) {
         BufferedImage blackNWhite = ImgHelper.computeBlackAndWhite(subImage);
