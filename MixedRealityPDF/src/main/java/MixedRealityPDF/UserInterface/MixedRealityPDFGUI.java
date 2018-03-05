@@ -201,7 +201,7 @@ public class MixedRealityPDFGUI extends Application{
         // Show the original scene and a dialog indicating that processing is complete
         Alert alert = new Alert(Alert.AlertType.INFORMATION, "Processing complete!", ButtonType.OK);
         alert.show();
-        showViewScene(s, 1, 10); //todo number of pages
+        showViewScene(s, 0, 1); //TODO: support showing more than just the first page
 
     }
 
@@ -228,11 +228,11 @@ public class MixedRealityPDFGUI extends Application{
     }
 
     private List<Image> getAnnotations(int page){
-        List<Image> annotations = new ArrayList<>(); // todo ordering
+        List<Image> annotations = new ArrayList<>();
         String path = "Data/intermediates/pages/" + page + "/annotations/";
         File annotationDirectory = new File(path);
         File[] annotationDirectoryListing = annotationDirectory.listFiles();
-        Arrays.sort(annotationDirectoryListing); // Sort into lexicographic (in this case numerical) order //todo multiple digits sorted?
+        Arrays.sort(annotationDirectoryListing); // Sort into lexicographic (in this case numerical) order
         if (annotationDirectoryListing != null){
             for (File f : annotationDirectoryListing){
                 if (f.getName().endsWith(".png")){
@@ -244,6 +244,8 @@ public class MixedRealityPDFGUI extends Application{
         return annotations;
     }
 
+    // Load the classification of each annotation, to display alongside the annotation
+    // Generating the list of classifications hasn't yet been implemented, so this is disabled for now
     private List<String> getAnnotationClassifications(int page){
         // Read the file "classification.txt"
         List<String> output = new ArrayList<>();
@@ -259,7 +261,7 @@ public class MixedRealityPDFGUI extends Application{
 
     private void showViewScene(Stage s, int page, int total_pages){
 
-        int total_annotations = getAnnotationClassifications(page).size();
+        int total_annotations = getAnnotations(page).size();
 
         TabPane tpViewSceneContent = new TabPane();
 
@@ -278,28 +280,28 @@ public class MixedRealityPDFGUI extends Application{
         GridPane originalPane = new GridPane();
         ImageView ivOriginalImage = new ImageView(getIntermediateImage(PipelineStageOutput.ORIGINAL, page));
         ivOriginalImage.setPreserveRatio(true);
-        ivOriginalImage.setFitWidth(350.0); // todo put this in CSS
+        ivOriginalImage.setFitHeight(640.0);
         originalPane.getChildren().add(ivOriginalImage);
 
         // Contents of the Scanned Image tab
         GridPane scannedPane = new GridPane();
         ImageView ivScannedImage = new ImageView(getIntermediateImage(PipelineStageOutput.SCANNED, page));
         ivScannedImage.setPreserveRatio(true);
-        ivScannedImage.setFitWidth(350.0); // todo put this in CSS
+        ivScannedImage.setFitHeight(640.0);
         scannedPane.getChildren().add(ivScannedImage);
 
         // Contents of the AlignedImage tab
         GridPane alignedPane = new GridPane();
         ImageView ivAlignedImage = new ImageView(getIntermediateImage(PipelineStageOutput.ALIGNED, page));
         ivAlignedImage.setPreserveRatio(true);
-        ivAlignedImage.setFitWidth(350.0); // todo put this in CSS
+        ivAlignedImage.setFitHeight(640.0);
         alignedPane.getChildren().add(ivAlignedImage);
 
         // Contents of the extraction tab
         GridPane extractedPane = new GridPane();
         ImageView ivExtractedImage = new ImageView(getIntermediateImage(PipelineStageOutput.EXTRACTED, page));
         ivExtractedImage.setPreserveRatio(true);
-        ivExtractedImage.setFitWidth(350.0); // todo put this in CSS
+        ivExtractedImage.setFitHeight(640.0);
         extractedPane.getChildren().add(ivExtractedImage);
 
 
@@ -312,12 +314,12 @@ public class MixedRealityPDFGUI extends Application{
         GridPane segmentationContentPane = new GridPane();
         ImageView ivAnnotation = new ImageView(getAnnotations(page).get(adsm.getCurrent()));
         ivAnnotation.setPreserveRatio(true);
-        ivAnnotation.setFitWidth(200.0); //todo set max height / width, as shape may be variable
+        ivAnnotation.setFitWidth(300.0);
 
-        Label lblClassification = new Label("Classification: " + getAnnotationClassifications(page).get(adsm.getCurrent()));
+        //Label lblClassification = new Label("Classification: " + getAnnotationClassifications(page).get(adsm.getCurrent()));
         segmentationContentPane.getChildren().add(ivAnnotation);
-        segmentationContentPane.getChildren().add(lblClassification);
-        segmentationContentPane.setRowIndex(lblClassification, 2);
+        //segmentationContentPane.getChildren().add(lblClassification);
+        //segmentationContentPane.setRowIndex(lblClassification, 2);
 
         segmentationPane.setLeft(segmentationAnnotationTogglePrev);
         segmentationPane.setRight(segmentationAnnotationToggleNext);
@@ -331,7 +333,7 @@ public class MixedRealityPDFGUI extends Application{
             @Override
             public void handle(ActionEvent actionEvent) {
                 ivAnnotation.setImage(getAnnotations(page).get(adsm.getNext()));
-                lblClassification.setText("Classification: " + getAnnotationClassifications(page).get(adsm.getCurrent()));
+                //lblClassification.setText("Classification: " + getAnnotationClassifications(page).get(adsm.getCurrent()));
             }
         });
 
@@ -339,18 +341,9 @@ public class MixedRealityPDFGUI extends Application{
             @Override
             public void handle(ActionEvent actionEvent) {
                 ivAnnotation.setImage(getAnnotations(page).get(adsm.getPrev()));
-                lblClassification.setText("Classification: " + getAnnotationClassifications(page).get(adsm.getCurrent()));
+                //lblClassification.setText("Classification: " + getAnnotationClassifications(page).get(adsm.getCurrent()));
             }
         });
-
-        // Contents of the output tab //todo new style
-        GridPane outputPane = new GridPane();
-        Image imgOutput = new Image(new File("Data/intermediates/page1_output.png").toURI().toString());
-        ImageView ivOutputImage = new ImageView(imgOutput);
-        ivOutputImage.setPreserveRatio(true);
-        ivOutputImage.setFitWidth(350.0); // todo put this in CSS
-        outputPane.getChildren().add(ivOutputImage);
-
 
         // Define the tabs and their contents
 
@@ -387,10 +380,10 @@ public class MixedRealityPDFGUI extends Application{
 
         // The view consists of a BorderPane which contains a TabPane for content and a BorderPane for the page controls
         BorderPane bpViewScene = new BorderPane();
-        bpViewScene.setBottom(pageToggleControlsPane);
+        // bpViewScene.setBottom(pageToggleControlsPane); // TODO: add support for viewing more than just Page 1, and re-enable these controls
         bpViewScene.setCenter(tpViewSceneContent);
 
-        Scene viewScene = new Scene(bpViewScene, 800, 600); //TODO check size
+        Scene viewScene = new Scene(bpViewScene, 900, 700);
         s.setScene(viewScene);
         s.show();
     }
@@ -398,9 +391,7 @@ public class MixedRealityPDFGUI extends Application{
 
     @Override
     public void start(Stage primaryStage) {
-        showFileSelectionScene(primaryStage); //todo reenable
-        // todo: clear intermediate output when restarting e.g. in showFileSelectionScene
-        //showViewScene(primaryStage, 1,10);
+        showFileSelectionScene(primaryStage);
     }
 
     // Inner class to manage state in the Annotation Display tab in ViewScene

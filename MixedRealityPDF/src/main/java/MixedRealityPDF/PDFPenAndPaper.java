@@ -20,6 +20,7 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -112,12 +113,39 @@ public class PDFPenAndPaper {
     Collection<AnnotationBoundingBox> clusterPoints;
     clusterPoints = clusterDetector.cluster(scan);
     annotations = annId.identifyAnnotations(scan, clusterPoints, page);
+
+    // Produce images of all the annotations
+    IAnnotationIdentifier allTextAnnId = new EverythingIsText();
+    Collection<Annotation> allAnnotationsAsText = allTextAnnId.identifyAnnotations(scan, clusterPoints, page);
+    ArrayList<BufferedImage> allAnnotationsImages = new ArrayList<>();
+    for (Annotation a : allAnnotationsAsText){
+      BufferedImage i = ((Text) a).getImage();
+      allAnnotationsImages.add(i);
+    }
+    // Save these images
+    for (int i = 0; i < allAnnotationsImages.size(); i++){
+      try {
+        File out = new File("Data/intermediates/pages/" + page + "/annotations/" + i + ".png");
+        out.getParentFile().mkdirs();
+        out.createNewFile();
+        ImageIO.write(allAnnotationsImages.get(i), "png", out);
+      }
+      catch(IOException e){
+        e.printStackTrace();
+      }
+    }
+
   }
 
   private void init(PDDocument original, PDDocument scan) throws  IOException{
     assert(original.getNumberOfPages() == scan.getNumberOfPages());
     PDFRenderer originalRenderer = new PDFRenderer(original);
     PDFRenderer scanRenderer = new PDFRenderer(scan);
+
+    // Clear the "intermediates" directory, used to show the process at the end
+    // We need to make sure results from previous runs aren't in there
+    File intermediates = new File("Data/intermediates");
+    deleteDir(intermediates);
 
     for(int i=0; i<original.getNumberOfPages(); i++){
       BufferedImage pdfPage;
@@ -192,5 +220,16 @@ public class PDFPenAndPaper {
   public static void setDefaultAnnotationIdentifier(
           IAnnotationIdentifier defaultAnnotationIdentifier) {
     PDFPenAndPaper.annId = defaultAnnotationIdentifier;
+  }
+
+  // Utility method to recursively delete the contents of a directory
+  private void deleteDir(File file) {
+    File[] contents = file.listFiles();
+    if (contents != null) {
+      for (File f : contents) {
+        deleteDir(f);
+      }
+    }
+    file.delete();
   }
 }
